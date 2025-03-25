@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
- @AllArgsConstructor
+@AllArgsConstructor
 public class UsuarioServicio implements UserDetailsService {
 
     /***SEGUIR CÓDIGO DE https://github.com/ali-bouali/spring-boot-3-jwt-security**/
