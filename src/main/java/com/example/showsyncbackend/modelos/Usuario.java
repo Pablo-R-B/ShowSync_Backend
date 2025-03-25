@@ -1,51 +1,45 @@
 package com.example.showsyncbackend.modelos;
 
+import com.example.showsyncbackend.enumerados.Rol;
+import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-public class Usuario implements UserDetails {
+@Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name="usuarios", schema = "showsync", catalog = "postgres")
+public class Usuario  {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
 
+    @Column(name = "nombre_usuario", nullable = false)
+    private String nombreUsuario;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("USUARIO"));
-        //CAMBIAR USER POR THIS.ROL.NAME() CUANDO SE CREE EL ENUM ROL Y SE INCLUYA EL ATRIBUTO ROL EN USUARIO
-    }
+    @Column(name = "email", nullable = false)
+    private String email;
 
-    /**BORRAR GETPASSWORD Y GETUSERNAME CUANDO ESTÉN INCLUIDOS LOS ATRIBUTOS EN LA CLASE**/
-    @Override
-    public String getPassword() {
-        return "";
-    }
+    @Column(name = "contraseña", nullable = false)
+    private String contrasenya;
 
-    @Override
-    public String getUsername() {
-        return "";
-    }
-    /**###########################################**/
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private LocalDate fechaNacimiento;
 
+    @Column(name="rol", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private Rol rol;
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
+    @Column(name = "fecha_registro", nullable = false)
+    private LocalDate fechaRegistro;
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
 }
