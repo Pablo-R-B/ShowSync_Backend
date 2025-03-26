@@ -39,4 +39,7 @@ public class Artistas {
     @JoinTable(name = "artistas_generos",joinColumns = {@JoinColumn(name="artista_id", nullable = false)},
     inverseJoinColumns = {@JoinColumn(name = "evento_id", nullable = false)})
     private Set<GenerosMusicales> generosMusicales = new HashSet<>(0);
+
+    @ManyToMany(mappedBy = "artistasAsignados")
+    private Set<Eventos> eventos = new HashSet<>();
 }
