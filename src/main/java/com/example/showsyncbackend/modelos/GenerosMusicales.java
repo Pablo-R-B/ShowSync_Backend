@@ -22,9 +22,9 @@ public class GenerosMusicales {
     @Column(name = "nombre", nullable = false)
     private String nombre;
 
-    @ManyToMany(mappedBy = "generos_musicales")
+    @ManyToMany(mappedBy = "generosMusicales")
     private Set<Artistas> artistas = new HashSet<>();
 
-    @ManyToMany(mappedBy = "generos_musicales")
+    @ManyToMany(mappedBy = "generosMusicales")
     private Set<Eventos> eventos = new HashSet<>();
 }
