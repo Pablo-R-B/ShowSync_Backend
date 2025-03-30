@@ -12,23 +12,24 @@ import java.io.IOException;
 
 @Component
 @AllArgsConstructor
-public class JWTAuthFilter extends OncePerRequestFilter {
+//extends OncePerRequestFilter
+public class JWTAuthFilter  {
     /***SEGUIR ARCHIVOS DE https://github.com/ali-bouali/spring-boot-3-jwt-security**/
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-
-        }
-
-        jwt = authHeader.substring(7);
-
-
-    }
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request,
+//                                    HttpServletResponse response,
+//                                    FilterChain filterChain) throws ServletException, IOException {
+//        final String authHeader = request.getHeader("Authorization");
+//        final String jwt;
+//
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//
+//        }
+//
+//        jwt = authHeader.substring(7);
+//
+//
+//    }
 }
