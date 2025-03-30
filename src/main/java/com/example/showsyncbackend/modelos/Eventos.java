@@ -1,13 +1,11 @@
 package com.example.showsyncbackend.modelos;
 
-
 import com.example.showsyncbackend.enumerados.Estado;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -31,21 +29,21 @@ public class Eventos {
     @Column(name="nombre_evento")
     private String nombre_evento;
 
-    @Column(name = "descripcion ")
+    @Column(name = "descripcion")
     private String descripcion;
 
-    @Column(name = "fecha_evento ", unique = true)
+    @Column(name = "fecha_evento", unique = true)
     private LocalDate fecha_evento;
 
     @ManyToOne
     @JoinColumn(name="sala_id", nullable = false, referencedColumnName = "id", unique = true)
     private Salas sala_id;
 
-    @Column(name = "estado ")
+    @Column(name = "estado")
     @Enumerated(EnumType.STRING)
     private Estado estado;
 
-    @Column(name = "imagen_evento ")
+    @Column(name = "imagen_evento")
     private String imagen_evento;
 
     @ManyToMany
