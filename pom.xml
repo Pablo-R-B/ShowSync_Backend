@@ -26,10 +26,10 @@
 		<tag/>
 		<url/>
 	</scm>
-	<properties>
-		<java.version>21</java.version>
-		<spring-security.version>6.4.4</spring-security.version>
-	</properties>
+		<properties>
+			<java.version>21</java.version>
+			<spring-security.version>6.4.4</spring-security.version>
+		</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

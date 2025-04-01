@@ -32,7 +32,8 @@ public class ArtistasServicio {
         for (Object[] fila : resultados) {
             String id = String.valueOf(fila[0]);
             String nombreArtista = (String) fila[1];
-            String nombreGenero = (String) fila[2];
+            String imagen = (String) fila[2];
+            String nombreGenero = (String) fila[3];
 
             // Si el artista ya está en el mapa, agregamos el nuevo género a su lista
             if (!artistasMap.containsKey(id)) {
@@ -40,6 +41,7 @@ public class ArtistasServicio {
                 artista.put("id", id);
                 artista.put("nombreArtista", nombreArtista);
                 artista.put("nombreGenero", new ArrayList<String>());
+                artista.put("imagen", imagen);
                 artistasMap.put(id, artista);
             }
 

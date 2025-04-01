@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ArtistasRepositorio extends JpaRepository<Artistas, Integer> {
 
-    @Query("SELECT a.id, a.nombreArtista, g.nombre FROM Artistas a JOIN a.generosMusicales g")
+    @Query("SELECT a.id, a.nombreArtista, a.imagenPerfil,g.nombre FROM Artistas a JOIN a.generosMusicales g")
     List<Object[]> findAllWithGeneros();
 
 
