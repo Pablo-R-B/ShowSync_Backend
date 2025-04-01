@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -24,7 +25,7 @@ public class ArtistasServicio {
         return artistasRepositorio.findAll();
     }
 
-    @Transactional(readOnly = true)
+
     public List<Map<String, Object>> obtenerArtistasConGeneros() {
         List<Object[]> resultados = artistasRepositorio.findAllWithGeneros();
         Map<String, Map<String, Object>> artistasMap = new HashMap<>();
@@ -52,32 +53,30 @@ public class ArtistasServicio {
         return new ArrayList<>(artistasMap.values());
     }
 
-//    public List<ArtistasCatalogoDTO> obtenerArtistasCatalogo() {
-//        try {
-//            List<Object[]> resultados = artistasRepositorio.findAllWithGeneros();
-//            List<ArtistasCatalogoDTO> artistasCatalogoDTOs = new ArrayList<>();
-//
-//            for (Object[] fila : resultados) {
-//                if (fila.length < 4) { // Asegurar que el array tiene suficientes elementos
-//                    System.err.println("⚠️ Fila con datos incompletos: " + Arrays.toString(fila));
-//                    continue;
-//                }
-//
-//                ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
-//                dto.setNombre((String) fila[1]); // nombre_artista
-//                dto.setImagen((String) fila[2]); // imagen_perfil
-//                dto.setGeneros(Collections.singletonList((String) fila[3])); // nombre del género
-//
-//                artistasCatalogoDTOs.add(dto);
-//            }
-//
-//            return artistasCatalogoDTOs;
-//        } catch (Exception e) {
-//            System.err.println("❌ Error general al obtener artistas con géneros");
-//            e.printStackTrace(); // imprime el error en consola
-//            throw new RuntimeException("Error al procesar artistas", e); // relanza para que el controlador lo capture
-//        }
-//    }
+    public List<ArtistasCatalogoDTO> artistasPorGenero(String genero) {
+
+        List<Artistas> artistas = artistasRepositorio.findArtistasByGenero(genero);
+        return artistas.stream()
+                .map(this::convertirAArtistasCatalogoDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ArtistasCatalogoDTO convertirAArtistasCatalogoDTO(Artistas artista) {
+        ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
+        dto.setNombre(artista.getNombreArtista());
+        dto.setImagen(artista.getImagenPerfil());
+
+        List<String> generos = artista.getGenerosMusicales()
+                .stream()
+                .map(GenerosMusicales::getNombre)
+                .collect(Collectors.toList());
+        dto.setGeneros(generos);
+        return dto;
+
+    }
+
+
+
 
 
 }

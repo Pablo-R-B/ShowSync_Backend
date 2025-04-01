@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,6 +34,18 @@ public class ArtistasControlador {
                     .body("Error al obtener el catálogo de artistas. Detalles: " + e.getMessage());
         }
     }
+
+    @GetMapping("/artistas-por-genero")
+    public ResponseEntity<List<ArtistasCatalogoDTO>> artistasPorGenero(@RequestParam("genero") String genero) {
+        List<ArtistasCatalogoDTO> artistasFiltrados = artistasServicio.artistasPorGenero(genero);
+        if(artistasFiltrados.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(artistasFiltrados);
+
+    }
+
+
 
     @GetMapping("/todos")
     public ResponseEntity<?> obtenerArtistas() {
