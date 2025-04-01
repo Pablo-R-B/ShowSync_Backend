@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -38,9 +39,9 @@ public class Artistas {
     private String imagenPerfil;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "artistas_generos",joinColumns = {@JoinColumn(name="artista_id", nullable = false)},
-    inverseJoinColumns = {@JoinColumn(name = "genero_id", nullable = false)})
-    private Set<GenerosMusicales> generosMusicales = new HashSet<>(0);
+    @JoinTable(name = "artistas_generos",joinColumns = {@JoinColumn(name="artista_id", referencedColumnName = "id",nullable = false)},
+    inverseJoinColumns = {@JoinColumn(name = "genero_id", referencedColumnName = "id",nullable = false)})
+    private Set<GenerosMusicales> generosMusicales = Collections.unmodifiableSet(new HashSet<>(0));
 
     @ManyToMany(mappedBy = "artistasAsignados")
     @JsonIgnore
