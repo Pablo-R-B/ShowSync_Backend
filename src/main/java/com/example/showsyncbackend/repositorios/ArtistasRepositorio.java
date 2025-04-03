@@ -15,11 +15,11 @@ public interface ArtistasRepositorio extends JpaRepository<Artistas, Integer> {
     @Query("SELECT a.id, a.nombreArtista, a.imagenPerfil,g.nombre FROM Artistas a JOIN a.generosMusicales g")
     List<Object[]> findAllWithGeneros();
 
-//    @Query("select a.nombreArtista, a.imagenPerfil, g.nombre from Artistas a join a.generosMusicales g where g.nombre = :genero")
-//    List<Artistas[]> findArtistasByGenero(@Param("genero") String genero);
-
     @Query("SELECT a.id, a.nombreArtista, a.imagenPerfil, g.nombre FROM Artistas a JOIN a.generosMusicales g WHERE g.nombre = :genero")
     List<Object[]> findArtistasByGenero(@Param("genero") String genero);
+
+    @Query("SELECT a.id, a.nombreArtista, a.imagenPerfil, g.nombre FROM Artistas a JOIN a.generosMusicales g WHERE LOWER(a.nombreArtista) LIKE LOWER(CONCAT('%', :termino, '%'))")
+    List<Object[]> findArtistasByNombre(@Param("termino") String termino);
 
 
 

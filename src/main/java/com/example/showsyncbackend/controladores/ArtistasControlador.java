@@ -45,6 +45,17 @@ public class ArtistasControlador {
 
     }
 
+    @GetMapping("/buscar")
+
+    public ResponseEntity<List<ArtistasCatalogoDTO>> buscarArtistasPorNombre(
+            @RequestParam("termino") String termino) {
+        List<ArtistasCatalogoDTO> artistasFiltrados = artistasServicio.buscarArtistasPorNombre(termino);
+        return ResponseEntity.ok(artistasFiltrados);
+
+        // ... misma lógica pero con DTO
+
+    }
+
 
 
     @GetMapping("/todos")

@@ -79,22 +79,35 @@ public class ArtistasServicio {
         return new ArrayList<>(artistasMap.values());
     }
 
-//    private ArtistasCatalogoDTO convertirAArtistasCatalogoDTO(Artistas artista) {
-//        ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
-//        dto.setNombre(artista.getNombreArtista());
-//        dto.setImagen(artista.getImagenPerfil());
-//        List<String> generos = artista.getGenerosMusicales()
-//                .stream()
-//                .map(GenerosMusicales::getNombre)
-//                .collect(Collectors.toList());
-//        System.out.println("Artista: " + artista.getNombreArtista() + ", Géneros: " + generos);
-//        dto.setGeneros(generos);
-//        return dto;
-//
-//    }
+    public List<ArtistasCatalogoDTO> buscarArtistasPorNombre(String termino) {
+        // Obtener la lista de resultados de la consulta
+        List<Object[]> resultados = artistasRepositorio.findArtistasByNombre(termino);
+        Map<String, ArtistasCatalogoDTO> artistaMap = new HashMap<>();
 
+        for (Object[] resultado : resultados) {
+            String nombreArtista = (String) resultado[1]; // Nombre del artista
+            String imagenPerfil = (String) resultado[2]; // Imagen de perfil
+            String nombreGenero = (String) resultado[3]; // Nombre del género
 
+            // Si el artista ya está en el mapa, solo agregamos el género
+            if (artistaMap.containsKey(nombreArtista)) {
+                ArtistasCatalogoDTO dto = artistaMap.get(nombreArtista);
+                dto.getGeneros().add(nombreGenero); // Agregar el género a la lista existente
+            } else {
+                // Si no está, creamos un nuevo DTO
+                List<String> generos = new ArrayList<>();
+                generos.add(nombreGenero); // Agregar el género
+                ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
+                dto.setNombre(nombreArtista);
+                dto.setImagen(imagenPerfil);
+                dto.setGeneros(generos);
+                artistaMap.put(nombreArtista, dto);
+            }
 
+        }
+        return new ArrayList<>(artistaMap.values()); // Retornar la lista de DTOs
+
+    }
 
 
 }
