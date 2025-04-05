@@ -57,7 +57,6 @@ public class ArtistasControlador {
     }
 
 
-
     @GetMapping("/todos")
     public ResponseEntity<?> obtenerArtistas() {
         List<Artistas> artistas = artistasServicio.findAll();
