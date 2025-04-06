@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.seguridad.config;
 
+import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.seguridad.config.dto.LoginRequestDTO;
@@ -16,10 +17,13 @@ public class AuthenticationControlador {
 
     private final AuthenticationService authenticationService;
 
-    public AuthenticationControlador(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
+    private final UsuarioRepositorio usuarioRepositorio;
 
+
+    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio) {
+        this.authenticationService = authenticationService;
+        this.usuarioRepositorio = usuarioRepositorio;
+    }
 
     @PostMapping("/registro")
     public ResponseEntity<String> registrarUsuario(@RequestBody UsuarioRegistroDTO registroDTO) {
@@ -32,16 +36,30 @@ public class AuthenticationControlador {
             return ResponseEntity.badRequest().body("El email debe ser válido.");
         }
 
-        if (registroDTO.getContrasenya() == null || registroDTO.getContrasenya().length() < 6 || !registroDTO.getContrasenya().matches(".*[A-Z].*") || !registroDTO.getContrasenya().matches(".*[0-9].*") || !registroDTO.getContrasenya().matches(".*[!@#$%^&*()].*")) {
+        if (registroDTO.getContrasenya() == null || registroDTO.getContrasenya().length() < 6 ||
+                !registroDTO.getContrasenya().matches(".*[A-Z].*") ||
+                !registroDTO.getContrasenya().matches(".*[0-9].*") ||
+                !registroDTO.getContrasenya().matches(".*[!@#$%^&*()].*")) {
             return ResponseEntity.badRequest().body("La contraseña debe tener al menos 6 caracteres, incluir al menos una mayúscula, un número y un carácter especial.");
         }
 
-        if (registroDTO.getFechaNacimiento() == null || registroDTO.getFechaNacimiento().isAfter(LocalDate.now()) || registroDTO.getFechaNacimiento().isAfter(LocalDate.now().minusYears(18))) {
+        if (registroDTO.getFechaNacimiento() == null || registroDTO.getFechaNacimiento().isAfter(LocalDate.now()) ||
+                registroDTO.getFechaNacimiento().isAfter(LocalDate.now().minusYears(18))) {
             return ResponseEntity.badRequest().body("El usuario debe tener al menos 18 años.");
         }
 
         if (registroDTO.getRol() == null) {
             return ResponseEntity.badRequest().body("El rol no puede estar vacío.");
+        }
+
+        // ✅ Verificar si el email ya existe en la base de datos
+        if (usuarioRepositorio.findByEmail(registroDTO.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("El email ya está registrado. Prueba con otro.");
+        }
+
+        // ✅ Verificar si el nombre de usuario ya existe en la base de datos
+        if (usuarioRepositorio.findByNombreUsuario(registroDTO.getNombreUsuario()).isPresent()) {
+            return ResponseEntity.badRequest().body("El nombre de usuario ya está en uso. Prueba con otro.");
         }
 
         // Convertir el DTO a una entidad Usuario
@@ -54,11 +72,12 @@ public class AuthenticationControlador {
                 .fechaRegistro(LocalDate.now())
                 .build();
 
-        // Llamar al servicio para guardar el usuario
+        // Guardar el usuario en la base de datos
         authenticationService.guardarUsuario(nuevoUsuario);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente.");
     }
+
 
     // Método para cifrar la contraseña
     private String cifrarContrasenya(String contrasenya) {
