@@ -1,8 +1,8 @@
-package com.example.showsyncbackend.controladores;
+package com.example.showsyncbackend.seguridad.config;
 
 import com.example.showsyncbackend.dtos.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
-import com.example.showsyncbackend.servicios.UsuarioServicio;
+import com.example.showsyncbackend.seguridad.config.dto.LoginRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,14 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/usuarios")
-public class UsuarioControlador {
+@RequestMapping("/auth")
+public class AuthenticationControlador {
 
-    private final UsuarioServicio usuarioServicio;
+    private final AuthenticationService authenticationService;
 
-    public UsuarioControlador(UsuarioServicio usuarioServicio) {
-        this.usuarioServicio = usuarioServicio;
+    public AuthenticationControlador(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
+
 
     @PostMapping("/registro")
     public ResponseEntity<String> registrarUsuario(@RequestBody UsuarioRegistroDTO registroDTO) {
@@ -36,9 +37,19 @@ public class UsuarioControlador {
                 .build();
 
         // Llamar al servicio para guardar el usuario
-        usuarioServicio.guardarUsuario(nuevoUsuario);
+        authenticationService.guardarUsuario(nuevoUsuario);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente.");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            String token = authenticationService.autenticarUsuario(loginRequest.getEmail(), loginRequest.getContrasenya());
+            return ResponseEntity.ok(token); // Enviar el token JWT como respuesta
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Credencialeswww incorrectas");
+        }
     }
 
 

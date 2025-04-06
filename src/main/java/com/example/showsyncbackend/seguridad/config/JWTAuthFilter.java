@@ -1,6 +1,5 @@
 package com.example.showsyncbackend.seguridad.config;
 
-import com.example.showsyncbackend.servicios.UsuarioServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JWTAuthFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;
-    private final UsuarioServicio usuarioServicio;
+    private final AuthenticationService authenticationService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -45,7 +44,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Si el token es válido y no hay una autenticación actual en el contexto
-            var userDetails = usuarioServicio.loadUserByUsername(username);
+            var userDetails = authenticationService.loadUserByUsername(username);
             if (jwtService.validateToken(jwt, userDetails)) {
                 // Si el token es válido, autenticar al usuario
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

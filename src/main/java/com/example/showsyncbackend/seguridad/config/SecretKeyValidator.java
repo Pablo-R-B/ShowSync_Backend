@@ -12,8 +12,10 @@ public class SecretKeyValidator {
     }
 
     public static void main(String[] args) {
-        String base64Key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3VhcmlvQGV4YW1wbGUuY29tIiwiaWF0IjoxNjg5MTQ2NjAwLCJleHBpcmF0aW9uIjoxNjg5MjQwNjAwfQ.NFSem2kkj9UFR72zEfe7lV-UO4DgeUE0HhqxBxl6eU4";
+        String base64Key = "Y2FuZXJhdG9ya2V5Y29tYXBsaW9uZXltYXRjaGVkZ2Zvc3RocGxhd2dqZnZhbW9uY2Fk";
         validate(base64Key);
     }
 }
+
+
 

@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)  // Deshabilita CSRF
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Usa autenticación sin estado
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuarios/registro", "/test").permitAll()  // Permite acceso a estas rutas sin autenticación
+                        .requestMatchers("/auth/**").permitAll()  // Permite acceso a estas rutas sin autenticación
                         .anyRequest().authenticated()  // Todas las demás rutas requieren autenticación
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);  // Añade el filtro JWT
