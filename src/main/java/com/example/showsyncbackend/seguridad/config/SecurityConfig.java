@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()  // Permite acceso a estas rutas sin autenticación
                         .requestMatchers(HttpMethod.GET,"/verificar-email").permitAll()
+                        .requestMatchers("/**").permitAll()  // Permite acceso a los recursos estáticos (toda la carpeta static)
                         .anyRequest().authenticated()  // Todas las demás rutas requieren autenticación
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);  // Añade el filtro JWT
