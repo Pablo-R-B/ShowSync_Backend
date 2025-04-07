@@ -1,9 +1,10 @@
-package com.example.showsyncbackend.seguridad.config;
+package com.example.showsyncbackend.seguridad.config.Controllers;
 
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.seguridad.config.dto.LoginRequestDTO;
+import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

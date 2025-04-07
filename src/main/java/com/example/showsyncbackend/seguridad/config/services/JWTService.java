@@ -1,4 +1,4 @@
-package com.example.showsyncbackend.seguridad.config;
+package com.example.showsyncbackend.seguridad.config.services;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.jsonwebtoken.Claims;
@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;

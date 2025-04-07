@@ -1,5 +1,7 @@
 package com.example.showsyncbackend.seguridad.config;
 
+import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
+import com.example.showsyncbackend.seguridad.config.services.JWTService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
