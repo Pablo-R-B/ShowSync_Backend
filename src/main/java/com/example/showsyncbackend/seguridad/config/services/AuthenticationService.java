@@ -3,6 +3,7 @@ package com.example.showsyncbackend.seguridad.config.services;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +19,8 @@ public class AuthenticationService implements UserDetailsService {
     private final UsuarioRepositorio usuarioRepositorio;
     private final JWTService jwtService;
     private final EmailService emailService;
+
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -55,8 +58,11 @@ public class AuthenticationService implements UserDetailsService {
         if (passwordEncoder.matches(contrasenya, usuario.getContrasenya())) {
             return jwtService.generateToken(usuario);
         } else {
-            throw new RuntimeException("Credenciales incorrectas");
+            throw new RuntimeException("Credenciales incorrectas. AuthService");
+
         }
+
+
     }
 
     // Método para verificar el email del usuario
