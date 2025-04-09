@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -30,8 +31,8 @@ public class Usuario implements UserDetails {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "contraseña", nullable = false)
-    private String contrasenya;
+    @Column(name = "contrasena", nullable = false)
+    private String contrasena;
 
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
@@ -41,7 +42,7 @@ public class Usuario implements UserDetails {
     private Rol rol;
 
     @Column(name = "fecha_registro", nullable = false)
-    private LocalDate fechaRegistro;
+    private LocalDateTime fechaRegistro;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,7 +53,7 @@ public class Usuario implements UserDetails {
     @Override
     public String getPassword() {
         // Devolvemos la contraseña del usuario
-        return this.contrasenya;
+        return this.contrasena;
     }
 
     @Override

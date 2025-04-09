@@ -1,31 +1,20 @@
 package com.example.showsyncbackend.seguridad.config;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.security.Key;
 
-import static javax.crypto.Cipher.SECRET_KEY;
 
 @Configuration
 public class SecurityConfig {
 
     private final JWTAuthFilter jwtAuthFilter;
-
-
-
 
     public SecurityConfig(JWTAuthFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -44,11 +33,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
-
-
-
 
 
 }
