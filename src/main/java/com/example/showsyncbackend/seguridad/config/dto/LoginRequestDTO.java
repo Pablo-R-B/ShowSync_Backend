@@ -1,9 +1,13 @@
 package com.example.showsyncbackend.seguridad.config.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
 public class LoginRequestDTO {
     private String email;
-    private String contrasenya;
+    private String contrasena;
+
+
 }

@@ -3,20 +3,23 @@ package com.example.showsyncbackend.modelos;
 import com.example.showsyncbackend.enumerados.Rol;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "usuarios", schema = "showsync", catalog = "postgres")
+@EntityListeners(AuditingEntityListener.class) // Solo para auditoría
+@Table(name="usuarios", schema = "showsync", catalog = "postgres")
 public class Usuario implements UserDetails {
 
     @Id
@@ -30,8 +33,8 @@ public class Usuario implements UserDetails {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "contraseña", nullable = false)
-    private String contrasenya;
+    @Column(name = "contrasena", nullable = false)
+    private String contrasena;
 
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
@@ -41,6 +44,7 @@ public class Usuario implements UserDetails {
     private Rol rol;
 
     @Column(name = "fecha_registro", nullable = false)
+    private LocalDateTime fechaRegistro;
     private LocalDate fechaRegistro = LocalDate.now();
 
     @Column(name = "verificado", nullable = false)
@@ -51,31 +55,38 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Devolvemos el rol del usuario como una autoridad
         return Collections.singletonList(new SimpleGrantedAuthority(rol.name()));
     }
 
     @Override
     public String getPassword() {
-        return this.contrasenya;
+        // Devolvemos la contraseña del usuario
+        return this.contrasena;
+
     }
 
     @Override
     public String getUsername() {
+        // Devolvemos el email como el nombre de usuario
         return this.email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
+        // Retorna true si la cuenta no ha expirado
         return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
+        // Retorna true si la cuenta no está bloqueada
         return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
+        // Retorna true si las credenciales no han expirado
         return true;
     }
 
