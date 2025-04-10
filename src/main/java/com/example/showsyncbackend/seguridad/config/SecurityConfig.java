@@ -1,57 +1,53 @@
 package com.example.showsyncbackend.seguridad.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.security.Key;
-
-import static javax.crypto.Cipher.SECRET_KEY;
-
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
+    private final AuthenticationProvider authenticationProvider;
     private final JWTAuthFilter jwtAuthFilter;
 
-
-
-
-    public SecurityConfig(JWTAuthFilter jwtAuthFilter) {
+    public SecurityConfig(AuthenticationProvider authenticationProvider,
+                          JWTAuthFilter jwtAuthFilter) {
+        this.authenticationProvider = authenticationProvider;
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)  // Deshabilita CSRF
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Usa autenticación sin estado
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // Permite acceso a estas rutas sin autenticación
-                        .requestMatchers(HttpMethod.GET,"/verificar-email").permitAll()
-                        .requestMatchers("/**").permitAll()  // Permite acceso a los recursos estáticos (toda la carpeta static)
-                        .anyRequest().authenticated()  // Todas las demás rutas requieren autenticación
+                        // Endpoints públicos
+                        .requestMatchers(
+                                "/auth/**",
+                                "/verificar-email",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/webjars/**",
+                                "/static/**"
+                        ).permitAll()
+
+                        // Todos los demás endpoints requieren autenticación
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);  // Añade el filtro JWT
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-
-
-
-
-
-
 }

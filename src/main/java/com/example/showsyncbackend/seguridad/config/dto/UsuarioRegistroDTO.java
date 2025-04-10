@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 public class UsuarioRegistroDTO {
     private String nombreUsuario;
     private String email;
-    private String contrasenya;
+    private String contrasena;
     private LocalDate fechaNacimiento;
     private Rol rol;
 
     // Métodos de validación manual
     public boolean esValido() {
-        return esNombreUsuarioValido() && esEmailValido() && esContrasenyaValida() && esFechaNacimientoValida() && esRolValido();
+        return esNombreUsuarioValido() && esEmailValido() && esContrasenaValida() && esFechaNacimientoValida() && esRolValido();
     }
 
     private boolean esNombreUsuarioValido() {
@@ -38,8 +38,8 @@ public class UsuarioRegistroDTO {
         return matcher.matches();
     }
 
-    private boolean esContrasenyaValida() {
-        if (contrasenya == null || contrasenya.length() < 8) { // Contraseña mínima de 8 caracteres
+    private boolean esContrasenaValida() {
+        if (contrasena == null || contrasena.length() < 8) { // Contraseña mínima de 8 caracteres
             return false;
         }
         // Validar que tenga al menos un número, una letra mayúscula y un carácter especial
@@ -47,7 +47,7 @@ public class UsuarioRegistroDTO {
         boolean tieneMayuscula = false;
         boolean tieneCaracterEspecial = false;
 
-        for (char c : contrasenya.toCharArray()) {
+        for (char c : contrasena.toCharArray()) {
             if (Character.isDigit(c)) tieneNumero = true;
             if (Character.isUpperCase(c)) tieneMayuscula = true;
             if (!Character.isLetterOrDigit(c)) tieneCaracterEspecial = true;
