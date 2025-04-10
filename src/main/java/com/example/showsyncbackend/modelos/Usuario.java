@@ -3,6 +3,7 @@ package com.example.showsyncbackend.modelos;
 import com.example.showsyncbackend.enumerados.Rol;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,7 @@ import java.util.Collections;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class) // Solo para auditoría
 @Table(name="usuarios", schema = "showsync", catalog = "postgres")
 public class Usuario implements UserDetails {
 

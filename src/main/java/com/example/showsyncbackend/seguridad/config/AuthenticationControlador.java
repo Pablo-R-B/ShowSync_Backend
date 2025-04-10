@@ -67,7 +67,7 @@ public class AuthenticationControlador {
         Usuario nuevoUsuario = Usuario.builder()
                 .nombreUsuario(registroDTO.getNombreUsuario())
                 .email(registroDTO.getEmail())
-                .contrasena(cifrarContrasena(registroDTO.getContrasena()))  // Cifrar la contraseña
+                .contrasena((registroDTO.getContrasena()))
                 .fechaNacimiento(registroDTO.getFechaNacimiento())
                 .rol(registroDTO.getRol())
                 .fechaRegistro(LocalDateTime.now())
@@ -80,11 +80,11 @@ public class AuthenticationControlador {
     }
 
 
-    // Método para cifrar la contraseña
-    private String cifrarContrasena(String contrasena) {
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.encode(contrasena);
-    }
+//    // Método para cifrar la contraseña
+//    private String cifrarContrasena(String contrasena) {
+//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+//        return passwordEncoder.encode(contrasena);
+//    }
 
 
     @PostMapping("/login")
