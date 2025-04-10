@@ -81,12 +81,6 @@ public class AuthenticationControlador {
     }
 
 
-//    // Método para cifrar la contraseña
-//    private String cifrarContrasena(String contrasena) {
-//        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//        return passwordEncoder.encode(contrasena);
-//    }
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO) {

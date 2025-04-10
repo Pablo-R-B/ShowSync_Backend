@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,8 +45,7 @@ public class Usuario implements UserDetails {
     private Rol rol;
 
     @Column(name = "fecha_registro", nullable = false)
-    private LocalDateTime fechaRegistro;
-    private LocalDate fechaRegistro = LocalDate.now();
+    private LocalDateTime fechaRegistro ;
 
     @Column(name = "verificado", nullable = false)
     private boolean verificado = false;
@@ -96,7 +96,7 @@ public class Usuario implements UserDetails {
     }
 
     public void setContrasenya(String contrasenya) {
-        this.contrasenya = new BCryptPasswordEncoder().encode(contrasenya);
+        this.contrasena = new BCryptPasswordEncoder().encode(contrasenya);
     }
 
     public void verifyEmail(String token) {
