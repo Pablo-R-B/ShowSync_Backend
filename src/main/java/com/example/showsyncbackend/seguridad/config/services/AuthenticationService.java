@@ -4,7 +4,6 @@ import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,8 +21,6 @@ public class AuthenticationService implements UserDetailsService {
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-
-
 
     @PostConstruct
     public void init() {
@@ -86,20 +83,12 @@ public class AuthenticationService implements UserDetailsService {
             System.out.println("Hash almacenado en BBDD: " + usuario.getContrasena());
             System.out.println("Hash generado ahora: " + passwordEncoder.encode(contrasena));
             throw new RuntimeException("Credenciales incorrectas");
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if (passwordEncoder.matches(contrasenya, usuario.getContrasenya())) {
-            return jwtService.generateToken(usuario);
-        } else {
-            throw new RuntimeException("Credenciales incorrectas. AuthService");
-
         }
 
         System.out.println("Autenticación exitosa para: " + email);
         System.out.println("===============================\n");
 
         return jwtService.generateToken(usuario);
-
-
     }
 
     public boolean verificarEmail(String token) {

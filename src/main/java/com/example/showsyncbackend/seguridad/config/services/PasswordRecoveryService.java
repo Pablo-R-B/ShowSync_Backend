@@ -4,40 +4,40 @@ import com.example.showsyncbackend.modelos.TokenRecuperacion;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.TokenRecuperacionRepositorio;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 @Service
+@RequiredArgsConstructor // Usa esta anotación en lugar de @Autowired
 public class PasswordRecoveryService {
 
-    @Autowired
-    private UsuarioRepositorio usuarioRepositorio;
-
-    @Autowired
-    private TokenRecuperacionRepositorio tokenRecuperacionRepositorio;
-
-    @Autowired
-    private EmailService emailService;
+    private final UsuarioRepositorio usuarioRepositorio;
+    private final TokenRecuperacionRepositorio tokenRecuperacionRepositorio;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder; // Inyecta el PasswordEncoder
 
     public String generarTokenRecuperacion(String email) {
         Usuario usuario = usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        String token = UUID.randomUUID().toString(); // Genera un token único
+        // Elimina tokens antiguos para este usuario
+        tokenRecuperacionRepositorio.deleteByUsuarioEmail(email);
 
-        // Guardar el token y la fecha de expiración
-        TokenRecuperacion tokenRecuperacion = new TokenRecuperacion();
-        tokenRecuperacion.setToken(token);
-        tokenRecuperacion.setUsuario(usuario);
-        tokenRecuperacion.setExpiracion(LocalDateTime.now().plusHours(1)); // Expira en 1 hora
+        String token = UUID.randomUUID().toString();
+        TokenRecuperacion tokenRecuperacion = TokenRecuperacion.builder()
+                .token(token)
+                .usuario(usuario)
+                .expiracion(LocalDateTime.now().plusHours(1))
+                .build();
 
         tokenRecuperacionRepositorio.save(tokenRecuperacion);
-
-        // Enviar correo con el enlace de recuperación
-        emailService.enviarCorreoRecuperacion(usuario.getEmail(), token);
+        emailService.enviarCorreoRecuperacion(email, token);
 
         return token;
     }
@@ -53,12 +53,13 @@ public class PasswordRecoveryService {
         return tokenRecuperacion;
     }
 
+    @Transactional
     public void restablecerContrasena(Usuario usuario, String nuevaContrasena) {
-        // Asegurarnos de no modificar el token de verificación o el estado de verificación
-        String contraseñaEncriptada = new BCryptPasswordEncoder().encode(nuevaContrasena);
-        usuario.setContrasenya(contraseñaEncriptada);
-
-        // No cambiar el verificado ni el token de verificación
+        // Usa el passwordEncoder inyectado
+        usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
         usuarioRepositorio.save(usuario);
+
+        // Elimina el token después de usarlo
+        tokenRecuperacionRepositorio.deleteByUsuarioEmail(usuario.getEmail());
     }
 }
