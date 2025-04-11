@@ -1,4 +1,4 @@
-package com.example.showsyncbackend.seguridad.config;
+package com.example.showsyncbackend.seguridad.config.services;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.jsonwebtoken.Claims;
@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
@@ -70,31 +69,31 @@ public class JWTService {
 
     // Extraer todas las reclamaciones del token
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            System.out.println("Error al extraer claims: " + e.getMessage());
+            throw e; // o puedes lanzar una excepción más amigable si quieres
+        }
     }
 
-    // Método para generar la clave secreta de firma
-    private Key getSignInKey() {
-        byte[] keyBytes;
+
+
+    public Key getSignInKey() {
         if (SECRET_KEY == null || SECRET_KEY.isEmpty()) {
-            // Generar una clave segura de 256 bits
-            keyBytes = Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded();
-        } else {
-            // Si la clave está configurada, validamos que tenga al menos 256 bits
-            keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-            if (keyBytes.length < 32) {
-                throw new IllegalArgumentException("La clave secreta debe tener al menos 256 bits.");
-            }
+            throw new IllegalArgumentException("La clave secreta no puede ser nula o vacía.");
         }
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Configuración personalizada para Jackson
+
+    // Configuración personalizada para Jackson. Esto es útil para evitar errores de deserialización pero si al depurar se para en este punto siempre significa que el token no es válido
     @Bean
     public Jackson2ObjectMapperBuilder jacksonBuilder() {
         return Jackson2ObjectMapperBuilder.json().featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

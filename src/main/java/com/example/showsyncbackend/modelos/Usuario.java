@@ -3,11 +3,14 @@ package com.example.showsyncbackend.modelos;
 import com.example.showsyncbackend.enumerados.Rol;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -16,6 +19,7 @@ import java.util.Collections;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class) // Solo para auditoría
 @Table(name="usuarios", schema = "showsync", catalog = "postgres")
 public class Usuario implements UserDetails {
 
@@ -30,8 +34,8 @@ public class Usuario implements UserDetails {
     @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "contraseña", nullable = false)
-    private String contrasenya;
+    @Column(name = "contrasena", nullable = false)
+    private String contrasena;
 
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
@@ -41,7 +45,13 @@ public class Usuario implements UserDetails {
     private Rol rol;
 
     @Column(name = "fecha_registro", nullable = false)
-    private LocalDate fechaRegistro;
+    private LocalDateTime fechaRegistro ;
+
+    @Column(name = "verificado", nullable = false)
+    private boolean verificado = false;
+
+    @Column(name = "verificacion_token", nullable = true)
+    private String verificacionToken;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,7 +62,8 @@ public class Usuario implements UserDetails {
     @Override
     public String getPassword() {
         // Devolvemos la contraseña del usuario
-        return this.contrasenya;
+        return this.contrasena;
+
     }
 
     @Override
@@ -81,7 +92,18 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        // Retorna true si la cuenta está habilitada
-        return true;
+        return verificado;
+    }
+
+    public void setContrasenya(String contrasenya) {
+        this.contrasena = new BCryptPasswordEncoder().encode(contrasenya);
+    }
+
+    public void verifyEmail(String token) {
+        if (this.verificacionToken.equals(token)) {
+            this.verificado = true;
+        } else {
+            throw new IllegalArgumentException("Invalid verification token.");
+        }
     }
 }
