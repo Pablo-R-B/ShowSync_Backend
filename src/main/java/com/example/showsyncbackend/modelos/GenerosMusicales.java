@@ -1,9 +1,11 @@
 package com.example.showsyncbackend.modelos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -27,4 +29,5 @@ public class GenerosMusicales {
 
     @ManyToMany(mappedBy = "generosMusicales")
     private Set<Eventos> eventos = new HashSet<>();
+
 }

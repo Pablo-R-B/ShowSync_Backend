@@ -5,11 +5,13 @@ import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.repositorios.EventosRepository;
 import com.example.showsyncbackend.repositorios.PromotoresRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class PromotoresServicio {
 
     @Autowired

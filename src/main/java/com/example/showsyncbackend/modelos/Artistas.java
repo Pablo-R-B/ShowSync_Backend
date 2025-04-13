@@ -1,9 +1,12 @@
 package com.example.showsyncbackend.modelos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -11,7 +14,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"generosMusicales"})
+@EqualsAndHashCode
 @Table(name="artistas", schema = "showsync", catalog = "postgres")
 public class Artistas {
     @Id
@@ -35,11 +38,13 @@ public class Artistas {
     @Column(name="imagen_perfil")
     private String imagenPerfil;
 
-    @ManyToMany
-    @JoinTable(name = "artistas_generos",joinColumns = {@JoinColumn(name="artista_id", nullable = false)},
-    inverseJoinColumns = {@JoinColumn(name = "evento_id", nullable = false)})
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "artistas_generos",joinColumns = {@JoinColumn(name="artista_id", referencedColumnName = "id",nullable = false)},
+    inverseJoinColumns = {@JoinColumn(name = "genero_id", referencedColumnName = "id",nullable = false)})
     private Set<GenerosMusicales> generosMusicales = new HashSet<>(0);
 
     @ManyToMany(mappedBy = "artistasAsignados")
+    @JsonIgnore
     private Set<Eventos> eventos = new HashSet<>();
+
 }

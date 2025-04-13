@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.enumerados;
 
-public enum Estado {
+import com.fasterxml.jackson.annotation.JsonValue;
 
-    PUBLICADO, EN_REVISION, CONFIRMADO, CANCELADO
+public enum Estado {
+    publicado, en_revision, confirmado, cancelado
 }
