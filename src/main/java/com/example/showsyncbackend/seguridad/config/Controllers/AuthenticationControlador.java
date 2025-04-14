@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.seguridad.config.Controllers;
 
+import com.example.showsyncbackend.enumerados.Rol;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 
 @RestController
 @RequestMapping("/auth")
@@ -50,8 +52,9 @@ public class AuthenticationControlador {
             return ResponseEntity.badRequest().body("El usuario debe tener al menos 18 años.");
         }
 
-        if (registroDTO.getRol() == null) {
-            return ResponseEntity.badRequest().body("El rol no puede estar vacío.");
+        if (registroDTO.getRol() == null ||
+                !EnumSet.allOf(Rol.class).contains(registroDTO.getRol())) {
+            return ResponseEntity.badRequest().body("El rol no es válido o está vacío.");
         }
 
         // ✅ Verificar si el email ya existe en la base de datos

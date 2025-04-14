@@ -3,7 +3,7 @@ package com.example.showsyncbackend.enumerados;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum Rol {
-    PROMOTOR, ARTISTA, ADMINISTRADOR;
+    ADMINISTRADOR, ARTISTA, PROMOTOR;
 
     @JsonCreator
     public static Rol fromString(String value) {
