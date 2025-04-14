@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EventosRepository extends JpaRepository<Eventos,Integer> {
+public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
 
     List<Eventos> findByPromotor(Promotores promotor);
 
