@@ -41,7 +41,7 @@ public class Usuario implements UserDetails {
     private LocalDate fechaNacimiento;
 
     @Column(name="rol", nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private Rol rol;
 
     @Column(name = "fecha_registro", nullable = false)
