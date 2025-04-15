@@ -67,7 +67,8 @@ public class EmailService {
 
     public void enviarCorreoRecuperacion(String to, String token) {
         String subject = "Recuperación de Contraseña - ShowSync";
-        String recoveryUrl = frontendUrl + "/reset-password?token=" + token;
+        String recoveryUrl = frontendUrl + "/auth/restablecer?token=" + token;
+
 
         String htmlContent = buildRecoveryEmailHtml(recoveryUrl);
         sendEmail(to, subject, htmlContent);
