@@ -46,4 +46,6 @@ public class Salas {
     @Column(name = "codigo_postal")
     private String codigoPostal;
 
+    public Salas(Integer salaId) {
+    }
 }

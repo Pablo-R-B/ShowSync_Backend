@@ -11,7 +11,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
@@ -34,11 +33,15 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/webjars/**",
-                                "/static/**"
+                                "/static/**",
+                                "/salas/**"
+
                         ).permitAll()
 
-                        // Solo los ADMINISTRADORES pueden acceder a /admin/**
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        // Solo los ADMINISTRADORES pueden acceder:
+                        .requestMatchers("/salas/crear").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/salas/editar/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/salas/eliminar/**").hasAuthority("ROLE_ADMINISTRADOR")
 
                         // Todos los demás endpoints requieren autenticación
                         .anyRequest().authenticated()

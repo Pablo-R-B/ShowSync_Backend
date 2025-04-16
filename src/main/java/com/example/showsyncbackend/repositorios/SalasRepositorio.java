@@ -9,6 +9,9 @@ import java.util.List;
 
 public interface SalasRepositorio extends JpaRepository<Salas, Integer> {
 
+    @Query("SELECT s FROM Salas s WHERE s.capacidad >= :min AND s.capacidad <= :max")
+    List<Salas> filtrarPorCapacidad(@Param("min") Integer min, @Param("max") Integer max);
+
     @Query("SELECT s FROM Salas s WHERE " +
             "LOWER(s.nombre) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
             "LOWER(s.direccion) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +

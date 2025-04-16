@@ -1,18 +1,21 @@
 package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.CrearSalaRequestDTO;
+import com.example.showsyncbackend.dtos.DisponibilidadSalaDTO;
 import com.example.showsyncbackend.modelos.Salas;
 import com.example.showsyncbackend.servicios.SalasServicio;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 
+
+import java.time.LocalDate;
 import java.util.List;
 
 
 @RestController
-@RequestMapping("/admin/salas")
+@RequestMapping("/salas")
 @Controller
 public class SalasControlador {
 
@@ -54,6 +57,27 @@ public class SalasControlador {
     public ResponseEntity<List<Salas>> buscarSalas(@RequestParam("filtro") String filtro) {
         return ResponseEntity.ok(salasServicio.buscarSalas(filtro));
     }
+
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<Salas>> filtrarPorCapacidad(
+            @RequestParam("capacidadMinima") Integer capacidadMinima,
+            @RequestParam("capacidadMaxima") Integer capacidadMaxima) {
+
+        List<Salas> salasFiltradas = salasServicio.filtrarPorCapacidad(capacidadMinima, capacidadMaxima);
+        return ResponseEntity.ok(salasFiltradas);
+    }
+
+    // Endpoint para consultar disponibilidad entre fechas
+    @GetMapping("/disponibilidad")
+    public ResponseEntity<List<DisponibilidadSalaDTO>> consultarDisponibilidad(
+            @RequestParam Integer salaId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+
+        List<DisponibilidadSalaDTO> disponibilidades = salasServicio.consultarDisponibilidad(salaId, fechaInicio, fechaFin);
+        return ResponseEntity.ok(disponibilidades);
+    }
+
 
 
 
