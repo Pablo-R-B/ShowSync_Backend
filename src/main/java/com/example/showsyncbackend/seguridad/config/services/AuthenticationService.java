@@ -4,12 +4,14 @@ import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,9 +34,15 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepositorio.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + username));
+    public UserDetails loadUserByUsername(String username) {
+        Usuario usuario = usuarioRepositorio.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        return new org.springframework.security.core.userdetails.User(
+                usuario.getEmail(),
+                usuario.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
+        );
     }
 
     public void guardarUsuario(Usuario usuario) {
