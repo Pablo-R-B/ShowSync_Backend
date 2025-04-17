@@ -37,65 +37,38 @@ public class PromotoresControlador {
     }
 
     /**
-     * Listar eventos por promotor
-     * @param id
-     * @param tipo
+     * Crear un nuevo promotor
+     * @param promotor
      * @return
      */
-    @GetMapping("/{id}/eventos")
-    public ResponseEntity<List<Eventos>> listarEventosPorPromotor(
-            @PathVariable Integer id,
-            @RequestParam(required = false) String tipo) {
-        return ResponseEntity.ok(promotoresServicio.listarEventosDePromotor(id, tipo));
+    @PostMapping("/crear")
+    public ResponseEntity<Promotores> crearPromotor(@RequestBody Promotores promotor) {
+        return ResponseEntity.ok(promotoresServicio.crearPromotor(promotor));
     }
 
     /**
-     * Crear evento para un promotor
+     * Editar un promotor
      * @param id
-     * @param evento
+     * @param promotor
      * @return
      */
-    @PostMapping("/{id}/eventos")
-    public ResponseEntity<Eventos> crearEvento(@PathVariable Integer id, @RequestBody Eventos evento) {
-        return ResponseEntity.ok(promotoresServicio.crearEvento(id, evento));
+    @PutMapping("/editar/{id}")
+    public ResponseEntity<Promotores> editarPromotor(@PathVariable Integer id, @RequestBody Promotores promotor) {
+        return ResponseEntity.ok(promotoresServicio.editarPromotor(id, promotor));
     }
 
     /**
-     * Actualizar evento existente
+     * Eliminar un promotor
      * @param id
-     * @param eventoId
-     * @param eventoActualizado
      * @return
      */
-    @PutMapping("/{id}/eventos/{eventoId}")
-    public ResponseEntity<Eventos> editarEvento(
-            @PathVariable Integer id,
-            @PathVariable Integer eventoId,
-            @RequestBody Eventos eventoActualizado) {
-        return ResponseEntity.ok(promotoresServicio.editarEvento(id, eventoId, eventoActualizado));
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Void> eliminarPromotor(@PathVariable Integer id) {
+        promotoresServicio.eliminarPromotor(id);
+        return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Eliminar evento por ID
-     * @param id
-     * @param eventoId
-     * @return
-     */
-    @DeleteMapping("/{id}/eventos/{eventoId}")
-    public ResponseEntity<String> eliminarEvento(@PathVariable Integer id, @PathVariable Integer eventoId) {
-        promotoresServicio.eliminarEvento(id, eventoId);
-        return ResponseEntity.ok("Evento eliminado exitosamente");
-    }
 
-    /**
-     * Solicitar sala para un evento
-     * @param id
-     * @param sala
-     * @return
-     */
-    @PostMapping("/{id}/solicitar-sala")
-    public ResponseEntity<String> solicitarSala(@PathVariable Integer id, @RequestParam String sala) {
-        promotoresServicio.solicitarSala(id, sala);
-        return ResponseEntity.ok("Sala solicitada exitosamente");
-    }
+
+
 }

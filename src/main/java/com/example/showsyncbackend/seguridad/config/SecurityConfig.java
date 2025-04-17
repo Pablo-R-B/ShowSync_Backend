@@ -38,7 +38,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/webjars/**",
                                 "/static/**",
-                                "/promotores/**"
+                                "/promotores/**",
+                                "/eventos/**",
+                                "/error"
+
 
                         ).permitAll()
 

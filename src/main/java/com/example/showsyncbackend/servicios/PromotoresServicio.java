@@ -28,55 +28,28 @@ public class PromotoresServicio {
         return promotoresRepository.findAll();
     }
 
-    //  Listar eventos de un promotor (opcionalmente puedes luego filtrar por pasados / futuros)
-    public List<Eventos> listarEventosDePromotor(Integer id, String tipo) {
-        return eventosRepository.findByPromotorId(id);
+    //  Crear un nuevo promotor
+    public Promotores crearPromotor(Promotores promotor) {
+        return promotoresRepository.save(promotor);
     }
 
-    //  Solicitar sala (esto luego se podría ampliar para enviar notificaciones o guardar en BD)
-    public void solicitarSala(Integer id, String sala) {
+    // Editar un promotor
+    public Promotores editarPromotor(Integer id, Promotores promotor) {
+        Promotores promotorExistente = obtenerPromotorPorId(id);
+        promotorExistente.setUsuario(promotor.getUsuario());
+        promotorExistente.setNombrePromotor(promotor.getNombrePromotor());
+        promotorExistente.setDescripcion(promotor.getDescripcion());
+        return promotoresRepository.save(promotorExistente);
+    }
+
+    // Eliminar un promotor
+    public void eliminarPromotor(Integer id) {
         Promotores promotor = obtenerPromotorPorId(id);
-        System.out.println("El promotor " + promotor.getNombrePromotor() + " ha solicitado la sala: " + sala);
-    }
-
-    //  Crear evento para un promotor
-    public Eventos crearEvento(Integer id, Eventos evento) {
-        Promotores promotor = obtenerPromotorPorId(id);
-        evento.setPromotor(promotor);
-        return eventosRepository.save(evento);
-    }
-
-    //  Editar evento existente
-    public Eventos editarEvento(Integer promotorId, Integer eventoId, Eventos eventoActualizado) {
-        Eventos eventoExistente = eventosRepository.findById(eventoId)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
-
-        if (!eventoExistente.getPromotor().getId().equals(promotorId)) {
-            throw new RuntimeException("El evento no pertenece al promotor especificado");
+        List<Eventos> eventos = eventosRepository.findByPromotor(promotor);
+        if (!eventos.isEmpty()) {
+            throw new RuntimeException("No se puede eliminar el promotor porque tiene eventos asociados");
         }
-
-        eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
-        eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
-        eventoExistente.setFecha_evento(eventoActualizado.getFecha_evento());
-        eventoExistente.setSala_id(eventoActualizado.getSala_id());
-        eventoExistente.setEstado(eventoActualizado.getEstado());
-        eventoExistente.setImagen_evento(eventoActualizado.getImagen_evento());
-        eventoExistente.setGenerosMusicales(eventoActualizado.getGenerosMusicales());
-
-        return eventosRepository.save(eventoExistente);
-    }
-
-
-    //  Eliminar evento existente
-    public void eliminarEvento(Integer promotorId, Integer eventoId) {
-        Eventos evento = eventosRepository.findById(eventoId)
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
-
-        if (!evento.getPromotor().getId().equals(promotorId)) {
-            throw new RuntimeException("El evento no pertenece al promotor especificado");
-        }
-
-        eventosRepository.delete(evento);
+        promotoresRepository.delete(promotor);
     }
 
 }
