@@ -1,12 +1,16 @@
 package com.example.showsyncbackend.servicios;
 
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
+import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +30,19 @@ public class ArtistasServicio {
     }
 
 
-    public List<Map<String, Object>> obtenerArtistasConGeneros() {
-        List<Object[]> resultados = artistasRepositorio.findAllWithGeneros();
-        Map<String, Map<String, Object>> artistasMap = new HashMap<>();
+    public RespuestaPaginacionDTO<ArtistasCatalogoDTO> obtenerArtistasConGeneros(int page, int size,  String termino) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        Page<Object[]> resultados;
 
-        for (Object[] fila : resultados) {
+        if (termino != null && !termino.isEmpty()) {
+            resultados = artistasRepositorio.findArtistasByNombre(termino.toLowerCase(), pageable);
+        } else {
+            resultados = artistasRepositorio.findAllWithGeneros(pageable);
+        }
+
+        Map<String, ArtistasCatalogoDTO> artistasMap = new HashMap<>();
+
+        for (Object[] fila : resultados.getContent()) {
             String id = String.valueOf(fila[0]);
             String nombreArtista = (String) fila[1];
             String imagenPerfil = (String) fila[2];
@@ -38,23 +50,32 @@ public class ArtistasServicio {
 
             // Si el artista ya está en el mapa, agregamos el nuevo género a su lista
             if (!artistasMap.containsKey(id)) {
-                Map<String, Object> artista = new HashMap<>();
-                artista.put("id", id);
-                artista.put("nombre", nombreArtista);
-                artista.put("generos", new ArrayList<String>());
-                artista.put("imagen", imagenPerfil);
-                artistasMap.put(id, artista);
+                ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
+                dto.setNombre(nombreArtista);
+                dto.setGeneros(new ArrayList<String>());
+                dto.setImagen(imagenPerfil);
+                artistasMap.put(id,dto);
             }
 
-            // Añadir el género a la lista de géneros del artista
-            ((List<String>) artistasMap.get(id).get("generos")).add(generoMusical);
+            artistasMap.get(id).getGeneros().add(generoMusical);
         }
 
-        return new ArrayList<>(artistasMap.values());
+       RespuestaPaginacionDTO<ArtistasCatalogoDTO> respuesta = new RespuestaPaginacionDTO<>();
+        respuesta.setItems(new ArrayList<>(artistasMap.values()));
+        respuesta.setTotalItems(resultados.getTotalPages());
+        respuesta.setTotalPages(resultados.getTotalPages());
+        respuesta.setCurrentPage(page);
+        respuesta.setPageSize(size);
+
+        return respuesta;
     }
 
-    public List<ArtistasCatalogoDTO> artistasPorGenero(String genero) {
-        List<Object[]> resultados = artistasRepositorio.findArtistasByGenero(genero);
+    public RespuestaPaginacionDTO<ArtistasCatalogoDTO> artistasPorGenero( String genero,
+                                                                          String termino,
+                                                                          int page,
+                                                                          int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Object[]> resultados = artistasRepositorio.findArtistasByGenero(genero, termino, pageable);
         Map<String, ArtistasCatalogoDTO> artistasMap = new HashMap<>();
 
         for (Object[] resultado : resultados) {
@@ -76,38 +97,53 @@ public class ArtistasServicio {
             }
             dto.getGeneros().add(generoMusical);
         }
-        return new ArrayList<>(artistasMap.values());
+
+        RespuestaPaginacionDTO<ArtistasCatalogoDTO> respuesta = new RespuestaPaginacionDTO<>();
+        respuesta.setItems(new ArrayList<>(artistasMap.values()));
+        respuesta.setTotalItems(resultados.getTotalPages());
+        respuesta.setTotalPages(resultados.getTotalPages());
+        respuesta.setCurrentPage(page);
+        respuesta.setPageSize(size);
+        return respuesta;
     }
 
-    public List<ArtistasCatalogoDTO> buscarArtistasPorNombre(String termino) {
-        // Obtener la lista de resultados de la consulta
-        List<Object[]> resultados = artistasRepositorio.findArtistasByNombre(termino);
-        Map<String, ArtistasCatalogoDTO> artistaMap = new HashMap<>();
-
-        for (Object[] resultado : resultados) {
-            String nombreArtista = (String) resultado[1]; // Nombre del artista
-            String imagenPerfil = (String) resultado[2]; // Imagen de perfil
-            String nombreGenero = (String) resultado[3]; // Nombre del género
-
-            // Si el artista ya está en el mapa, solo agregamos el género
-            if (artistaMap.containsKey(nombreArtista)) {
-                ArtistasCatalogoDTO dto = artistaMap.get(nombreArtista);
-                dto.getGeneros().add(nombreGenero); // Agregar el género a la lista existente
-            } else {
-                // Si no está, creamos un nuevo DTO
-                List<String> generos = new ArrayList<>();
-                generos.add(nombreGenero); // Agregar el género
-                ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
-                dto.setNombre(nombreArtista);
-                dto.setImagen(imagenPerfil);
-                dto.setGeneros(generos);
-                artistaMap.put(nombreArtista, dto);
-            }
-
-        }
-        return new ArrayList<>(artistaMap.values()); // Retornar la lista de DTOs
-
-    }
+//    public RespuestaPaginacionDTO<ArtistasCatalogoDTO> buscarArtistasPorNombre(String termino,
+//                                                                               int page,
+//                                                                               int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<Object[]>  resultados;
+//        Map<String, ArtistasCatalogoDTO> artistaMap = new HashMap<>();
+//
+//        for (Object[] resultado : resultados) {
+//            String nombreArtista = (String) resultado[1]; // Nombre del artista
+//            String imagenPerfil = (String) resultado[2]; // Imagen de perfil
+//            String nombreGenero = (String) resultado[3]; // Nombre del género
+//
+//            // Si el artista ya está en el mapa, solo agregamos el género
+//            if (artistaMap.containsKey(nombreArtista)) {
+//                ArtistasCatalogoDTO dto = artistaMap.get(nombreArtista);
+//                dto.getGeneros().add(nombreGenero); // Agregar el género a la lista existente
+//            } else {
+//                // Si no está, creamos un nuevo DTO
+//                List<String> generos = new ArrayList<>();
+//                generos.add(nombreGenero); // Agregar el género
+//                ArtistasCatalogoDTO dto = new ArtistasCatalogoDTO();
+//                dto.setNombre(nombreArtista);
+//                dto.setImagen(imagenPerfil);
+//                dto.setGeneros(generos);
+//                artistaMap.put(nombreArtista, dto);
+//            }
+//
+//        }
+//        RespuestaPaginacionDTO<ArtistasCatalogoDTO> respuesta = new RespuestaPaginacionDTO<>();
+//        respuesta.setItems(new ArrayList<>(artistaMap.values()));
+//        respuesta.setTotalItems(resultados.getTotalPages());
+//        respuesta.setTotalPages(resultados.getTotalPages());
+//        respuesta.setCurrentPage(page);
+//        respuesta.setPageSize(size);
+//        return respuesta;
+//
+//    }
 
 
 }
