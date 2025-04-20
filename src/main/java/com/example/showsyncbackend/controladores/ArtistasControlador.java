@@ -54,19 +54,6 @@ public class ArtistasControlador {
 
     }
 
-//    @GetMapping("/buscar")
-//
-//    public ResponseEntity<RespuestaPaginacionDTO<ArtistasCatalogoDTO>> buscarArtistasPorNombre(
-//            @RequestParam("termino") String termino,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size
-//    ) {
-//        RespuestaPaginacionDTO<ArtistasCatalogoDTO> artistasFiltrados = artistasServicio.buscarArtistasPorNombre(termino, page, size);
-//        return ResponseEntity.ok(artistasFiltrados);
-//
-//    }
-
-
     @GetMapping("/todos")
     public ResponseEntity<?> obtenerArtistas() {
         List<Artistas> artistas = artistasServicio.findAll();
