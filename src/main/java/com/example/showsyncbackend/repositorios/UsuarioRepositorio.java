@@ -16,3 +16,4 @@ public interface UsuarioRepositorio extends JpaRepository<Usuario, Integer> {
     // Método para encontrar un usuario por su token de verificación
     Optional<Usuario> findByVerificacionToken(String verificacionToken);
 }
+

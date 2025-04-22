@@ -21,6 +21,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
+
 
 
 @Component
@@ -77,3 +79,16 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response); // Continuar con la siguiente parte de la cadena de filtros
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
