@@ -9,53 +9,47 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
     private final JWTAuthFilter jwtAuthFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     public SecurityConfig(AuthenticationProvider authenticationProvider,
-                          JWTAuthFilter jwtAuthFilter) {
+                          JWTAuthFilter jwtAuthFilter,
+                          CorsConfigurationSource corsConfigurationSource) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthFilter = jwtAuthFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos
                         .requestMatchers(
                                 "/auth/**",
                                 "/verificar-email",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/webjars/**",
-                                "/static/**",
-                                "/salas/**"
-
+                                "/static/**"
                         ).permitAll()
-
-                        // Solo los ADMINISTRADORES pueden acceder:
-                        .requestMatchers("/salas/crear").hasAuthority("ROLE_ADMINISTRADOR")
-                        .requestMatchers("/salas/editar/**").hasAuthority("ROLE_ADMINISTRADOR")
-                        .requestMatchers("/salas/eliminar/**").hasAuthority("ROLE_ADMINISTRADOR")
-
-                        // Todos los demás endpoints requieren autenticación
+                        //.requestMatchers("/salas/crear").hasAuthority("ROLE_ADMINISTRADOR")
+                        //.requestMatchers("/salas/editar/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        //.requestMatchers("/salas/eliminar/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/salas/**").authenticated()
                         .anyRequest().authenticated()
-                )
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                );
 
         return http.build();
     }
-
-
-
 }
