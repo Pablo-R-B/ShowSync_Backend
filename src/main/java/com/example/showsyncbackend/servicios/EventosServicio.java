@@ -8,6 +8,7 @@ import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
+import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
@@ -27,6 +28,10 @@ public class EventosServicio {
 
     @Autowired
     private PromotoresRepositorio promotoresRepositorio;
+
+
+    @Autowired
+    private GenerosMusicalesRepositorio generosMusicalesRepositorio;
 
 
     // Constructor con dependencia para inyección de eventosRepositorio
@@ -124,18 +129,37 @@ public class EventosServicio {
             throw new RuntimeException("El evento no pertenece al promotor especificado");
         }
 
-        // Eliminar evento
+
         eventosRepositorio.delete(evento);
     }
 
     // Listar todos los eventos
-    public List<Eventos> listarTodosLosEventos() {
-        return eventosRepositorio.findAll();
+    public List<EventosDTO> listarTodosLosEventos() {
+        List<Eventos> eventos = eventosRepositorio.findAll();
+
+        return eventos.stream().map(evento -> new EventosDTO(
+                evento.getId(),
+                evento.getNombre_evento(),
+                evento.getDescripcion(),
+                evento.getFecha_evento(),
+                evento.getEstado(),
+                evento.getImagen_evento(),
+                evento.getSala_id() != null ? evento.getSala_id().getId() : null,
+                evento.getSala_id() != null ? evento.getSala_id().getNombre() : null,
+                evento.getPromotor() != null ? evento.getPromotor().getId() : null,
+                evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
+                evento.getGenerosMusicales() != null ? evento.getGenerosMusicales().stream()
+                        .map(g -> g.getNombre())
+                        .collect(Collectors.toSet()) : null,
+                evento.getArtistasAsignados() != null ? evento.getArtistasAsignados().stream()
+                        .map(a -> a.getNombreArtista())
+                        .collect(Collectors.toSet()) : null
+        )).collect(Collectors.toList());
     }
 
-    // Mostrar perfil con datos del evento
 
-    // Mostrar perfil con datos del evento
+
+    // Obtener evento por ID
 
     public EventosDTO obtenerEventoPorId(Integer eventoId) {
         Eventos evento = eventosRepositorio.findById(eventoId)
@@ -180,6 +204,23 @@ public class EventosServicio {
                         .build())
                 .collect(Collectors.toList());
     }
+
+
+    // Actualizar el seguimiento de un evento
+
+    public void actualizarSeguimiento(Integer id, boolean seguido) {
+        // Buscar el evento por ID
+        Eventos evento = eventosRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado con id: " + id));
+
+        // Actualizar el estado del campo seguido
+        evento.setSeguido(seguido);
+
+        // Guardar el evento actualizado
+        eventosRepositorio.save(evento);
+    }
+
+
 
 
 }

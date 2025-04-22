@@ -20,4 +20,6 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
 
 
     List<Eventos> findByPromotor(Promotores promotor);
+
+
 }

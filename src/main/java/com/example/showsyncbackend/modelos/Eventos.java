@@ -57,4 +57,6 @@ public class Eventos {
     private Set<Artistas> artistasAsignados = new HashSet<>();
 
 
+    @Column(name = "seguido")
+    private Boolean seguido = false;
 }

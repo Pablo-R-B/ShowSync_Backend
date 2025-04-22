@@ -2,7 +2,6 @@ package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.modelos.Eventos;
-import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,8 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/eventos")
 public class EventosControlador {
@@ -19,8 +19,6 @@ public class EventosControlador {
     @Autowired
     private EventosServicio eventosServicio;
 
-    @Autowired
-    private EventosRepositorio eventosRepositorio;
 
     /**
      * Obtener eventos confirmados
@@ -101,10 +99,11 @@ public class EventosControlador {
      * @return
      */
     @GetMapping("/todos")
-    public ResponseEntity<List<Eventos>> listarTodosLosEventos() {
-        List<Eventos> eventos = eventosServicio.listarTodosLosEventos();
+    public ResponseEntity<List<EventosDTO>> listarTodosLosEventos() {
+        List<EventosDTO> eventos = eventosServicio.listarTodosLosEventos();
         return new ResponseEntity<>(eventos, HttpStatus.OK);
     }
+
 
     /**
      * Obtener perfil de evento por ID
@@ -116,5 +115,32 @@ public class EventosControlador {
         EventosDTO evento = eventosServicio.obtenerEventoPorId(eventoId);
         return new ResponseEntity<>(evento, HttpStatus.OK);
     }
+
+    /**
+     * Actualizar seguimiento de un evento
+     * @param id ID del evento
+     * @param body Contenido del cuerpo de la solicitud
+     * @return Respuesta sin contenido
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> actualizarSeguimiento(@PathVariable Integer id,
+                                                      @RequestBody Map<String, Boolean> body) {
+        // Verificar si el cuerpo de la solicitud contiene el campo "seguido"
+        boolean seguido = body.getOrDefault("seguido", false);
+
+        // Llamar al servicio para actualizar el evento
+        try {
+            eventosServicio.actualizarSeguimiento(id, seguido);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            // Si no se encuentra el evento, devolver un 404 con el mensaje de error
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+
+
+
+
 
 }
