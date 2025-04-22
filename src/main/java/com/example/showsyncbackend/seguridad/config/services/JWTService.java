@@ -41,8 +41,10 @@ public class JWTService {
         Map<String, Object> extraClaims = new HashMap<>();
 
         if (userDetails instanceof Usuario usuario) {
-            extraClaims.put("rol", usuario.getRol().name()); // o .toString()
+            extraClaims.put("rol", usuario.getRol().name());
+            extraClaims.put("nombre", usuario.getNombreUsuario());
         }
+
 
         return generateToken(extraClaims, userDetails);
     }
