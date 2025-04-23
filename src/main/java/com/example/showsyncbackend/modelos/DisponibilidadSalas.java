@@ -23,7 +23,7 @@ public class DisponibilidadSalas {
     @Column(name = "id")
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sala_id", nullable = false)
     private Salas sala;
 

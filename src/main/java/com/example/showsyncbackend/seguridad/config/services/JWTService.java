@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.seguridad.config.services;
 
+import com.example.showsyncbackend.modelos.Usuario;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -36,8 +38,17 @@ public class JWTService {
 
     // Generar un token para un usuario
     public String generateToken(UserDetails userDetails) {
-        return generateToken(Map.of(), userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        if (userDetails instanceof Usuario usuario) {
+            extraClaims.put("rol", usuario.getRol().name());
+            extraClaims.put("nombre", usuario.getNombreUsuario());
+        }
+
+
+        return generateToken(extraClaims, userDetails);
     }
+
 
     // Generar un token con reclamaciones personalizadas
     public String generateToken(Map<String, Object> claims, UserDetails userDetails) {

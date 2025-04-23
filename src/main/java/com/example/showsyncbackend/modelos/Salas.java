@@ -36,4 +36,16 @@ public class Salas {
 
     @Column(name="descripcion")
     private String descripcion;
+
+    @Column(name = "ciudad")
+    private String ciudad;
+
+    @Column(name = "provincia")
+    private String provincia;
+
+    @Column(name = "codigo_postal")
+    private String codigoPostal;
+
+    public Salas(Integer salaId) {
+    }
 }
