@@ -14,25 +14,22 @@ import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 @Service
 @AllArgsConstructor
 public class SalasServicio {
 
     private final UsuarioRepositorio usuarioRepositorio;
-
     private final DisponibilidadSalasRepositorio disponibilidadSalasRepositorio;
     @Autowired
-    private final SalasRepositorio salaRepositorio;
+    private final SalasRepositorio salasRepositorio;
 
     @Autowired
     private final PromotoresServicio promotoresServicio;
@@ -74,7 +71,6 @@ public class SalasServicio {
 
         return salaGuardada;
     }
-
 
 
     public Salas editarSala(Integer salaId, CrearSalaRequestDTO request) {
@@ -184,7 +180,7 @@ public class SalasServicio {
     //solicitar sala para un evento
     public void solicitarSala(Integer salaId, Integer promotorId, String nombreEvento, String descripcion, LocalDate fecha) {
         // Obtener la sala por su ID
-        Salas sala = salaRepositorio.findById(salaId)
+        Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
 
         // Obtener el promotor por su ID
