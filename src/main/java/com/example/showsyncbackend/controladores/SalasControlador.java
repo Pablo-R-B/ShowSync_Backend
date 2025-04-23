@@ -1,15 +1,14 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.SalasCatalogoDTO;
 import com.example.showsyncbackend.servicios.SalasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/sala")
@@ -42,11 +41,6 @@ public class SalasControlador {
         return "Solicitud de sala enviada correctamente.";
     }
 
-    private SalasServicio salasServicio;
-
-//    public SalasControlador(SalasServicio salasServicio) {
-//        this.salasServicio = salasServicio;
-//    }
     @GetMapping("/mostrarSalas")
     public List<SalasCatalogoDTO> mostrarSalas(){
         List<SalasCatalogoDTO> salas = salasServicio.findAll();

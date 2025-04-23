@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.SalasCatalogoDTO;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -53,23 +56,13 @@ public class SalasServicio {
         System.out.println("El promotor " + promotor.getNombrePromotor() + " ha solicitado la sala '" + sala.getNombre() + "' para el evento: " + nombreEvento);
     }
 
-
-
-
-
-
-    @Autowired
-    private Salasrepositorio salasrepositorio;
-
-
-
     /**
      * Obtener todas las Salas
      * @return
      */
     public List<SalasCatalogoDTO> findAll(){
         List<SalasCatalogoDTO> salasCatalogoDTOS= new ArrayList<>();
-        List<Salas> salasTotal = salasrepositorio.findAll();
+        List<Salas> salasTotal = salaRepositorio.findAll();
 
         for (Salas s : salasTotal){
             SalasCatalogoDTO salasCatalogoDTO = new SalasCatalogoDTO();
@@ -90,7 +83,7 @@ public class SalasServicio {
      */
     public SalasCatalogoDTO findbyId(Integer id){
         SalasCatalogoDTO salasCatalogoDTO = new SalasCatalogoDTO();
-        Salas sala = salasrepositorio.getReferenceById(id);
+        Salas sala = salaRepositorio.getReferenceById(id);
 
         salasCatalogoDTO.setNombre(sala.getNombre());
         salasCatalogoDTO.setDireccion(sala.getDireccion());
