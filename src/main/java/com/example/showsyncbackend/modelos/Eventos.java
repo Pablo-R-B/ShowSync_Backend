@@ -24,7 +24,7 @@ public class Eventos {
 
     @ManyToOne
     @JoinColumn(name="promotor_id", nullable = false, referencedColumnName = "id")
-    private Promotores promotor_id;
+    private Promotores promotor;
 
     @Column(name="nombre_evento")
     private String nombre_evento;
@@ -57,4 +57,6 @@ public class Eventos {
     private Set<Artistas> artistasAsignados = new HashSet<>();
 
 
+    @Column(name = "seguido")
+    private Boolean seguido = false;
 }

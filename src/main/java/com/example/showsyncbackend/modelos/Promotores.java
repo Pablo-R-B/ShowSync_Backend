@@ -1,12 +1,13 @@
 package com.example.showsyncbackend.modelos;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Builder
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="promotores", schema = "showsync", catalog = "postgres")
@@ -28,5 +29,7 @@ public class Promotores {
 
     @Column(name="imagen_perfil")
     private String imagenPerfil;
+
+
 
 }
