@@ -41,7 +41,12 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/webjars/**",
-                                "/static/**"
+                                "/static/**",
+                                "/promotores/**",
+                                "/eventos/**",
+                                "/error"
+
+
                         ).permitAll()
                         //.requestMatchers("/salas/crear").hasAuthority("ROLE_ADMINISTRADOR")
                         //.requestMatchers("/salas/editar/**").hasAuthority("ROLE_ADMINISTRADOR")

@@ -9,7 +9,12 @@ import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.DisponibilidadSalasRepositorio;
 import com.example.showsyncbackend.repositorios.SalasRepositorio;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import com.example.showsyncbackend.enumerados.Estado;
+import com.example.showsyncbackend.modelos.Eventos;
+import com.example.showsyncbackend.modelos.Promotores;
+import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +27,16 @@ import java.util.List;
 public class SalasServicio {
 
     private final UsuarioRepositorio usuarioRepositorio;
-    private final SalasRepositorio salasRepositorio;
     private final DisponibilidadSalasRepositorio disponibilidadSalasRepositorio;
+    @Autowired
+    private final SalasRepositorio salasRepositorio;
+
+    @Autowired
+    private final PromotoresServicio promotoresServicio;
+
+    @Autowired
+    private final EventosRepositorio eventosRepositorio;
+
 
     public Salas crearSala(CrearSalaRequestDTO request) {
         // Obtener el email del usuario autenticado
@@ -58,10 +71,6 @@ public class SalasServicio {
 
         return salaGuardada;
     }
-
-
-
-
 
 
     public Salas editarSala(Integer salaId, CrearSalaRequestDTO request) {
@@ -100,6 +109,7 @@ public class SalasServicio {
     public List<Salas> buscarSalas(String filtro) {
         return salasRepositorio.buscarSalas(filtro);
     }
+
 
 
     public List<Salas> filtrarPorCapacidad(Integer min, Integer max) {
@@ -167,16 +177,30 @@ public class SalasServicio {
     }
 
 
+    //solicitar sala para un evento
+    public void solicitarSala(Integer salaId, Integer promotorId, String nombreEvento, String descripcion, LocalDate fecha) {
+        // Obtener la sala por su ID
+        Salas sala = salasRepositorio.findById(salaId)
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
 
+        // Obtener el promotor por su ID
+        Promotores promotor = promotoresServicio.obtenerPromotorPorId(promotorId);
 
+        // Crear un nuevo evento en estado "en_revision"
+        Eventos nuevoEvento = Eventos.builder()
+                .sala_id(sala)
+                .promotor(promotor)
+                .nombre_evento(nombreEvento)
+                .descripcion(descripcion)
+                .fecha_evento(fecha)
+                .estado(Estado.en_revision)
+                .imagen_evento(null) // Puedes poner una imagen por defecto si quieres
+                .build();
 
+        eventosRepositorio.save(nuevoEvento);
 
-
-
-
-
-
-
+        System.out.println("El promotor " + promotor.getNombrePromotor() + " ha solicitado la sala '" + sala.getNombre() + "' para el evento: " + nombreEvento);
+    }
 
 
 
