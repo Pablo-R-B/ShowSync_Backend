@@ -62,7 +62,7 @@ public class ArtistasServicio {
 
        RespuestaPaginacionDTO<ArtistasCatalogoDTO> respuesta = new RespuestaPaginacionDTO<>();
         respuesta.setItems(new ArrayList<>(artistasMap.values()));
-        respuesta.setTotalItems(resultados.getTotalPages());
+        respuesta.setTotalItems((int) resultados.getTotalElements());
         respuesta.setTotalPages(resultados.getTotalPages());
         respuesta.setCurrentPage(page);
         respuesta.setPageSize(size);
@@ -100,7 +100,7 @@ public class ArtistasServicio {
 
         RespuestaPaginacionDTO<ArtistasCatalogoDTO> respuesta = new RespuestaPaginacionDTO<>();
         respuesta.setItems(new ArrayList<>(artistasMap.values()));
-        respuesta.setTotalItems(resultados.getTotalPages());
+        respuesta.setTotalItems((int) resultados.getTotalElements());
         respuesta.setTotalPages(resultados.getTotalPages());
         respuesta.setCurrentPage(page);
         respuesta.setPageSize(size);

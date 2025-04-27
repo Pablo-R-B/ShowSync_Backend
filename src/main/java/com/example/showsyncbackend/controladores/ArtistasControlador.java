@@ -6,8 +6,6 @@ import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +47,6 @@ public class ArtistasControlador {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
         RespuestaPaginacionDTO<ArtistasCatalogoDTO> artistasFiltrados = artistasServicio.artistasPorGenero(genero, termino, page, size);
         return artistasFiltrados.getItems().isEmpty()
                 ? ResponseEntity.notFound().build()
