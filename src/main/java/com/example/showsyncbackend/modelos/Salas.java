@@ -6,9 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 @Entity
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,72 +37,15 @@ public class Salas {
     @Column(name="descripcion")
     private String descripcion;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "ciudad")
+    private String ciudad;
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    @Column(name = "provincia")
+    private String provincia;
 
-    public String getNombre() {
-        return nombre;
-    }
+    @Column(name = "codigo_postal")
+    private String codigoPostal;
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public Integer getCapacidad() {
-        return capacidad;
-    }
-
-    public void setCapacidad(Integer capacidad) {
-        this.capacidad = capacidad;
-    }
-
-    public String getImagen() {
-        return imagen;
-    }
-
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
-    }
-
-    public Usuario getAdministrador() {
-        return administrador;
-    }
-
-    public void setAdministrador(Usuario administrador) {
-        this.administrador = administrador;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Salas salas = (Salas) o;
-        return Objects.equals(id, salas.id) && Objects.equals(nombre, salas.nombre) && Objects.equals(direccion, salas.direccion) && Objects.equals(capacidad, salas.capacidad) && Objects.equals(imagen, salas.imagen) && Objects.equals(administrador, salas.administrador) && Objects.equals(descripcion, salas.descripcion);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, nombre, direccion, capacidad, imagen, administrador, descripcion);
+    public Salas(Integer salaId) {
     }
 }
