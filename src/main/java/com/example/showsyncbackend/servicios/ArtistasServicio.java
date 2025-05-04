@@ -94,7 +94,6 @@ public class ArtistasServicio {
         return respuesta;
     }
 
-
     public ArtistasCatalogoDTO artistaPorId(Integer id) {
         // JPQL fetch-join:
         return artistasRepositorio.findByIdWithGeneros(id)
