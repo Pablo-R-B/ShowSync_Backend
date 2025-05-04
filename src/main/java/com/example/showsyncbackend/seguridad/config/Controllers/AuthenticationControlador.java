@@ -97,7 +97,7 @@ public class AuthenticationControlador {
                     loginRequestDTO.getEmail(),
                     loginRequestDTO.getContrasena()
             );
-            return ResponseEntity.ok(Map.of("token", token));
+            return ResponseEntity.ok( token);
         } catch (Exception e) {
             log.error("Error interno en /login", e);
             // Para depurar, devuelvo el mensaje real; luego lo puedes enmascarar otra vez
