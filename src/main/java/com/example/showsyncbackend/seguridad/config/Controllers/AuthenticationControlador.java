@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,6 +25,8 @@ public class AuthenticationControlador {
     private final AuthenticationService authenticationService;
 
     private final UsuarioRepositorio usuarioRepositorio;
+
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationControlador.class);
 
 
     public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio) {
@@ -92,9 +97,13 @@ public class AuthenticationControlador {
                     loginRequestDTO.getEmail(),
                     loginRequestDTO.getContrasena()
             );
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok( token);
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Credencialeswww incorrectas");
+            log.error("Error interno en /login", e);
+            // Para depurar, devuelvo el mensaje real; luego lo puedes enmascarar otra vez
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 

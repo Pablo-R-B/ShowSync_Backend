@@ -14,7 +14,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "generosMusicales")
+@ToString(exclude = "generosMusicales")
 @Table(name="artistas", schema = "showsync", catalog = "postgres")
 public class Artistas {
     @Id
