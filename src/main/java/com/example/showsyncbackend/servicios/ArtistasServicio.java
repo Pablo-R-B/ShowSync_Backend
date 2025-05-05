@@ -1,6 +1,5 @@
 package com.example.showsyncbackend.servicios;
 
-import com.example.showsyncbackend.dtos.ArtistaPerfilPruebaDTO;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
