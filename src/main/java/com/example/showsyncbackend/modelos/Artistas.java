@@ -30,7 +30,7 @@ public class Artistas {
     @Column(name="nombre_artista")
     private String nombreArtista;
 
-    @Column(name="biografia")
+    @Column(name="biografia", columnDefinition = "TEXT")
     private String biografia;
 
     @Column(name="music_url")

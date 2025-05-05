@@ -34,7 +34,7 @@ public class Salas {
     @JoinColumn(name = "administrador_id", nullable = false)
     private Usuario administrador;
 
-    @Column(name="descripcion")
+    @Column(name="descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(name = "ciudad")
