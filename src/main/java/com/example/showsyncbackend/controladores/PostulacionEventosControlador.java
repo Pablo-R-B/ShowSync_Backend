@@ -1,14 +1,16 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.ActualizarEstadoPostulacionDTO;
+import com.example.showsyncbackend.dtos.PostulacionDTO;
 import com.example.showsyncbackend.modelos.PostulacionEvento;
 import com.example.showsyncbackend.servicios.PostulacionEventosServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/postulacion")
 public class PostulacionEventosControlador {
@@ -20,6 +22,19 @@ public class PostulacionEventosControlador {
         PostulacionEvento ofertaPromotor = postulacionEventosServicio.nuevaOfertaPormotor(eventoId, artistaId);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/artista/{artistaId}")
+    public List<PostulacionDTO> getByArtista(@PathVariable Integer artistaId) {
+        return postulacionEventosServicio.listarPorArtista(artistaId);
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Void> actualizarEstado(
+            @PathVariable Integer id,
+            @RequestBody ActualizarEstadoPostulacionDTO req) {
+        postulacionEventosServicio.actualizarEstado(id, req.getNuevoEstado());
+        return ResponseEntity.noContent().build();
     }
 
 }
