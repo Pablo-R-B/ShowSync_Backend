@@ -44,7 +44,7 @@ public class PostulacionEvento {
     @Column(name = "fecha_postulacion", nullable = false, updatable = false)
     private LocalDateTime fechaPostulacion = LocalDateTime.now();
 
-    @Column(name = "fecha_respuesta", nullable = false)
+    @Column(name = "fecha_respuesta")
     private LocalDateTime fechaRespuesta;
 
 }
