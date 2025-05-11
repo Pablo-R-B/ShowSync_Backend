@@ -53,6 +53,14 @@ public class EventosControlador {
     }
 
     /**
+     * Obtener eventos de un promotor a partir de un id de usuario   */
+    @GetMapping("promotor/usuarioPromotor/{usuarioIdPromotor}")
+    public ResponseEntity<List<EventosDTO>> obtenerEventosDePromotorPorUsuario(@PathVariable Integer usuarioIdPromotor) {
+        List<EventosDTO> eventosDTOS = eventosServicio.listarEventosPorIdUsuario(usuarioIdPromotor);
+        return new ResponseEntity<>(eventosDTOS, HttpStatus.OK);
+    }
+
+    /**
      * Obtener eventos por estado
      * @param eventoNuevo
      * @return
