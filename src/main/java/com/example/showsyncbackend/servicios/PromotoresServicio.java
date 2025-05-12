@@ -2,6 +2,7 @@ package com.example.showsyncbackend.servicios;
 
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
+import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ public class PromotoresServicio {
 
     private final PromotoresRepositorio promotoresRepository;
     private final EventosRepositorio eventosRepository;
+    private final ArtistasRepositorio artistasRepositorio;
 
     //  Obtener perfil del promotor
     public Promotores obtenerPromotorPorId(Integer id) {

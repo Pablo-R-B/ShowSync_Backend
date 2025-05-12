@@ -43,6 +43,7 @@ public class JWTService {
         if (userDetails instanceof Usuario usuario) {
             extraClaims.put("rol", usuario.getRol().name());
             extraClaims.put("nombre", usuario.getNombreUsuario());
+            extraClaims.put("id", usuario.getId());
         }
 
 

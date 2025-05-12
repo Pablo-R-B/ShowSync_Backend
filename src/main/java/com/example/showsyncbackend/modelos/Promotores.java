@@ -24,7 +24,7 @@ public class Promotores {
     @Column(name="nombre_promotor")
     private String nombrePromotor;
 
-    @Column(name="descripcion")
+    @Column(name="descripcion", columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(name="imagen_perfil")

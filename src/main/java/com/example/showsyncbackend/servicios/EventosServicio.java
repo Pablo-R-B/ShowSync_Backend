@@ -10,12 +10,14 @@ import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -64,6 +66,20 @@ public class EventosServicio {
                         .nombrePromotor(evento.getPromotor().getNombrePromotor())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    //Obtener id y nombre de todos los eventos de un promotor mediante id de usuario
+    public List<EventosDTO> listarEventosPorIdUsuario(Integer idUsuario) {
+        Promotores promotor = promotoresRepositorio.findByUsuarioId(idUsuario)
+                .orElseThrow(()-> new EntityNotFoundException("Promotor no encontrado"));
+        Integer promotorId = promotor.getId();
+        List<Eventos> eventos = eventosRepositorio.findByPromotorId(promotorId);
+
+
+        return eventos.stream().map( ev -> EventosDTO.builder()
+                .id(ev.getId())
+                .nombreEvento(ev.getNombre_evento())
+                .build()).toList();
     }
 
     // Crear un nuevo evento para un promotor

@@ -2,6 +2,7 @@ package com.example.showsyncbackend.modelos;
 
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.enumerados.EstadoPostulacion;
+import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +15,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="postulaciones_eventos", schema = "showsync", catalog = "postgres")
+/*Este modelo sirve para las solicitudes de colaboración entre un promotor y un artista
+ * y para las postulaciones de artistas a un evento**/
 public class PostulacionEvento {
 
     @Id
@@ -33,7 +36,15 @@ public class PostulacionEvento {
     @Enumerated(EnumType.STRING)
     private EstadoPostulacion estadoPostulacion;
 
+    @Column(name = "tipo_postulacion")
+    @Enumerated(EnumType.STRING)
+    private TipoSolicitud tipoSolicitud;
+    //Diferencia entre postulacion (de artista a evento) u oferta (de promotor a artista)
+
     @Column(name = "fecha_postulacion", nullable = false, updatable = false)
     private LocalDateTime fechaPostulacion = LocalDateTime.now();
+
+    @Column(name = "fecha_respuesta")
+    private LocalDateTime fechaRespuesta;
 
 }
