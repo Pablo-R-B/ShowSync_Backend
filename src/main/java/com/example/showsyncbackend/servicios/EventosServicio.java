@@ -236,6 +236,25 @@ public class EventosServicio {
         eventosRepositorio.save(evento);
     }
 
+    public List<String> obtenerGeneros() {
+        try {
+            return eventosRepositorio.findDistinctGeneros();
+        } catch (Exception e) {
+            // Manejo de error
+            throw new RuntimeException("Error al obtener géneros musicales", e);
+        }
+    }
+
+    public List<String> obtenerEstados() {
+        try {
+            return eventosRepositorio.findDistinctEstados();
+        } catch (Exception e) {
+            // Manejo de error
+            throw new RuntimeException("Error al obtener estados", e);
+        }
+    }
+
+
 
 
 

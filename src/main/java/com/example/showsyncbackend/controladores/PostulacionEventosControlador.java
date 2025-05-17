@@ -1,5 +1,7 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.ActualizarEstadoPostulacionDTO;
+import com.example.showsyncbackend.dtos.PostulacionDTO;
 import com.example.showsyncbackend.modelos.PostulacionEvento;
 import com.example.showsyncbackend.servicios.PostulacionEventosServicio;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -56,4 +56,10 @@ public class PromotoresServicio {
     }
 
 
+    // Obtener promotor por idUsuario
+    public Promotores obtenerPromotorPorUsuarioId(Integer usuarioId) {
+        return promotoresRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
+    }
+
 }

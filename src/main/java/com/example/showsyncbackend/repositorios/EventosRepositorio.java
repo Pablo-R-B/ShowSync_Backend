@@ -5,6 +5,7 @@ import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
@@ -20,6 +21,15 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
 
 
     List<Eventos> findByPromotor(Promotores promotor);
+
+    @Query("SELECT DISTINCT g.nombre FROM Eventos e JOIN e.generosMusicales g")
+    List<String> findDistinctGeneros();
+
+
+
+    @Query("SELECT DISTINCT e.estado FROM Eventos e")
+    List<String> findDistinctEstados();
+
 
 
 }

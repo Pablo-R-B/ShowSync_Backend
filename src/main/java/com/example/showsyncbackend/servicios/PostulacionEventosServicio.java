@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.PostulacionDTO;
 import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import com.example.showsyncbackend.modelos.Artistas;
@@ -12,6 +13,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,5 +41,21 @@ public class PostulacionEventosServicio {
 
         return postulacionEventosRepositorio.save(postulacionEvento);
     }
+
+    public List<PostulacionDTO> listarPorArtista(Integer artistaId) {
+        return postulacionEventosRepositorio.findByArtistaId(artistaId).stream()
+                .map(pe -> new PostulacionDTO(pe.getId(), pe.getEvento().getNombre_evento(), pe.getEstadoPostulacion(), pe.getFechaPostulacion()))
+                .collect(Collectors.toList());
+    }
+
+    public void actualizarEstado(Integer id, EstadoPostulacion nuevoEstado) {
+        PostulacionEvento pe = postulacionEventosRepositorio.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Postulación no encontrada"));
+        pe.setEstadoPostulacion(nuevoEstado);
+        pe.setFechaRespuesta(LocalDateTime.now());
+        postulacionEventosRepositorio.save(pe);
+    }
+
+
 }
 

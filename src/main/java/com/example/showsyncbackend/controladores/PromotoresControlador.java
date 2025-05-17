@@ -1,6 +1,5 @@
 package com.example.showsyncbackend.controladores;
 
-import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.servicios.PromotoresServicio;
 import lombok.AllArgsConstructor;
@@ -66,6 +65,19 @@ public class PromotoresControlador {
     public ResponseEntity<Void> eliminarPromotor(@PathVariable Integer id) {
         promotoresServicio.eliminarPromotor(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    /**
+     * Obtener promotor por idUsuario
+     * @param idUsuario
+     * @return
+     */
+
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<Promotores> getPromotorByUsuarioId(@PathVariable Integer idUsuario) {
+        Promotores promotor = promotoresServicio.obtenerPromotorPorUsuarioId(idUsuario);
+        return ResponseEntity.ok(promotor);
     }
 
 

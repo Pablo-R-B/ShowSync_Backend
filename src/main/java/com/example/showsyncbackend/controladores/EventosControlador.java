@@ -147,6 +147,29 @@ public class EventosControlador {
     }
 
 
+    /**
+     * Obtener lista de géneros desde la base de datos
+     * @return Lista de géneros
+     */
+    @GetMapping("/generos")
+    public ResponseEntity<List<String>> obtenerGeneros() {
+        List<String> generosMusicales = eventosServicio.obtenerGeneros();
+        return ResponseEntity.ok(generosMusicales);
+    }
+
+
+    /**
+     * Obtener lista de estados desde la base de datos
+     * @return Lista de estados
+     */
+    @GetMapping("/estados")
+    public ResponseEntity<List<String>> obtenerEstados() {
+        List<String> estados = eventosServicio.obtenerEstados();
+        return new ResponseEntity<>(estados, HttpStatus.OK);
+    }
+
+
+
 
 
 
