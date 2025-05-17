@@ -6,8 +6,11 @@ import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.seguridad.config.dto.LoginRequestDTO;
 import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
+import com.example.showsyncbackend.servicios.PerfilUsuarioServicio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,10 +31,12 @@ public class AuthenticationControlador {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationControlador.class);
 
+    private final PerfilUsuarioServicio perfilUsuarioServicio;
 
-    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio) {
+    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio, PerfilUsuarioServicio perfilUsuarioServicio) {
         this.authenticationService = authenticationService;
         this.usuarioRepositorio = usuarioRepositorio;
+        this.perfilUsuarioServicio = perfilUsuarioServicio;
     }
 
     @PostMapping("/registro")
@@ -108,11 +113,25 @@ public class AuthenticationControlador {
     }
 
 
-
-
-
-
-
+    /**
+     * Endpoint para obtener el perfil del usuario autenticado
+     * @return Datos del perfil del usuario
+     */
+    @GetMapping("/perfil")
+    public ResponseEntity<?> obtenerPerfilUsuario() {
+        try {
+            Map<String, Object> datosUsuario = perfilUsuarioServicio.obtenerDatosPerfil();
+            return ResponseEntity.ok(datosUsuario);
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("No autenticado")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
+            } else if (e.getMessage().equals("Usuario no encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
+            }
+        }
+    }
 
 
 
