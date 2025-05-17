@@ -42,6 +42,7 @@ public class ArtistasServicio {
                         art.getId(),
                         art.getNombreArtista(),
                         art.getImagenPerfil(),
+                        art.getBiografia(),
                         art.getGenerosMusicales()
                                 .stream()
                                 .map(GenerosMusicales::getNombre)
@@ -77,6 +78,7 @@ public class ArtistasServicio {
                         art.getId(),
                         art.getNombreArtista(),
                         art.getImagenPerfil(),
+                        art.getBiografia(),
                         art.getGenerosMusicales()
                                 .stream()
                                 .map(GenerosMusicales::getNombre)
@@ -99,6 +101,7 @@ public class ArtistasServicio {
                 .map(art -> mapToDto(art.getId(),
                         art.getNombreArtista(),
                         art.getImagenPerfil(),
+                        art.getBiografia(),
                         art.getGenerosMusicales()
                                 .stream()
                                 .map(GenerosMusicales::getNombre)
@@ -110,8 +113,9 @@ public class ArtistasServicio {
         private ArtistasCatalogoDTO mapToDto(Integer id,
                 String nombre,
                 String imagen,
+                String biografia,
                 List<String> generos) {
-            return new ArtistasCatalogoDTO(id, nombre, imagen, generos);
+            return new ArtistasCatalogoDTO(id, nombre, imagen, biografia, generos);
         }
 
 }
