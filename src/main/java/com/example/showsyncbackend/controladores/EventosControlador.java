@@ -53,6 +53,14 @@ public class EventosControlador {
     }
 
     /**
+     * Obtener eventos de un promotor a partir de un id de usuario   */
+    @GetMapping("promotor/usuarioPromotor/{usuarioIdPromotor}")
+    public ResponseEntity<List<EventosDTO>> obtenerEventosDePromotorPorUsuario(@PathVariable Integer usuarioIdPromotor) {
+        List<EventosDTO> eventosDTOS = eventosServicio.listarEventosPorIdUsuario(usuarioIdPromotor);
+        return new ResponseEntity<>(eventosDTOS, HttpStatus.OK);
+    }
+
+    /**
      * Obtener eventos por estado
      * @param eventoNuevo
      * @return
@@ -137,6 +145,29 @@ public class EventosControlador {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+
+    /**
+     * Obtener lista de géneros desde la base de datos
+     * @return Lista de géneros
+     */
+    @GetMapping("/generos")
+    public ResponseEntity<List<String>> obtenerGeneros() {
+        List<String> generosMusicales = eventosServicio.obtenerGeneros();
+        return ResponseEntity.ok(generosMusicales);
+    }
+
+
+    /**
+     * Obtener lista de estados desde la base de datos
+     * @return Lista de estados
+     */
+    @GetMapping("/estados")
+    public ResponseEntity<List<String>> obtenerEstados() {
+        List<String> estados = eventosServicio.obtenerEstados();
+        return new ResponseEntity<>(estados, HttpStatus.OK);
+    }
+
 
 
 

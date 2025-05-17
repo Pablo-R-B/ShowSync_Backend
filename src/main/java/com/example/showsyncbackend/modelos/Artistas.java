@@ -14,7 +14,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(exclude = "generosMusicales")
+@ToString(exclude = "generosMusicales")
 @Table(name="artistas", schema = "showsync", catalog = "postgres")
 public class Artistas {
     @Id
@@ -29,7 +30,7 @@ public class Artistas {
     @Column(name="nombre_artista")
     private String nombreArtista;
 
-    @Column(name="biografia")
+    @Column(name="biografia", columnDefinition = "TEXT")
     private String biografia;
 
     @Column(name="music_url")

@@ -6,14 +6,20 @@ import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.seguridad.config.dto.LoginRequestDTO;
 import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
+import com.example.showsyncbackend.servicios.PerfilUsuarioServicio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,10 +29,14 @@ public class AuthenticationControlador {
 
     private final UsuarioRepositorio usuarioRepositorio;
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationControlador.class);
 
-    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio) {
+    private final PerfilUsuarioServicio perfilUsuarioServicio;
+
+    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio, PerfilUsuarioServicio perfilUsuarioServicio) {
         this.authenticationService = authenticationService;
         this.usuarioRepositorio = usuarioRepositorio;
+        this.perfilUsuarioServicio = perfilUsuarioServicio;
     }
 
     @PostMapping("/registro")
@@ -92,18 +102,36 @@ public class AuthenticationControlador {
                     loginRequestDTO.getEmail(),
                     loginRequestDTO.getContrasena()
             );
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok( token);
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Credencialeswww incorrectas");
+            log.error("Error interno en /login", e);
+            // Para depurar, devuelvo el mensaje real; luego lo puedes enmascarar otra vez
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
 
-
-
-
-
-
+    /**
+     * Endpoint para obtener el perfil del usuario autenticado
+     * @return Datos del perfil del usuario
+     */
+    @GetMapping("/perfil")
+    public ResponseEntity<?> obtenerPerfilUsuario() {
+        try {
+            Map<String, Object> datosUsuario = perfilUsuarioServicio.obtenerDatosPerfil();
+            return ResponseEntity.ok(datosUsuario);
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("No autenticado")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No autenticado");
+            } else if (e.getMessage().equals("Usuario no encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
+            }
+        }
+    }
 
 
 
