@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.EventosDTO;
+import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,6 +167,36 @@ public class EventosControlador {
     public ResponseEntity<List<String>> obtenerEstados() {
         List<String> estados = eventosServicio.obtenerEstados();
         return new ResponseEntity<>(estados, HttpStatus.OK);
+    }
+
+
+    /**
+     * Obtener lista de tipos de eventos desde la base de datos
+     * @return Lista de tipos de eventos
+     */
+    @PatchMapping("/cancelar/{id}")
+    public ResponseEntity<Void> cancelarEvento(@PathVariable Integer id) {
+        try {
+            eventosServicio.cambiarEstadoEvento(id, Estado.valueOf("cancelado"));
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+
+    /**
+     * Obtener lista de tipos de eventos desde la base de datos
+     * @return Lista de tipos de eventos
+     */
+    @PatchMapping("/confirmar/{id}")
+    public ResponseEntity<Void> confirmarEvento(@PathVariable Integer id) {
+        try {
+            eventosServicio.cambiarEstadoEvento(id, Estado.valueOf("confirmado"));
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
 

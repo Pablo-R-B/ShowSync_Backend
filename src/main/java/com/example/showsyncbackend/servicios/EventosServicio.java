@@ -255,6 +255,27 @@ public class EventosServicio {
     }
 
 
+    // Cambiar estado a confirmado
+    public void confirmarEvento(Integer eventoId) {
+        cambiarEstadoEvento(eventoId, Estado.confirmado);
+    }
+
+    // Cambiar estado a cancelado
+    public void cancelarEvento(Integer eventoId) {
+        cambiarEstadoEvento(eventoId, Estado.cancelado);
+    }
+
+    // Método genérico para cambiar el estado del evento
+    public void cambiarEstadoEvento(Integer eventoId, Estado nuevoEstado) {
+        Eventos evento = eventosRepositorio.findById(eventoId)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado con id: " + eventoId));
+
+        evento.setEstado(nuevoEstado);
+
+        eventosRepositorio.save(evento);
+    }
+
+
 
 
 

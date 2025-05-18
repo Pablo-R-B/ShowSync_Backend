@@ -44,7 +44,7 @@ public class PostulacionEventosServicio {
 
     public List<PostulacionDTO> listarPorArtista(Integer artistaId) {
         return postulacionEventosRepositorio.findByArtistaId(artistaId).stream()
-                .map(pe -> new PostulacionDTO(pe.getId(), pe.getEvento().getNombre_evento(), pe.getEstadoPostulacion(), pe.getFechaPostulacion()))
+                .map(pe -> new PostulacionDTO(pe.getId(), pe.getEvento().getNombre_evento(), pe.getEstadoPostulacion(), pe.getFechaPostulacion(), pe.getFechaRespuesta()))
                 .collect(Collectors.toList());
     }
 
@@ -55,6 +55,22 @@ public class PostulacionEventosServicio {
         pe.setFechaRespuesta(LocalDateTime.now());
         postulacionEventosRepositorio.save(pe);
     }
+
+
+    public List<PostulacionDTO> obtenerPorUsuario(Integer usuarioId) {
+        List<PostulacionEvento> postulaciones = postulacionEventosRepositorio.findByArtistaUsuarioId(usuarioId);
+
+        return postulaciones.stream()
+                .map(pe -> new PostulacionDTO(
+                        pe.getId(),
+                        pe.getEvento().getNombre_evento(),
+                        pe.getEstadoPostulacion(),
+                        pe.getFechaPostulacion(),
+                        pe.getFechaRespuesta()
+                ))
+                .collect(Collectors.toList());
+    }
+
 
 
 }

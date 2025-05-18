@@ -13,4 +13,5 @@ public class PostulacionDTO {
     private String eventoNombre;
     private EstadoPostulacion estado;
     private LocalDateTime fechaPostulacion;
+    private LocalDateTime fechaRespuesta;
 }
