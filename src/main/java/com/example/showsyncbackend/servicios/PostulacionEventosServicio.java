@@ -26,25 +26,36 @@ public class PostulacionEventosServicio {
     private ArtistasRepositorio artistasRepositorio;
 
     @Transactional
-    public PostulacionEvento nuevaOfertaPormotor(Integer eventoId, Integer artistaId){
+    public void nuevaSolicitud(Integer eventoId, Integer artistaId, TipoSolicitud tipo){
         Eventos evento = eventosRepository.findById(eventoId)
                 .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado"));
 
         Artistas artista = artistasRepositorio.findById(artistaId)
                 .orElseThrow(() -> new EntityNotFoundException("Artista no encontrado"));
 
-        PostulacionEvento postulacionEvento = new PostulacionEvento();
-        postulacionEvento.setEvento(evento);
-        postulacionEvento.setArtista(artista);
-        postulacionEvento.setTipoSolicitud(TipoSolicitud.oferta);
-        postulacionEvento.setEstadoPostulacion(EstadoPostulacion.pendiente);
-
-        return postulacionEventosRepositorio.save(postulacionEvento);
+        PostulacionEvento pe = new PostulacionEvento();
+        pe.setEvento(evento);
+        pe.setArtista(artista);
+        pe.setTipoSolicitud(tipo);
+        pe.setEstadoPostulacion(EstadoPostulacion.pendiente);
+        postulacionEventosRepositorio.save(pe);
     }
 
     public List<PostulacionDTO> listarPorArtista(Integer artistaId) {
         return postulacionEventosRepositorio.findByArtistaId(artistaId).stream()
                 .map(pe -> new PostulacionDTO(pe.getId(), pe.getEvento().getNombre_evento(), pe.getEstadoPostulacion(), pe.getFechaPostulacion()))
+                .collect(Collectors.toList());
+    }
+    public List<PostulacionDTO> listarPorPromotor(Integer promotorId) {
+        return postulacionEventosRepositorio
+                .findByEvento_Promotor_IdAndTipoSolicitud(promotorId, TipoSolicitud.postulacion)
+                .stream()
+                .map(pe -> new PostulacionDTO(
+                        pe.getId(),
+                        pe.getEvento().getNombre_evento(),
+                        pe.getEstadoPostulacion(),
+                        pe.getFechaPostulacion()
+                ))
                 .collect(Collectors.toList());
     }
 

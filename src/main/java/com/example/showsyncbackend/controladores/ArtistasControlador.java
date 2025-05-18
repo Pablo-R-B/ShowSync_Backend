@@ -52,5 +52,12 @@ public class ArtistasControlador {
         return ResponseEntity.ok(artistas);
     }
 
+    @GetMapping("/por-usuario/{usuarioId}")
+    public ResponseEntity<Integer> getArtistaIdByUsuario(
+            @PathVariable Integer usuarioId) {
+        Integer artistaId = artistasServicio.getArtistaIdByUsuarioId(usuarioId);
+        return ResponseEntity.ok(artistaId);
+    }
+
 
 }

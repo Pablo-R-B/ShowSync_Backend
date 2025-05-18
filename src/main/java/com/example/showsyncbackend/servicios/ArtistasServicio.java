@@ -5,6 +5,7 @@ import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,5 +118,18 @@ public class ArtistasServicio {
                 List<String> generos) {
             return new ArtistasCatalogoDTO(id, nombre, imagen, biografia, generos);
         }
+
+    /**
+     * Busca el artista cuyo usuario asociado tiene el ID dado,
+     * y devuelve el ID del artista.
+     */
+    public Integer getArtistaIdByUsuarioId(Integer usuarioId) {
+        Artistas artista = artistasRepositorio
+                .findByUsuario_Id(usuarioId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("No existe Artista para usuarioId=" + usuarioId)
+                );
+        return artista.getId();
+    }
 
 }

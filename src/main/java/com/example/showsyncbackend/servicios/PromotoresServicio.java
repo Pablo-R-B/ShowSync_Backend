@@ -1,12 +1,14 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.EvetosPostulacionArtistaDTO;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
-import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,24 +18,24 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PromotoresServicio {
 
-    private final PromotoresRepositorio promotoresRepository;
     private final EventosRepositorio eventosRepository;
-    private final ArtistasRepositorio artistasRepositorio;
+    private final EventosRepositorio eventosRepositorio;
+    private final PromotoresRepositorio promotoresRepositorio;
 
     //  Obtener perfil del promotor
     public Promotores obtenerPromotorPorId(Integer id) {
-        return promotoresRepository.findById(id)
+        return promotoresRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
     }
 
     //  Listar todos los promotores
     public List<Promotores> listarPromotores() {
-        return promotoresRepository.findAll();
+        return promotoresRepositorio.findAll();
     }
 
     //  Crear un nuevo promotor
     public Promotores crearPromotor(Promotores promotor) {
-        return promotoresRepository.save(promotor);
+        return promotoresRepositorio.save(promotor);
     }
 
     // Editar un promotor
@@ -42,7 +44,7 @@ public class PromotoresServicio {
         promotorExistente.setUsuario(promotor.getUsuario());
         promotorExistente.setNombrePromotor(promotor.getNombrePromotor());
         promotorExistente.setDescripcion(promotor.getDescripcion());
-        return promotoresRepository.save(promotorExistente);
+        return promotoresRepositorio.save(promotorExistente);
     }
 
     // Eliminar un promotor
@@ -52,14 +54,29 @@ public class PromotoresServicio {
         if (!eventos.isEmpty()) {
             throw new RuntimeException("No se puede eliminar el promotor porque tiene eventos asociados");
         }
-        promotoresRepository.delete(promotor);
+        promotoresRepositorio.delete(promotor);
     }
 
 
-    // Obtener promotor por idUsuario
+//     Obtener promotor por idUsuario
     public Promotores obtenerPromotorPorUsuarioId(Integer usuarioId) {
-        return promotoresRepository.findByUsuarioId(usuarioId)
+        return promotoresRepositorio.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
+    }
+
+    public List<EvetosPostulacionArtistaDTO> obtenerEventosPorUsuarioId(Integer usuarioId) {
+        // 1) Obtengo el promotor
+        Promotores promotor = promotoresRepositorio.findByUsuarioId(usuarioId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Promotor no encontrado para usuario " + usuarioId)
+                );
+
+        // 2) Busco sus eventos
+        return eventosRepositorio.findByPromotorId(promotor.getId())
+                .stream()
+                .map(evt -> new EvetosPostulacionArtistaDTO(evt.getId(), evt.getNombre_evento()))
+                .collect(Collectors.toList());
     }
 
 }
