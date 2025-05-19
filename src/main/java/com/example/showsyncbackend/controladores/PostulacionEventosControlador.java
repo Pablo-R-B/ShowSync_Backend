@@ -54,14 +54,13 @@ public class PostulacionEventosControlador {
 
 
     @GetMapping("/artista/{artistaId}")
-    public List<PostulacionDTO> getByArtista(@PathVariable Integer artistaId) {
-        return postulacionEventosServicio.listarPorArtista(artistaId);
+    public List<PostulacionDTO> getEventosArtista(@PathVariable Integer artistaId) {
+        return postulacionEventosServicio.listarOfertasArtista(artistaId);
     }
     @GetMapping("/promotor/{promotorId}")
-    public List<PostulacionDTO> getByPromotor(@PathVariable Integer promotorId) {
-        return postulacionEventosServicio.listarPorPromotor(promotorId);
+    public List<PostulacionDTO> getEventosPromotor(@PathVariable Integer promotorId) {
+        return postulacionEventosServicio.listarSolicitudesPromotor(promotorId);
     }
-
     @PutMapping("/{id}/estado")
     public ResponseEntity<Void> actualizarEstado(
             @PathVariable Integer id,

@@ -7,6 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PostulacionEventosRepositorio extends JpaRepository<PostulacionEvento, Integer> {
+    List<PostulacionEvento> findByArtista_IdAndTipoSolicitud(
+            Integer artistaId,
+            TipoSolicitud tipoSolicitud
+    );
+
     List<PostulacionEvento> findByArtistaId(Integer artistaId);
 
     List<PostulacionEvento> findByEvento_Promotor_IdAndTipoSolicitud(

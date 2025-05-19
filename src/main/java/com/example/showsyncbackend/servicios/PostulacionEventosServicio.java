@@ -41,23 +41,37 @@ public class PostulacionEventosServicio {
         postulacionEventosRepositorio.save(pe);
     }
 
-    public List<PostulacionDTO> listarPorArtista(Integer artistaId) {
-        return postulacionEventosRepositorio.findByArtistaId(artistaId).stream()
-                .map(pe -> new PostulacionDTO(pe.getId(), pe.getEvento().getNombre_evento(), pe.getEstadoPostulacion(), pe.getFechaPostulacion()))
-                .collect(Collectors.toList());
-    }
-    public List<PostulacionDTO> listarPorPromotor(Integer promotorId) {
+
+    public List<PostulacionDTO> listarOfertasArtista(Integer artistaId) {
         return postulacionEventosRepositorio
-                .findByEvento_Promotor_IdAndTipoSolicitud(promotorId, TipoSolicitud.postulacion)
+                .findByArtista_IdAndTipoSolicitud(artistaId, TipoSolicitud.oferta)
                 .stream()
                 .map(pe -> new PostulacionDTO(
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
+                        pe.getEvento().getPromotor().getNombrePromotor(),
+                        null,
                         pe.getEstadoPostulacion(),
                         pe.getFechaPostulacion()
                 ))
                 .collect(Collectors.toList());
     }
+
+
+        public List<PostulacionDTO> listarSolicitudesPromotor(Integer promotorId) {
+            return postulacionEventosRepositorio.findByEvento_Promotor_IdAndTipoSolicitud(promotorId, TipoSolicitud.postulacion).stream()
+                    .map(pe -> new PostulacionDTO(
+                            pe.getId(),
+                            pe.getEvento().getNombre_evento(),
+                            pe.getArtista().getNombreArtista(),
+                            null,
+                            pe.getEstadoPostulacion(),
+                            pe.getFechaPostulacion()
+                    ))
+                    .collect(Collectors.toList());
+        }
+
+
 
     public void actualizarEstado(Integer id, EstadoPostulacion nuevoEstado) {
         PostulacionEvento pe = postulacionEventosRepositorio.findById(id)
