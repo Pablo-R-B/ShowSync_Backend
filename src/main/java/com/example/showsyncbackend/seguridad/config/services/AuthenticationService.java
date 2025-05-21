@@ -3,6 +3,7 @@ package com.example.showsyncbackend.seguridad.config.services;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import jakarta.annotation.PostConstruct;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
