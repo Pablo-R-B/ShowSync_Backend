@@ -11,4 +11,8 @@ import java.util.Optional;
 public interface PromotoresRepositorio extends JpaRepository<Promotores,Integer> {
     Optional<Promotores> findByUsuarioId(Integer usuarioId);
 
+
+    Optional<Promotores> findById(Integer id);
+
+
 }

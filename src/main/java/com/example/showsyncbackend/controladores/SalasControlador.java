@@ -107,11 +107,7 @@ public class SalasControlador {
         return ResponseEntity.ok(salasServicio.buscarSalasPorProvincia(provincia));
     }
 
-    @PostMapping("/eventos/en-revision")
-    public ResponseEntity<Eventos> crearEventoEnRevision(@RequestBody EventosDTO dto) {
-        Eventos evento = eventosServicio.crearEventoEnRevision(dto);
-        return ResponseEntity.ok(evento);
-    }
+
 
 
 }

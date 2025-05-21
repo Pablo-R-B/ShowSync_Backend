@@ -1,8 +1,10 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.servicios.EventosServicio;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -167,6 +169,30 @@ public class EventosControlador {
         List<String> estados = eventosServicio.obtenerEstados();
         return new ResponseEntity<>(estados, HttpStatus.OK);
     }
+
+    @PostMapping("/reserva/sala")
+    public ResponseEntity<?> crearEventoEnRevision(@RequestBody EventosDTO dto) {
+        try {
+            RespuestaEventoRevisionDTO evento = eventosServicio.crearEventoEnRevision(dto);
+            return ResponseEntity.ok(evento);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiError(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+        } catch (Exception e) {
+            // Aquí controlas cualquier otro error (como conflicto de sala)
+            String mensaje = e.getMessage().contains("Evento ya reservado") ? e.getMessage() : "Error interno del servidor";
+            HttpStatus status = mensaje.equals("Error interno del servidor") ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.CONFLICT;
+            return ResponseEntity.status(status)
+                    .body(new ApiError(status.value(), mensaje));
+        }
+    }
+
+
+    public record ApiError(int value, String message) {}
+
+
+
+
 
 
 

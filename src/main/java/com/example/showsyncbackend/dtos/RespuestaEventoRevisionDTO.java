@@ -2,19 +2,16 @@ package com.example.showsyncbackend.dtos;
 
 
 import com.example.showsyncbackend.enumerados.Estado;
-import com.example.showsyncbackend.modelos.Eventos;
 import lombok.*;
-
 
 import java.time.LocalDate;
 import java.util.Set;
-
 
 @Data
 @Builder
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor
-public class EventosDTO {
+public class RespuestaEventoRevisionDTO {
     private Integer id;
     private String nombreEvento;
     private String descripcion;
@@ -23,10 +20,6 @@ public class EventosDTO {
     private String imagenEvento;
     private Integer idSala;
     private String nombreSala;
-    private Integer idPromotor;
     private String nombrePromotor;
-    private Set<String> generosMusicales; // Nombres de los géneros seleccionados LISSETH
-    private Set<String> artistasAsignados;
-
-
+    private Set<String> generosMusicales;
 }

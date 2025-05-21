@@ -31,5 +31,6 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     List<String> findDistinctEstados();
 
 
-
+    @Query("SELECT COUNT(e) > 0 FROM Eventos e WHERE e.sala_id.id = :salaId AND e.fecha_evento = :fecha")
+    boolean existsBySalaAndFecha(Integer salaId, java.time.LocalDate fecha);
 }
