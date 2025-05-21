@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -176,20 +177,19 @@ public class EventosControlador {
             RespuestaEventoRevisionDTO evento = eventosServicio.crearEventoEnRevision(dto);
             return ResponseEntity.ok(evento);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiError(HttpStatus.NOT_FOUND.value(), e.getMessage()));
+            return error(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (ResponseStatusException e) {
+            return error((HttpStatus) e.getStatusCode(), e.getReason());
         } catch (Exception e) {
-            // Aquí controlas cualquier otro error (como conflicto de sala)
-            String mensaje = e.getMessage().contains("Evento ya reservado") ? e.getMessage() : "Error interno del servidor";
-            HttpStatus status = mensaje.equals("Error interno del servidor") ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.CONFLICT;
-            return ResponseEntity.status(status)
-                    .body(new ApiError(status.value(), mensaje));
+            return error(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
         }
     }
 
+    private ResponseEntity<ApiError> error(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(new ApiError(status.value(), message));
+    }
 
     public record ApiError(int value, String message) {}
-
 
 
 
