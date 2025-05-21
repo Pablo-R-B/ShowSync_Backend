@@ -255,6 +255,18 @@ public class EventosServicio {
     }
 
 
+    public Eventos crearEventoEnRevision(EventosDTO dto) {
+        // Convertir el DTO a la entidad Eventos
+        Eventos evento = new Eventos();
+        evento.setNombre_evento(dto.getNombreEvento());
+        evento.setDescripcion(dto.getDescripcion());
+        evento.setFecha_evento(dto.getFechaEvento());
+        evento.setEstado(Estado.en_revision); // Estado inicial del evento
+        // Guardar el evento en la base de datos
+        return eventosRepositorio.save(evento);
+    }
+
+
 
 
 

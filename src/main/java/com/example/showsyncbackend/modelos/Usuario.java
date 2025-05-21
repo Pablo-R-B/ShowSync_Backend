@@ -107,4 +107,9 @@ public class Usuario implements UserDetails {
             throw new IllegalArgumentException("Invalid verification token.");
         }
     }
+
+    public boolean esAdmin() {
+        return this.rol == Rol.ADMINISTRADOR;
+    }
+
 }

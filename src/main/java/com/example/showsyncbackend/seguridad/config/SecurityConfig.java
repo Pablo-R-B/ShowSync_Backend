@@ -48,9 +48,6 @@ public class SecurityConfig {
 
 
                         ).permitAll()
-                        //.requestMatchers("/salas/crear").hasAuthority("ROLE_ADMINISTRADOR")
-                        //.requestMatchers("/salas/editar/**").hasAuthority("ROLE_ADMINISTRADOR")
-                        //.requestMatchers("/salas/eliminar/**").hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers("/salas/**").authenticated()
                         .anyRequest().authenticated()
                 );

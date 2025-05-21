@@ -19,4 +19,13 @@ public interface SalasRepositorio extends JpaRepository<Salas, Integer> {
             "LOWER(s.provincia) LIKE LOWER(CONCAT('%', :filtro, '%')) OR " +
             "CAST(s.capacidad AS string) LIKE CONCAT('%', :filtro, '%')")
     List<Salas> buscarSalas(@Param("filtro") String filtro);
-}
+
+
+    //Buscar sala por ciudad
+    List<Salas> findByCiudad(String ciudad);
+
+    // Buscar sala por provincia
+    List<Salas> findByProvincia(String provincia);}
+
+
+
