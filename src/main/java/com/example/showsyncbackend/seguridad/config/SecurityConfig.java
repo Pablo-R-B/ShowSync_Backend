@@ -43,6 +43,8 @@ public class SecurityConfig {
                                 "/static/**",
                                 "/promotores/**",
                                 "/eventos/**",
+                                "/artistas/**",
+                                "/genero/**",
                                 "/error"
 
 
