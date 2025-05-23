@@ -279,8 +279,16 @@ public class EventosServicio {
         Salas sala = salasRepositorio.findById(dto.getIdSala())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sala no encontrada"));
 
-        // Validar disponibilidad de sala en la fecha
+        // Validar que la fecha del evento no sea anterior a la fecha actual
         LocalDate fechaEvento = dto.getFechaEvento();
+        LocalDate fechaActual = LocalDate.now();
+
+        if (fechaEvento.isBefore(fechaActual)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No se puede crear un evento en una fecha pasada. La fecha debe ser igual o posterior a la fecha actual.");
+        }
+
+        // Validar disponibilidad de sala en la fecha
         if (eventosRepositorio.existsBySalaAndFecha(sala.getId(), fechaEvento)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha.");
         }
@@ -315,20 +323,19 @@ public class EventosServicio {
                 .collect(Collectors.toSet());
 
         // Construir respuesta
-       return RespuestaEventoRevisionDTO.builder()
-               .id(evento.getId())
-               .nombreEvento(evento.getNombre_evento())
-               .descripcion(evento.getDescripcion())
-               .fechaEvento(evento.getFecha_evento())
-               .estado(evento.getEstado())
-               .imagenEvento(evento.getImagen_evento())
-               .idSala(sala.getId())
-               .nombreSala(sala.getNombre())
-               .nombrePromotor(promotor.getNombrePromotor())
-               .generosMusicales(nombresGeneros)
-               .build();
+        return RespuestaEventoRevisionDTO.builder()
+                .id(evento.getId())
+                .nombreEvento(evento.getNombre_evento())
+                .descripcion(evento.getDescripcion())
+                .fechaEvento(evento.getFecha_evento())
+                .estado(evento.getEstado())
+                .imagenEvento(evento.getImagen_evento())
+                .idSala(sala.getId())
+                .nombreSala(sala.getNombre())
+                .nombrePromotor(promotor.getNombrePromotor())
+                .generosMusicales(nombresGeneros)
+                .build();
     }
-
 
     public Integer obtenerIdUsuarioDesdeJWT() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -339,7 +346,6 @@ public class EventosServicio {
         Claims claims = (Claims) auth.getPrincipal();
         return ((Number) claims.get("id")).intValue();
     }
-
 
 
 
