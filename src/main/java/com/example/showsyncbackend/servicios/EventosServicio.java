@@ -275,8 +275,25 @@ public class EventosServicio {
         eventosRepositorio.save(evento);
     }
 
+    // Obtener evento por promotor y eventoId
+    public EventosDTO obtenerEventoPorPromotor(Integer promotorId, Integer eventoId) {
+        Eventos evento = eventosRepositorio.findById(eventoId)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
+        if (!evento.getPromotor().getId().equals(promotorId)) {
+            throw new RuntimeException("El evento no pertenece al promotor especificado");
+        }
 
+        EventosDTO dto = new EventosDTO();
+        dto.setId(evento.getId());
+        dto.setNombreEvento(evento.getNombre_evento());
+        dto.setDescripcion(evento.getDescripcion());
+        dto.setFechaEvento(evento.getFecha_evento());
+        dto.setIdSala(evento.getSala_id() != null ? evento.getSala_id().getId() : null);
+        dto.setEstado(evento.getEstado());
+        dto.setImagenEvento(evento.getImagen_evento());
 
+        return dto;
+    }
 
 }

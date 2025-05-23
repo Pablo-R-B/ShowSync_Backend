@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/eventos")
 public class EventosControlador {
@@ -199,9 +197,19 @@ public class EventosControlador {
         }
     }
 
+    /**
+     * Obtener evento por promotor y evento
+     * @param promotorId ID del promotor
+     * @param eventoId ID del evento
+     * @return Evento como DTO
+     */
 
-
-
+    @GetMapping("/promotor/{promotorId}/evento/{eventoId}")
+    public ResponseEntity<EventosDTO> getEventoPorPromotor(@PathVariable Integer promotorId,
+                                                           @PathVariable Integer eventoId) {
+        EventosDTO eventoDTO = eventosServicio.obtenerEventoPorPromotor(promotorId, eventoId);
+        return new ResponseEntity<>(eventoDTO, HttpStatus.OK);
+    }
 
 
 
