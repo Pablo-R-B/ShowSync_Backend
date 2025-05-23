@@ -2,6 +2,7 @@ package com.example.showsyncbackend.seguridad.config;
 
 import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
 import com.example.showsyncbackend.seguridad.config.services.JWTService;
+import io.jsonwebtoken.Claims;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -63,11 +64,18 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             // Si el token es válido y no hay una autenticación actual en el contexto
             var userDetails = userDetailsService.loadUserByUsername(username);
             if (jwtService.validateToken(jwt, userDetails)) {
-                // Si el token es válido, autenticar al usuario
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
+                Claims claims = jwtService.extractAllClaims(jwt); // extraemos todos los claims del JWT
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                claims, // guardamos los claims como principal
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+
         }
 
         filterChain.doFilter(request, response); // Continuar con la siguiente parte de la cadena de filtros

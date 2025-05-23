@@ -107,10 +107,14 @@ public class SalasServicio {
 
     public List<DisponibilidadSalaDTO> consultarDisponibilidad(Integer salaId, LocalDate fechaInicio, LocalDate fechaFin) {
         LocalDate hoy = LocalDate.now();
-        LocalDate maxFecha = hoy.plusDays(90);
 
-        if (fechaInicio.isBefore(hoy) || fechaFin.isAfter(maxFecha)) {
-            throw new IllegalArgumentException("La consulta solo puede realizarse entre hoy y los próximos 90 días.");
+        // Si no se proporciona fechaFin, se establece un valor predeterminado (por ejemplo, 1 año en el futuro)
+        if (fechaFin == null) {
+            fechaFin = fechaInicio.plusYears(1);
+        }
+
+        if (fechaInicio.isBefore(hoy)) {
+            throw new IllegalArgumentException("La fecha de inicio no puede ser anterior a hoy.");
         }
 
         List<DisponibilidadSalas> disponibilidades =
@@ -169,10 +173,9 @@ public class SalasServicio {
 
     private DisponibilidadSalaDTO convertirADTO(DisponibilidadSalas d) {
         DisponibilidadSalaDTO dto = new DisponibilidadSalaDTO();
-        dto.setId(d.getId());
         dto.setFecha(d.getFecha());
         dto.setDisponibilidad(d.getDisponibilidad());
-        dto.setSala(convertirASalaDTO(d.getSala()));
+        dto.setSalaId(d.getSala().getId());
         return dto;
     }
 

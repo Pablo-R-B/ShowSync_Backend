@@ -9,6 +9,7 @@ import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import com.example.showsyncbackend.repositorios.SalasRepositorio;
+import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
@@ -16,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -262,17 +266,22 @@ public class EventosServicio {
     }
 
 
+
     public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto) {
-        // Buscar promotor y sala
-        Promotores promotor = promotoresRepositorio.findById(dto.getIdPromotor())
+        // Obtener id usuario desde JWT
+        Integer idUsuario = obtenerIdUsuarioDesdeJWT();
+
+        // Buscar promotor por ID de usuario
+        Promotores promotor = promotoresRepositorio.findByUsuarioId(idUsuario)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Promotor no encontrado"));
 
+        // Buscar sala
         Salas sala = salasRepositorio.findById(dto.getIdSala())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sala no encontrada"));
 
         // Validar disponibilidad de sala en la fecha
-        LocalDate fechaEvento = dto.getFechaEvento().atStartOfDay().toLocalDate();
-        if (eventosRepositorio.existsBySalaAndFecha(dto.getIdSala(), fechaEvento)) {
+        LocalDate fechaEvento = dto.getFechaEvento();
+        if (eventosRepositorio.existsBySalaAndFecha(sala.getId(), fechaEvento)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha.");
         }
 
@@ -306,20 +315,30 @@ public class EventosServicio {
                 .collect(Collectors.toSet());
 
         // Construir respuesta
-        return RespuestaEventoRevisionDTO.builder()
-                .id(evento.getId())
-                .nombreEvento(evento.getNombre_evento())
-                .descripcion(evento.getDescripcion())
-                .fechaEvento(evento.getFecha_evento())
-                .estado(evento.getEstado())
-                .imagenEvento(evento.getImagen_evento())
-                .idSala(sala.getId())
-                .nombreSala(sala.getNombre())
-                .nombrePromotor(promotor.getNombrePromotor())
-                .generosMusicales(nombresGeneros)
-                .build();
+       return RespuestaEventoRevisionDTO.builder()
+               .id(evento.getId())
+               .nombreEvento(evento.getNombre_evento())
+               .descripcion(evento.getDescripcion())
+               .fechaEvento(evento.getFecha_evento())
+               .estado(evento.getEstado())
+               .imagenEvento(evento.getImagen_evento())
+               .idSala(sala.getId())
+               .nombreSala(sala.getNombre())
+               .nombrePromotor(promotor.getNombrePromotor())
+               .generosMusicales(nombresGeneros)
+               .build();
     }
 
+
+    public Integer obtenerIdUsuarioDesdeJWT() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("No autenticado");
+        }
+
+        Claims claims = (Claims) auth.getPrincipal();
+        return ((Number) claims.get("id")).intValue();
+    }
 
 
 

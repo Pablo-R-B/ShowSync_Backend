@@ -3,6 +3,8 @@ package com.example.showsyncbackend.controladores;
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.modelos.Eventos;
+import com.example.showsyncbackend.modelos.GenerosMusicales;
+import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class EventosControlador {
 
     @Autowired
     private EventosServicio eventosServicio;
+
+    @Autowired
+    private GenerosMusicalesRepositorio generosMusicalesRepositorio;
 
 
     /**
@@ -171,6 +176,8 @@ public class EventosControlador {
         return new ResponseEntity<>(estados, HttpStatus.OK);
     }
 
+
+
     @PostMapping("/reserva/sala")
     public ResponseEntity<?> crearEventoEnRevision(@RequestBody EventosDTO dto) {
         try {
@@ -190,6 +197,16 @@ public class EventosControlador {
     }
 
     public record ApiError(int value, String message) {}
+
+
+    @GetMapping("/generos-musicales")
+    public ResponseEntity<List<String>> obtenerGenerosMusicales() {
+        List<String> nombres = generosMusicalesRepositorio.findAll()
+                .stream()
+                .map(GenerosMusicales::getNombre)
+                .toList();
+        return ResponseEntity.ok(nombres);
+    }
 
 
 

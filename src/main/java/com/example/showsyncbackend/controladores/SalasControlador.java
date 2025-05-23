@@ -76,9 +76,10 @@ public class SalasControlador {
     @GetMapping("/disponibilidad")
     public ResponseEntity<List<DisponibilidadSalaDTO>> consultarDisponibilidad(
             @RequestParam Integer salaId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
-        return ResponseEntity.ok(salasServicio.consultarDisponibilidad(salaId, fechaInicio, fechaFin));
+            @RequestParam LocalDate fechaInicio,
+            @RequestParam(required = false) LocalDate fechaFin) {
+        List<DisponibilidadSalaDTO> disponibilidad = salasServicio.consultarDisponibilidad(salaId, fechaInicio, fechaFin);
+        return ResponseEntity.ok(disponibilidad);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")

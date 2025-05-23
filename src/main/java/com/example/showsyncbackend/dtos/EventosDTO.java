@@ -25,7 +25,7 @@ public class EventosDTO {
     private String nombreSala;
     private Integer idPromotor;
     private String nombrePromotor;
-    private Set<String> generosMusicales; // Nombres de los géneros seleccionados LISSETH
+    private Set<String> generosMusicales;
     private Set<String> artistasAsignados;
 
 
