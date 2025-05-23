@@ -54,6 +54,6 @@ public interface ArtistasRepositorio extends JpaRepository<Artistas, Integer> {
         """)
     Optional<Artistas> findByIdWithGeneros(@Param("id") Integer id);
 
-
+    Optional<Artistas> findByUsuario_Id(Integer usuarioId);
 
 }
