@@ -310,7 +310,7 @@ public class EventosServicio {
 
         // Validar disponibilidad de sala en la fecha
         if (eventosRepositorio.existsBySalaAndFecha(sala.getId(), fechaEvento)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha. Backen");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha.");
         }
 
         // Buscar géneros musicales por nombre
