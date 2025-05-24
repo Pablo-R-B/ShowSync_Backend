@@ -1,23 +1,29 @@
 package com.example.showsyncbackend.servicios;
 
-
+import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
-import com.example.showsyncbackend.modelos.Artistas;
-import com.example.showsyncbackend.modelos.Eventos;
-import com.example.showsyncbackend.modelos.GenerosMusicales;
-import com.example.showsyncbackend.modelos.Promotores;
+import com.example.showsyncbackend.modelos.*;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
+import com.example.showsyncbackend.repositorios.SalasRepositorio;
+import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -34,6 +40,10 @@ public class EventosServicio {
 
     @Autowired
     private GenerosMusicalesRepositorio generosMusicalesRepositorio;
+
+    @Autowired
+    private SalasRepositorio salasRepositorio;
+
 
 
     // Constructor con dependencia para inyección de eventosRepositorio
@@ -274,6 +284,84 @@ public class EventosServicio {
 
         eventosRepositorio.save(evento);
     }
+
+    public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto) {
+        // Obtener id usuario desde JWT
+        Integer idUsuario = obtenerIdUsuarioDesdeJWT();
+
+        // Buscar promotor por ID de usuario
+        Promotores promotor = promotoresRepositorio.findByUsuarioId(idUsuario)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Promotor no encontrado"));
+
+        // Buscar sala
+        Salas sala = salasRepositorio.findById(dto.getIdSala())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sala no encontrada"));
+
+        // Validar disponibilidad de sala en la fecha
+        LocalDate fechaEvento = dto.getFechaEvento();
+        if (eventosRepositorio.existsBySalaAndFecha(sala.getId(), fechaEvento)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha.");
+        }
+
+        // Buscar géneros musicales por nombre
+        Set<GenerosMusicales> generos = new HashSet<>();
+        if (dto.getGenerosMusicales() != null && !dto.getGenerosMusicales().isEmpty()) {
+            generos = new HashSet<>(generosMusicalesRepositorio.findByNombreIn(dto.getGenerosMusicales()));
+            if (generos.size() != dto.getGenerosMusicales().size()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Uno o más géneros musicales no son válidos.");
+            }
+        }
+
+        // Crear evento
+        Eventos evento = Eventos.builder()
+                .nombre_evento(dto.getNombreEvento())
+                .descripcion(dto.getDescripcion())
+                .fecha_evento(dto.getFechaEvento())
+                .imagen_evento(dto.getImagenEvento())
+                .sala_id(sala)
+                .promotor(promotor)
+                .estado(Estado.en_revision)
+                .generosMusicales(generos)
+                .build();
+
+        // Guardar evento
+        evento = eventosRepositorio.save(evento);
+
+        // Convertir géneros a Set<String> para la respuesta
+        Set<String> nombresGeneros = generos.stream()
+                .map(GenerosMusicales::getNombre)
+                .collect(Collectors.toSet());
+
+        // Construir respuesta
+       return RespuestaEventoRevisionDTO.builder()
+               .id(evento.getId())
+               .nombreEvento(evento.getNombre_evento())
+               .descripcion(evento.getDescripcion())
+               .fechaEvento(evento.getFecha_evento())
+               .estado(evento.getEstado())
+               .imagenEvento(evento.getImagen_evento())
+               .idSala(sala.getId())
+               .nombreSala(sala.getNombre())
+               .nombrePromotor(promotor.getNombrePromotor())
+               .generosMusicales(nombresGeneros)
+               .build();
+    }
+
+
+    public Integer obtenerIdUsuarioDesdeJWT() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("No autenticado");
+        }
+
+        Claims claims = (Claims) auth.getPrincipal();
+        return ((Number) claims.get("id")).intValue();
+    }
+
+
+
+
+
 
     // Obtener evento por promotor y eventoId
     public EventosDTO obtenerEventoPorPromotor(Integer promotorId, Integer eventoId) {

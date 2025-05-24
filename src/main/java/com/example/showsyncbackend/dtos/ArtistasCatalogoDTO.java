@@ -11,6 +11,7 @@ public class ArtistasCatalogoDTO {
     Integer id;
     String nombreArtista;
     String imagenPerfil;
+    String biografia;
     List<String> generosMusicales;
 
 }

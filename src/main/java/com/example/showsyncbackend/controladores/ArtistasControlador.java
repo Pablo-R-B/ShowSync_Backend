@@ -43,13 +43,20 @@ public class ArtistasControlador {
     }
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/artista/{id}")
     public ResponseEntity<ArtistasCatalogoDTO> obtenerArtistasPorId(@PathVariable Integer id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido"); // [[4]]
         }
         ArtistasCatalogoDTO artistas= artistasServicio.artistaPorId(id);
         return ResponseEntity.ok(artistas);
+    }
+
+    @GetMapping("/por-usuario/{usuarioId}")
+    public ResponseEntity<Integer> getArtistaIdByUsuario(
+            @PathVariable Integer usuarioId) {
+        Integer artistaId = artistasServicio.getArtistaIdByUsuarioId(usuarioId);
+        return ResponseEntity.ok(artistaId);
     }
 
 

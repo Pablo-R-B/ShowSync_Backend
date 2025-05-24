@@ -1,13 +1,18 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
+import com.example.showsyncbackend.modelos.GenerosMusicales;
+import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.servicios.EventosServicio;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +22,9 @@ public class EventosControlador {
 
     @Autowired
     private EventosServicio eventosServicio;
+
+    @Autowired
+    private GenerosMusicalesRepositorio generosMusicalesRepositorio;
 
 
     /**
@@ -181,6 +189,41 @@ public class EventosControlador {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @PostMapping("/reserva/sala")
+    public ResponseEntity<?> crearEventoEnRevision(@RequestBody EventosDTO dto) {
+        try {
+            RespuestaEventoRevisionDTO evento = eventosServicio.crearEventoEnRevision(dto);
+            return ResponseEntity.ok(evento);
+        } catch (EntityNotFoundException e) {
+            return error(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (ResponseStatusException e) {
+            return error((HttpStatus) e.getStatusCode(), e.getReason());
+        } catch (Exception e) {
+            return error(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
+        }
+    }
+
+    private ResponseEntity<ApiError> error(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(new ApiError(status.value(), message));
+    }
+
+    public record ApiError(int value, String message) {}
+
+
+    @GetMapping("/generos-musicales")
+    public ResponseEntity<List<String>> obtenerGenerosMusicales() {
+        List<String> nombres = generosMusicalesRepositorio.findAll()
+                .stream()
+                .map(GenerosMusicales::getNombre)
+                .toList();
+        return ResponseEntity.ok(nombres);
+    }
+
+
+
+
+
 
 
     /**

@@ -10,5 +10,9 @@ public class SalaDTO {
     private Integer capacidad;
     private String imagen;
     private String descripcion;
+    private String ciudad;
+    private String provincia;
+    private String codigoPostal;
+
 }
 

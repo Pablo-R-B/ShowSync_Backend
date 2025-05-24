@@ -3,7 +3,6 @@ package com.example.showsyncbackend.seguridad.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -44,13 +43,12 @@ public class SecurityConfig {
                                 "/static/**",
                                 "/promotores/**",
                                 "/eventos/**",
+                                "/artistas/**",
+                                "/genero/**",
                                 "/error"
 
 
                         ).permitAll()
-                        //.requestMatchers("/salas/crear").hasAuthority("ROLE_ADMINISTRADOR")
-                        //.requestMatchers("/salas/editar/**").hasAuthority("ROLE_ADMINISTRADOR")
-                        //.requestMatchers("/salas/eliminar/**").hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers("/salas/**").authenticated()
                         .anyRequest().authenticated()
                 );

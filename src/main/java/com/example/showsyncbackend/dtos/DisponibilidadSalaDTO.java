@@ -12,8 +12,7 @@ public class DisponibilidadSalaDTO {
     private Integer id;
     private LocalDate fecha;
     private Boolean disponibilidad;
-    private SalaDTO sala;
-
+    private Integer salaId;
 
 
 }

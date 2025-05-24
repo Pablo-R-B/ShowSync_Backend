@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -107,4 +106,9 @@ public class Usuario implements UserDetails {
             throw new IllegalArgumentException("Invalid verification token.");
         }
     }
+
+    public boolean esAdmin() {
+        return this.rol == Rol.ADMINISTRADOR;
+    }
+
 }
