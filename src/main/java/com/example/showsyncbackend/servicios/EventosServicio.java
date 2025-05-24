@@ -1,6 +1,5 @@
 package com.example.showsyncbackend.servicios;
 
-
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
@@ -266,6 +265,25 @@ public class EventosServicio {
     }
 
 
+    // Cambiar estado a confirmado
+    public void confirmarEvento(Integer eventoId) {
+        cambiarEstadoEvento(eventoId, Estado.confirmado);
+    }
+
+    // Cambiar estado a cancelado
+    public void cancelarEvento(Integer eventoId) {
+        cambiarEstadoEvento(eventoId, Estado.cancelado);
+    }
+
+    // Método genérico para cambiar el estado del evento
+    public void cambiarEstadoEvento(Integer eventoId, Estado nuevoEstado) {
+        Eventos evento = eventosRepositorio.findById(eventoId)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado con id: " + eventoId));
+
+        evento.setEstado(nuevoEstado);
+
+        eventosRepositorio.save(evento);
+    }
 
     public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto) {
         // Obtener id usuario desde JWT
@@ -345,6 +363,25 @@ public class EventosServicio {
 
 
 
+    // Obtener evento por promotor y eventoId
+    public EventosDTO obtenerEventoPorPromotor(Integer promotorId, Integer eventoId) {
+        Eventos evento = eventosRepositorio.findById(eventoId)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
+        if (!evento.getPromotor().getId().equals(promotorId)) {
+            throw new RuntimeException("El evento no pertenece al promotor especificado");
+        }
+
+        EventosDTO dto = new EventosDTO();
+        dto.setId(evento.getId());
+        dto.setNombreEvento(evento.getNombre_evento());
+        dto.setDescripcion(evento.getDescripcion());
+        dto.setFechaEvento(evento.getFecha_evento());
+        dto.setIdSala(evento.getSala_id() != null ? evento.getSala_id().getId() : null);
+        dto.setEstado(evento.getEstado());
+        dto.setImagenEvento(evento.getImagen_evento());
+
+        return dto;
+    }
 
 }
