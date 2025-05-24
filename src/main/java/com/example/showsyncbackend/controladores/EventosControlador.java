@@ -2,6 +2,7 @@ package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
+import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
@@ -171,8 +172,8 @@ public class EventosControlador {
      * @return Lista de estados
      */
     @GetMapping("/estados")
-    public ResponseEntity<List<String>> obtenerEstados() {
-        List<String> estados = eventosServicio.obtenerEstados();
+    public ResponseEntity<List<Estado>> obtenerEstados() {
+        List<Estado> estados = eventosServicio.obtenerEstados();
         return new ResponseEntity<>(estados, HttpStatus.OK);
     }
 

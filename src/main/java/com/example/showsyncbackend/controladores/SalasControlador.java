@@ -3,7 +3,9 @@ package com.example.showsyncbackend.controladores;
 import com.example.showsyncbackend.dtos.CrearSalaRequestDTO;
 import com.example.showsyncbackend.dtos.DisponibilidadSalaDTO;
 import com.example.showsyncbackend.dtos.SalaDTO;
+import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
+import com.example.showsyncbackend.modelos.Salas;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import com.example.showsyncbackend.servicios.SalasServicio;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import com.example.showsyncbackend.dtos.EventosDTO;
 
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -74,13 +77,14 @@ public class SalasControlador {
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/disponibilidad")
-    public ResponseEntity<List<DisponibilidadSalaDTO>> consultarDisponibilidad(
+    public ResponseEntity<DisponibilidadSalaDTO> consultarDisponibilidad(
             @RequestParam Integer salaId,
-            @RequestParam LocalDate fechaInicio,
-            @RequestParam(required = false) LocalDate fechaFin) {
-        List<DisponibilidadSalaDTO> disponibilidad = salasServicio.consultarDisponibilidad(salaId, fechaInicio, fechaFin);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio) {
+        DisponibilidadSalaDTO disponibilidad = salasServicio.consultarDisponibilidadPorFecha(salaId, fechaInicio);
         return ResponseEntity.ok(disponibilidad);
     }
+
+
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @PostMapping("/solicitar")
@@ -108,6 +112,12 @@ public class SalasControlador {
         return ResponseEntity.ok(salasServicio.buscarSalasPorProvincia(provincia));
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/{salaId}/fechas-no-disponibles")
+    public ResponseEntity<List<DisponibilidadSalaDTO>> consultarFechasNoDisponibles(@PathVariable Integer salaId) {
+        return ResponseEntity.ok(salasServicio.consultarFechasNoDisponibles(salaId));
+    }
 
 
 

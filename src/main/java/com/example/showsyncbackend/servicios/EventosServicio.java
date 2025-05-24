@@ -68,11 +68,11 @@ public class EventosServicio {
                         .id(evento.getId())
                         .nombreEvento(evento.getNombre_evento())
                         .descripcion(evento.getDescripcion())
-                        .fechaEvento(evento.getFecha_evento())
+                        .fechaEvento(evento.getFechaEvento())
                         .estado(evento.getEstado())
                         .imagenEvento(evento.getImagen_evento())
-                        .idSala(evento.getSala_id().getId())
-                        .nombreSala(evento.getSala_id().getNombre())
+                        .idSala(evento.getSala().getId())
+                        .nombreSala(evento.getSala().getNombre())
                         .idPromotor(evento.getPromotor().getId())
                         .nombrePromotor(evento.getPromotor().getNombrePromotor())
                         .build())
@@ -120,8 +120,8 @@ public class EventosServicio {
         // Actualizar los datos del evento
         eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
         eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
-        eventoExistente.setFecha_evento(eventoActualizado.getFecha_evento());
-        eventoExistente.setSala_id(eventoActualizado.getSala_id());
+        eventoExistente.setFechaEvento(eventoActualizado.getFechaEvento());
+        eventoExistente.setSala(eventoActualizado.getSala());
         eventoExistente.setEstado(eventoActualizado.getEstado());
         eventoExistente.setImagen_evento(eventoActualizado.getImagen_evento());
         eventoExistente.setGenerosMusicales(eventoActualizado.getGenerosMusicales());
@@ -134,8 +134,8 @@ public class EventosServicio {
         dto.setId(eventoGuardado.getId());
         dto.setNombreEvento(eventoGuardado.getNombre_evento());
         dto.setDescripcion(eventoGuardado.getDescripcion());
-        dto.setFechaEvento(eventoGuardado.getFecha_evento());
-        dto.setIdSala(eventoGuardado.getSala_id() != null ? eventoGuardado.getSala_id().getId() : null);
+        dto.setFechaEvento(eventoGuardado.getFechaEvento());
+        dto.setIdSala(eventoGuardado.getSala() != null ? eventoGuardado.getSala().getId() : null);
         dto.setEstado(eventoGuardado.getEstado());
         dto.setImagenEvento(eventoGuardado.getImagen_evento());
 
@@ -168,11 +168,11 @@ public class EventosServicio {
                 evento.getId(),
                 evento.getNombre_evento(),
                 evento.getDescripcion(),
-                evento.getFecha_evento(),
+                evento.getFechaEvento(),
                 evento.getEstado(),
                 evento.getImagen_evento(),
-                evento.getSala_id() != null ? evento.getSala_id().getId() : null,
-                evento.getSala_id() != null ? evento.getSala_id().getNombre() : null,
+                evento.getSala() != null ? evento.getSala().getId() : null,
+                evento.getSala() != null ? evento.getSala().getNombre() : null,
                 evento.getPromotor() != null ? evento.getPromotor().getId() : null,
                 evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
                 evento.getGenerosMusicales() != null ? evento.getGenerosMusicales().stream()
@@ -196,11 +196,11 @@ public class EventosServicio {
                 evento.getId(),
                 evento.getNombre_evento(),
                 evento.getDescripcion(),
-                evento.getFecha_evento(),
+                evento.getFechaEvento(),
                 evento.getEstado(),
                 evento.getImagen_evento(),
-                evento.getSala_id().getId(),
-                evento.getSala_id().getNombre(),
+                evento.getSala().getId(),
+                evento.getSala().getNombre(),
                 evento.getPromotor().getId(),
                 evento.getPromotor().getNombrePromotor(),
                 evento.getGenerosMusicales().stream().map(GenerosMusicales::getNombre).collect(Collectors.toSet()),
@@ -214,23 +214,25 @@ public class EventosServicio {
     }
 
     private List<EventosDTO> getEventosDTOS() {
-        List<Eventos> eventos = eventosRepositorio.findByEstado(Estado.confirmado);
+        List<Estado> estadosDeseados = List.of(Estado.en_revision, Estado.confirmado);
+        List<Eventos> eventos = eventosRepositorio.findByEstadoIn(estadosDeseados);
 
         return eventos.stream()
                 .map(evento -> EventosDTO.builder()
                         .id(evento.getId())
                         .nombreEvento(evento.getNombre_evento())
                         .descripcion(evento.getDescripcion())
-                        .fechaEvento(evento.getFecha_evento())
+                        .fechaEvento(evento.getFechaEvento())
                         .estado(evento.getEstado())
                         .imagenEvento(evento.getImagen_evento())
-                        .idSala(evento.getSala_id().getId())
-                        .nombreSala(evento.getSala_id().getNombre())
+                        .idSala(evento.getSala().getId())
+                        .nombreSala(evento.getSala().getNombre())
                         .idPromotor(evento.getPromotor().getId())
                         .nombrePromotor(evento.getPromotor().getNombrePromotor())
                         .build())
                 .collect(Collectors.toList());
     }
+
 
 
     // Actualizar el seguimiento de un evento
@@ -256,7 +258,7 @@ public class EventosServicio {
         }
     }
 
-    public List<String> obtenerEstados() {
+    public List<Estado> obtenerEstados() {
         try {
             return eventosRepositorio.findDistinctEstados();
         } catch (Exception e) {
@@ -290,7 +292,7 @@ public class EventosServicio {
 
         // Validar disponibilidad de sala en la fecha
         if (eventosRepositorio.existsBySalaAndFecha(sala.getId(), fechaEvento)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha. Backen");
         }
 
         // Buscar géneros musicales por nombre
@@ -306,9 +308,9 @@ public class EventosServicio {
         Eventos evento = Eventos.builder()
                 .nombre_evento(dto.getNombreEvento())
                 .descripcion(dto.getDescripcion())
-                .fecha_evento(dto.getFechaEvento())
+                .fechaEvento(dto.getFechaEvento())
                 .imagen_evento(dto.getImagenEvento())
-                .sala_id(sala)
+                .sala(sala)
                 .promotor(promotor)
                 .estado(Estado.en_revision)
                 .generosMusicales(generos)
@@ -327,7 +329,7 @@ public class EventosServicio {
                 .id(evento.getId())
                 .nombreEvento(evento.getNombre_evento())
                 .descripcion(evento.getDescripcion())
-                .fechaEvento(evento.getFecha_evento())
+                .fechaEvento(evento.getFechaEvento())
                 .estado(evento.getEstado())
                 .imagenEvento(evento.getImagen_evento())
                 .idSala(sala.getId())
@@ -346,6 +348,9 @@ public class EventosServicio {
         Claims claims = (Claims) auth.getPrincipal();
         return ((Number) claims.get("id")).intValue();
     }
+
+
+
 
 
 

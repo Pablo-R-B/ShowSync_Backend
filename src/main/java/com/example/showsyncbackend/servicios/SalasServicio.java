@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +25,7 @@ public class SalasServicio {
     private final EventosRepositorio eventosRepositorio;
 
     public SalaDTO crearSala(CrearSalaRequestDTO request) {
+        // Obtener usuario administrador autenticado
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Usuario administrador = usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -44,6 +44,7 @@ public class SalasServicio {
 
         Salas salaGuardada = salasRepositorio.save(nuevaSala);
 
+        // Inicializar disponibilidad para los próximos 90 días (no solo 7)
         LocalDate fechaInicio = LocalDate.now();
         for (int i = 0; i < 90; i++) {
             disponibilidadSalasRepositorio.save(
@@ -105,39 +106,62 @@ public class SalasServicio {
                 .collect(Collectors.toList());
     }
 
-    public List<DisponibilidadSalaDTO> consultarDisponibilidad(Integer salaId, LocalDate fechaInicio, LocalDate fechaFin) {
-        LocalDate hoy = LocalDate.now();
+    // En SalasServicio.java
 
-        // Si no se proporciona fechaFin, se establece un valor predeterminado (por ejemplo, 1 año en el futuro)
-        if (fechaFin == null) {
-            fechaFin = fechaInicio.plusYears(1);
+    public DisponibilidadSalaDTO consultarDisponibilidadPorFecha(Integer salaId, LocalDate fecha) {
+        Salas sala = salasRepositorio.findById(salaId)
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        List<Estado> estados = List.of(Estado.en_revision, Estado.confirmado);
+
+        List<Eventos> eventosEnFecha = eventosRepositorio.findBySalaAndEstadoInAndFechaEventoBetween(
+                sala,
+                estados,
+                fecha,
+                fecha
+        );
+
+        DisponibilidadSalaDTO dto = new DisponibilidadSalaDTO();
+        dto.setFecha(fecha);
+        dto.setSalaId(salaId);
+
+        if (eventosEnFecha.isEmpty()) {
+            dto.setDisponibilidad(true);
+            dto.setEventoId(null);
+            dto.setEstadoEvento(null);
+        } else {
+            Eventos evento = eventosEnFecha.get(0); // asumimos uno por fecha
+            dto.setDisponibilidad(false);
+            dto.setEventoId(evento.getId());
+            dto.setEstadoEvento(evento.getEstado().name()); // 👈 esto es lo nuevo
         }
 
-        if (fechaInicio.isBefore(hoy)) {
-            throw new IllegalArgumentException("La fecha de inicio no puede ser anterior a hoy.");
-        }
 
-        List<DisponibilidadSalas> disponibilidades =
-                disponibilidadSalasRepositorio.findByFechaBetweenAndSalaId(fechaInicio, fechaFin, salaId);
-
-        if (disponibilidades.isEmpty()) {
-            List<DisponibilidadSalas> generadas = new ArrayList<>();
-            Salas sala = salasRepositorio.findById(salaId)
-                    .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
-            LocalDate fecha = fechaInicio;
-            while (!fecha.isAfter(fechaFin)) {
-                generadas.add(DisponibilidadSalas.builder()
-                        .sala(sala)
-                        .fecha(fecha)
-                        .disponibilidad(true)
-                        .build());
-                fecha = fecha.plusDays(1);
-            }
-            return generadas.stream().map(this::convertirADTO).collect(Collectors.toList());
-        }
-
-        return disponibilidades.stream().map(this::convertirADTO).collect(Collectors.toList());
+        return dto;
     }
+
+    public List<DisponibilidadSalaDTO> consultarFechasNoDisponibles(Integer salaId) {
+        Salas sala = salasRepositorio.findById(salaId)
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        List<Estado> estados = List.of(Estado.en_revision, Estado.confirmado);
+
+        // Trae todos los eventos con estado relevante para esta sala
+        List<Eventos> eventos = eventosRepositorio.findBySalaAndEstadoIn(sala, estados);
+
+        // Convertimos cada evento a un DTO de disponibilidad
+        return eventos.stream().map(evento -> {
+            DisponibilidadSalaDTO dto = new DisponibilidadSalaDTO();
+            dto.setFecha(evento.getFechaEvento());
+            dto.setSalaId(salaId);
+            dto.setDisponibilidad(false); // Porque estamos listando los no disponibles
+            dto.setEstadoEvento(evento.getEstado().name());
+            dto.setEventoId(evento.getId());
+            return dto;
+        }).toList();
+    }
+
+
 
     public void solicitarSala(Integer salaId, Integer promotorId, String nombreEvento, String descripcion, LocalDate fecha) {
         Salas sala = salasRepositorio.findById(salaId)
@@ -145,11 +169,11 @@ public class SalasServicio {
         Promotores promotor = promotoresServicio.obtenerPromotorPorId(promotorId);
 
         Eventos evento = Eventos.builder()
-                .sala_id(sala)
+                .sala(sala)
                 .promotor(promotor)
                 .nombre_evento(nombreEvento)
                 .descripcion(descripcion)
-                .fecha_evento(fecha)
+                .fechaEvento(fecha)
                 .estado(Estado.en_revision)
                 .imagen_evento(null)
                 .build();
@@ -179,14 +203,14 @@ public class SalasServicio {
         return dto;
     }
 
-    //Buscar sala por ciudad
+    // Buscar sala por ciudad
     public List<SalaDTO> buscarSalasPorCiudad(String ciudad) {
         return salasRepositorio.findByCiudad(ciudad).stream()
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
     }
 
-    //Buscar sala por provincia
+    // Buscar sala por provincia
     public List<SalaDTO> buscarSalasPorProvincia(String provincia) {
         return salasRepositorio.findByProvincia(provincia).stream()
                 .map(this::convertirASalaDTO)

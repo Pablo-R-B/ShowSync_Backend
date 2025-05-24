@@ -32,12 +32,12 @@ public class Eventos {
     @Column(name = "descripcion")
     private String descripcion;
 
-    @Column(name = "fecha_evento", unique = true)
-    private LocalDate fecha_evento;
+    @Column(name = "fecha_evento")
+    private LocalDate fechaEvento;
 
     @ManyToOne
-    @JoinColumn(name="sala_id", nullable = false, referencedColumnName = "id", unique = true)
-    private Salas sala_id;
+    @JoinColumn(name="sala_id", nullable = false, referencedColumnName = "id")
+    private Salas sala;
 
     @Column(name = "estado")
     @Enumerated(EnumType.STRING)
