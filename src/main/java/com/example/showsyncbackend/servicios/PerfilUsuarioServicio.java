@@ -2,6 +2,7 @@ package com.example.showsyncbackend.servicios;
 
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,15 @@ public class PerfilUsuarioServicio {
             throw new RuntimeException("No autenticado");
         }
 
-        String emailUsuario = auth.getName();
+        // Aquí asumimos que el principal son los Claims
+        Object principal = auth.getPrincipal();
+
+        if (!(principal instanceof Claims claims)) {
+            throw new RuntimeException("No autenticado");
+        }
+
+        String emailUsuario = claims.getSubject(); // <- subject contiene normalmente el email o username
+
         Usuario usuario = usuarioRepositorio.findByEmail(emailUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -35,4 +44,5 @@ public class PerfilUsuarioServicio {
                 "rol", usuario.getRol()
         );
     }
+
 }
