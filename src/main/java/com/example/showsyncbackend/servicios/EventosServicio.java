@@ -385,8 +385,8 @@ public class EventosServicio {
         dto.setId(evento.getId());
         dto.setNombreEvento(evento.getNombre_evento());
         dto.setDescripcion(evento.getDescripcion());
-        dto.setFechaEvento(evento.getFecha_evento());
-        dto.setIdSala(evento.getSala_id() != null ? evento.getSala_id().getId() : null);
+        dto.setFechaEvento(evento.getFechaEvento());
+        dto.setIdSala(evento.getSala() != null ? evento.getSala().getId() : null);
         dto.setEstado(evento.getEstado());
         dto.setImagenEvento(evento.getImagen_evento());
 
