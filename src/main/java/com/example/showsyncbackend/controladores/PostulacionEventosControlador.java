@@ -69,4 +69,9 @@ public class PostulacionEventosControlador {
         return ResponseEntity.noContent().build();
     }
 
+
+
+
+
+
 }

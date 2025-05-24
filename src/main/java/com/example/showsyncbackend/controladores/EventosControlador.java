@@ -2,6 +2,7 @@ package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
+import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
@@ -15,8 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
-
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/eventos")
 public class EventosControlador {
@@ -177,6 +176,19 @@ public class EventosControlador {
     }
 
 
+    /**
+     * Obtener lista de tipos de eventos desde la base de datos
+     * @return Lista de tipos de eventos
+     */
+    @PatchMapping("/cancelar/{id}")
+    public ResponseEntity<Void> cancelarEvento(@PathVariable Integer id) {
+        try {
+            eventosServicio.cambiarEstadoEvento(id, Estado.valueOf("cancelado"));
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
     @PostMapping("/reserva/sala")
     public ResponseEntity<?> crearEventoEnRevision(@RequestBody EventosDTO dto) {
@@ -214,6 +226,33 @@ public class EventosControlador {
 
 
 
+    /**
+     * Obtener lista de tipos de eventos desde la base de datos
+     * @return Lista de tipos de eventos
+     */
+    @PatchMapping("/confirmar/{id}")
+    public ResponseEntity<Void> confirmarEvento(@PathVariable Integer id) {
+        try {
+            eventosServicio.cambiarEstadoEvento(id, Estado.valueOf("confirmado"));
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    /**
+     * Obtener evento por promotor y evento
+     * @param promotorId ID del promotor
+     * @param eventoId ID del evento
+     * @return Evento como DTO
+     */
+
+    @GetMapping("/promotor/{promotorId}/evento/{eventoId}")
+    public ResponseEntity<EventosDTO> getEventoPorPromotor(@PathVariable Integer promotorId,
+                                                           @PathVariable Integer eventoId) {
+        EventosDTO eventoDTO = eventosServicio.obtenerEventoPorPromotor(promotorId, eventoId);
+        return new ResponseEntity<>(eventoDTO, HttpStatus.OK);
+    }
 
 
 
