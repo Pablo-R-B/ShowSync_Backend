@@ -14,6 +14,7 @@ public class PostulacionDTO {
     private String promotorNombre;
     private EstadoPostulacion estado;
     private LocalDateTime fechaPostulacion;
+    private LocalDateTime fechaRespuesta;
 
 
     public PostulacionDTO(
@@ -31,4 +32,5 @@ public class PostulacionDTO {
         this.estado = estado;
         this.fechaPostulacion = fechaPostulacion;
     }
+
 }
