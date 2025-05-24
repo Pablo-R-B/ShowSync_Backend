@@ -54,7 +54,7 @@ public class EventosServicio {
 
     // Obtener todos los eventos confirmados
     public List<EventosDTO> obtenerEventosConfirmados() {
-        // Busca todos los eventos que tienen el estado confirmado
+        // Busca todos los eventos que tienen el esta do confirmado
         return getEventosDTOS();
     }
 
