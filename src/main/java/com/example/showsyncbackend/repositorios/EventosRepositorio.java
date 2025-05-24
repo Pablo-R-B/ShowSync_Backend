@@ -4,11 +4,12 @@ package com.example.showsyncbackend.repositorios;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
+import com.example.showsyncbackend.modelos.Salas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -28,9 +29,24 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
 
 
     @Query("SELECT DISTINCT e.estado FROM Eventos e")
-    List<String> findDistinctEstados();
+    List<Estado> findDistinctEstados();
 
 
-    @Query("SELECT COUNT(e) > 0 FROM Eventos e WHERE e.sala_id.id = :salaId AND e.fecha_evento = :fecha")
-    boolean existsBySalaAndFecha(Integer salaId, java.time.LocalDate fecha);
+
+    @Query("SELECT COUNT(e) > 0 FROM Eventos e WHERE e.sala.id = :salaId AND e.fechaEvento = :fecha")
+    boolean existsBySalaAndFecha(Integer salaId, LocalDate fecha);
+
+    List<Eventos> findByEstadoIn(List<Estado> estados);
+
+
+
+    List<Eventos> findBySalaAndEstadoInAndFechaEventoBetween(
+            Salas sala,
+            List<Estado> estados,
+            LocalDate desde,
+            LocalDate hasta
+    );
+
+
+    List<Eventos> findBySalaAndEstadoIn(Salas sala, List<Estado> estados);
 }
