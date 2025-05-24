@@ -27,18 +27,8 @@ public class SalasServicio {
     private final EventosRepositorio eventosRepositorio;
 
     public SalaDTO crearSala(CrearSalaRequestDTO request) {
-        // Obtener usuario administrador autenticado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        String email;
-        if (authentication.getPrincipal() instanceof Claims) {
-            // Si el principal son Claims (como en tu JWTAuthFilter)
-            Claims claims = (Claims) authentication.getPrincipal();
-            email = claims.getSubject(); // El username está en el subject del JWT
-        } else {
-            // Fallback para otros tipos de autenticación
-            email = authentication.getName();
-        }
+        Claims claims = obtenerClaimsDesdeContexto();
+        String email = claims.getSubject();
 
         Usuario administrador = usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -57,7 +47,6 @@ public class SalasServicio {
 
         Salas salaGuardada = salasRepositorio.save(nuevaSala);
 
-        // Inicializar disponibilidad para los próximos 90 días
         LocalDate fechaInicio = LocalDate.now();
         for (int i = 0; i < 90; i++) {
             disponibilidadSalasRepositorio.save(
@@ -70,6 +59,16 @@ public class SalasServicio {
         }
 
         return convertirASalaDTO(salaGuardada);
+    }
+
+    // Método reutilizable para obtener Claims desde el SecurityContext
+    private Claims obtenerClaimsDesdeContexto() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof Claims claims) {
+            return claims;
+        } else {
+            throw new RuntimeException("No se pudieron obtener los claims del contexto de seguridad");
+        }
     }
 
 
