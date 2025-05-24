@@ -37,11 +37,7 @@ public class PostulacionEventosControlador {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/test-usuario/{usuarioId}")
-    public ResponseEntity<List<PostulacionDTO>> getByUsuario(@PathVariable Integer usuarioId) {
-        List<PostulacionDTO> postulaciones = postulacionEventosServicio.obtenerPorUsuario(usuarioId);
-        return ResponseEntity.ok(postulaciones);
-    }
+
 
 
 

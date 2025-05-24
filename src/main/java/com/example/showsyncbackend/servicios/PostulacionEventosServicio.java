@@ -57,19 +57,7 @@ public class PostulacionEventosServicio {
     }
 
 
-    public List<PostulacionDTO> obtenerPorUsuario(Integer usuarioId) {
-        List<PostulacionEvento> postulaciones = postulacionEventosRepositorio.findByArtistaUsuarioId(usuarioId);
 
-        return postulaciones.stream()
-                .map(pe -> new PostulacionDTO(
-                        pe.getId(),
-                        pe.getEvento().getNombre_evento(),
-                        pe.getEstadoPostulacion(),
-                        pe.getFechaPostulacion(),
-                        pe.getFechaRespuesta()
-                ))
-                .collect(Collectors.toList());
-    }
 
 
 
