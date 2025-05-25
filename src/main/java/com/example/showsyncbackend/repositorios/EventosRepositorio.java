@@ -20,6 +20,9 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     List<Eventos> findByPromotorId(Integer promotorId);
 
 
+
+
+
     List<Eventos> findByPromotor(Promotores promotor);
 
     @Query("SELECT DISTINCT g.nombre FROM Eventos e JOIN e.generosMusicales g")
