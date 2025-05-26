@@ -9,12 +9,12 @@ import com.example.showsyncbackend.modelos.Salas;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import com.example.showsyncbackend.servicios.SalasServicio;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.showsyncbackend.dtos.EventosDTO;
-
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -48,26 +48,37 @@ public class SalasControlador {
         return ResponseEntity.noContent().build();
     }
 
-    // Solo adm y promotor pueden ver y consultar  salas
+    // Solo adm y promotor pueden ver y consultar salas
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/{id}")
     public ResponseEntity<SalaDTO> obtenerSalaPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(salasServicio.obtenerSalaPorId(id));
     }
 
-  @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
-  @GetMapping("/todas")
-  public ResponseEntity<List<SalaDTO>> obtenerTodasLasSalas(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "6") int size,
-          @RequestParam(value = "termino", required = false) String termino) {
-      return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas(page, size, termino));
-  }
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/todas")
+    public ResponseEntity<List<SalaDTO>> obtenerTodasLasSalas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(value = "termino", required = false) String termino) {
+        return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas(page, size, termino));
+    }
 
+    // Búsqueda sin paginación (para casos específicos)
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/buscar")
     public ResponseEntity<List<SalaDTO>> buscarSalas(@RequestParam("filtro") String filtro) {
         return ResponseEntity.ok(salasServicio.buscarSalas(filtro));
+    }
+
+    // Búsqueda con paginación
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/buscar-paginado")
+    public ResponseEntity<Page<SalaDTO>> buscarSalasConPaginacion(
+            @RequestParam("filtro") String filtro,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        return ResponseEntity.ok(salasServicio.buscarSalasConPaginacion(filtro, page, size));
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
@@ -90,8 +101,6 @@ public class SalasControlador {
         return ResponseEntity.ok(disponibilidad);
     }
 
-
-
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @PostMapping("/solicitar")
     public ResponseEntity<String> solicitarSala(
@@ -104,27 +113,43 @@ public class SalasControlador {
         return ResponseEntity.ok("Solicitud de sala enviada correctamente.");
     }
 
-
-
+    // Buscar por ciudad sin paginación
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/buscar-por-ciudad")
     public ResponseEntity<List<SalaDTO>> buscarSalasPorCiudad(@RequestParam("ciudad") String ciudad) {
         return ResponseEntity.ok(salasServicio.buscarSalasPorCiudad(ciudad));
     }
 
+    // Buscar por ciudad con paginación
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/buscar-por-ciudad-paginado")
+    public ResponseEntity<Page<SalaDTO>> buscarSalasPorCiudadConPaginacion(
+            @RequestParam("ciudad") String ciudad,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        return ResponseEntity.ok(salasServicio.buscarSalasPorCiudadConPaginacion(ciudad, page, size));
+    }
+
+    // Buscar por provincia sin paginación
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/buscar-por-provincia")
     public ResponseEntity<List<SalaDTO>> buscarSalasPorProvincia(@RequestParam("provincia") String provincia) {
         return ResponseEntity.ok(salasServicio.buscarSalasPorProvincia(provincia));
     }
 
+    // Buscar por provincia con paginación
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/buscar-por-provincia-paginado")
+    public ResponseEntity<Page<SalaDTO>> buscarSalasPorProvinciaConPaginacion(
+            @RequestParam("provincia") String provincia,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size) {
+        return ResponseEntity.ok(salasServicio.buscarSalasPorProvinciaConPaginacion(provincia, page, size));
+    }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/{salaId}/fechas-no-disponibles")
     public ResponseEntity<List<DisponibilidadSalaDTO>> consultarFechasNoDisponibles(@PathVariable Integer salaId) {
         return ResponseEntity.ok(salasServicio.consultarFechasNoDisponibles(salaId));
     }
-
-
-
 }
