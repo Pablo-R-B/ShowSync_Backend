@@ -101,7 +101,7 @@ public class SalasServicio {
         return convertirASalaDTO(sala);
     }
 
-    public List<SalaDTO> obtenerTodasLasSalas() {
+    public List<SalaDTO> obtenerTodasLasSalas(int page, int size, String termino) {
         return salasRepositorio.findAll().stream()
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
@@ -113,7 +113,7 @@ public class SalasServicio {
                 .collect(Collectors.toList());
     }
 
-    public List<SalaDTO> filtrarPorCapacidad(Integer min, Integer max) {
+    public List<SalaDTO> filtrarPorCapacidad(Integer min, Integer max, int page, int size, String termino) {
         return salasRepositorio.filtrarPorCapacidad(min, max).stream()
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
@@ -229,4 +229,6 @@ public class SalasServicio {
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
     }
+
+
 }

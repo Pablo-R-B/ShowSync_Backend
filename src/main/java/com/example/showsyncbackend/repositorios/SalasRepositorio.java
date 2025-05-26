@@ -25,7 +25,9 @@ public interface SalasRepositorio extends JpaRepository<Salas, Integer> {
     List<Salas> findByCiudad(String ciudad);
 
     // Buscar sala por provincia
-    List<Salas> findByProvincia(String provincia);}
+    List<Salas> findByProvincia(String provincia);
+
+}
 
 
 

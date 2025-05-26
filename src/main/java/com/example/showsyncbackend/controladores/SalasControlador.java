@@ -55,11 +55,14 @@ public class SalasControlador {
         return ResponseEntity.ok(salasServicio.obtenerSalaPorId(id));
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
-    @GetMapping("/todas")
-    public ResponseEntity<List<SalaDTO>> obtenerTodasLasSalas() {
-        return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas());
-    }
+  @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+  @GetMapping("/todas")
+  public ResponseEntity<List<SalaDTO>> obtenerTodasLasSalas(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "6") int size,
+          @RequestParam(value = "termino", required = false) String termino) {
+      return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas(page, size, termino));
+  }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
     @GetMapping("/buscar")
@@ -71,8 +74,11 @@ public class SalasControlador {
     @GetMapping("/filtrar")
     public ResponseEntity<List<SalaDTO>> filtrarPorCapacidad(
             @RequestParam("capacidadMinima") Integer capacidadMinima,
-            @RequestParam("capacidadMaxima") Integer capacidadMaxima) {
-        return ResponseEntity.ok(salasServicio.filtrarPorCapacidad(capacidadMinima, capacidadMaxima));
+            @RequestParam("capacidadMaxima") Integer capacidadMaxima,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(value = "termino", required = false) String termino) {
+        return ResponseEntity.ok(salasServicio.filtrarPorCapacidad(capacidadMinima, capacidadMaxima, page, size, termino));
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
