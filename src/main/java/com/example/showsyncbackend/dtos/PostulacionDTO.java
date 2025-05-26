@@ -1,9 +1,11 @@
 package com.example.showsyncbackend.dtos;
 
 import com.example.showsyncbackend.enumerados.EstadoPostulacion;
+import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,9 +14,11 @@ public class PostulacionDTO {
     private String eventoNombre;
     private String artistaNombre;
     private String promotorNombre;
+    private String eventoImagen;
     private EstadoPostulacion estado;
-    private LocalDateTime fechaPostulacion;
-    private LocalDateTime fechaRespuesta;
+    private LocalDate fechaPostulacion;
+    private LocalDate fechaRespuesta;
+    private TipoSolicitud tipoSolicitud;
 
 
     public PostulacionDTO(
@@ -22,15 +26,19 @@ public class PostulacionDTO {
             String eventoNombre,
             String artistaNombre,
             String promotorNombre,
+            String eventoImagen,
             EstadoPostulacion estado,
-            LocalDateTime fechaPostulacion
+            LocalDate fechaPostulacion,
+            TipoSolicitud tipoSolicitud
     ) {
         this.id = id;
         this.eventoNombre = eventoNombre;
         this.artistaNombre = artistaNombre;
         this.promotorNombre = promotorNombre;
+        this.eventoImagen = eventoImagen;
         this.estado = estado;
         this.fechaPostulacion = fechaPostulacion;
+        this.tipoSolicitud = tipoSolicitud;
     }
 
 }

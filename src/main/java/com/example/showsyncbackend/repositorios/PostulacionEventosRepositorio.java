@@ -18,4 +18,10 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
             Integer promotorId,
             TipoSolicitud tipoSolicitud
     );
+
+    List<PostulacionEvento> findByEvento_Promotor_IdAndTipoSolicitudIn(
+            Integer promotorId,
+            List<TipoSolicitud> tiposSolicitud
+    );
+
 }

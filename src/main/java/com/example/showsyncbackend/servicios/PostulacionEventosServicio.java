@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,27 +50,36 @@ public class PostulacionEventosServicio {
                 .map(pe -> new PostulacionDTO(
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
+                        pe.getEvento().getImagen_evento(),
                         pe.getEvento().getPromotor().getNombrePromotor(),
                         null,
                         pe.getEstadoPostulacion(),
-                        pe.getFechaPostulacion()
+                        pe.getFechaPostulacion(),
+                        pe.getTipoSolicitud()
                 ))
                 .collect(Collectors.toList());
     }
 
 
-        public List<PostulacionDTO> listarSolicitudesPromotor(Integer promotorId) {
-            return postulacionEventosRepositorio.findByEvento_Promotor_IdAndTipoSolicitud(promotorId, TipoSolicitud.postulacion).stream()
-                    .map(pe -> new PostulacionDTO(
-                            pe.getId(),
-                            pe.getEvento().getNombre_evento(),
-                            pe.getArtista().getNombreArtista(),
-                            null,
-                            pe.getEstadoPostulacion(),
-                            pe.getFechaPostulacion()
-                    ))
-                    .collect(Collectors.toList());
-        }
+
+    /**Lista las solicitudes del promotor en perfil promotores
+     * (del promotor arl artista y del artista al promotor)*/
+    public List<PostulacionDTO> listarSolicitudesPromotor(Integer promotorId) {
+        return postulacionEventosRepositorio.findByEvento_Promotor_IdAndTipoSolicitudIn(promotorId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
+                .stream()
+                .map(pe -> new PostulacionDTO(
+                        pe.getId(),
+                        pe.getEvento().getNombre_evento(),
+                        pe.getArtista().getNombreArtista(),
+                        null,
+                        pe.getEvento().getImagen_evento(),
+                        pe.getEstadoPostulacion(),
+                        pe.getFechaPostulacion(),
+                        pe.getTipoSolicitud()
+                ))
+                .collect(Collectors.toList());
+    }
+
 
 
 
@@ -77,7 +87,7 @@ public class PostulacionEventosServicio {
         PostulacionEvento pe = postulacionEventosRepositorio.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Postulación no encontrada"));
         pe.setEstadoPostulacion(nuevoEstado);
-        pe.setFechaRespuesta(LocalDateTime.now());
+        pe.setFechaRespuesta(LocalDate.now());
         postulacionEventosRepositorio.save(pe);
     }
 

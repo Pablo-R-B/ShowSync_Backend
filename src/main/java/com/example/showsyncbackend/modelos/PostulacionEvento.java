@@ -6,6 +6,7 @@ import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -42,9 +43,9 @@ public class PostulacionEvento {
     //Diferencia entre postulacion (de artista a evento) u oferta (de promotor a artista)
 
     @Column(name = "fecha_postulacion", nullable = false, updatable = false)
-    private LocalDateTime fechaPostulacion = LocalDateTime.now();
+    private LocalDate fechaPostulacion = LocalDate.now();
 
     @Column(name = "fecha_respuesta")
-    private LocalDateTime fechaRespuesta;
+    private LocalDate fechaRespuesta;
 
 }
