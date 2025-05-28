@@ -1,14 +1,12 @@
 package com.example.showsyncbackend.modelos;
 
-import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Objects;
+
 
 @Entity
 @Data
