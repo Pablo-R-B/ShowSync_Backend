@@ -31,6 +31,7 @@ public class EventosControlador {
     private GenerosMusicalesRepositorio generosMusicalesRepositorio;
 
 
+
     /**
      * Obtener eventos confirmados
      * @return

@@ -6,6 +6,7 @@ import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
@@ -36,4 +37,11 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
 
     @Query("SELECT COUNT(e) > 0 FROM Eventos e WHERE e.sala_id.id = :salaId AND e.fecha_evento = :fecha")
     boolean existsBySalaAndFecha(Integer salaId, java.time.LocalDate fecha);
+
+    @Query("SELECT e FROM Eventos e " +
+            "LEFT JOIN FETCH e.generosMusicales " +
+            "LEFT JOIN FETCH e.artistasAsignados")
+    List<Eventos> findAllWithLazyCollections();
+
+
 }

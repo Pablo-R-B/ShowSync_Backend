@@ -5,9 +5,15 @@ import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/artistas")
@@ -58,6 +64,25 @@ public class ArtistasControlador {
         Integer artistaId = artistasServicio.getArtistaIdByUsuarioId(usuarioId);
         return ResponseEntity.ok(artistaId);
     }
+
+
+    /**
+     * Obtiene una lista de artistas asignados a eventos de un promotor específico.
+     *
+     * @param promotorId El ID del promotor.
+     * @return Una lista de DTOs de artistas asignados al promotor.
+     */
+    @GetMapping("/promotor/{promotorId}")
+    public ResponseEntity<Page<ArtistasCatalogoDTO>> getArtistasPorPromotor(
+            @PathVariable Integer promotorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ArtistasCatalogoDTO> artistas = artistasServicio.obtenerArtistasPorPromotor(promotorId, pageable);
+        return ResponseEntity.ok(artistas);
+    }
+
 
 
 }
