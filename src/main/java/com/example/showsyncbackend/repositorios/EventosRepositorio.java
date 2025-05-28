@@ -26,6 +26,9 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     @Query("SELECT DISTINCT g.nombre FROM Eventos e JOIN e.generosMusicales g")
     List<String> findDistinctGeneros();
 
+    @Query("SELECT e.sala.nombre, COUNT(e) FROM Eventos e GROUP BY e.sala.nombre")
+    List<Object[]> obtenerCantidadReservasPorSala();
+
 
 
     @Query("SELECT DISTINCT e.estado FROM Eventos e")

@@ -152,4 +152,10 @@ public class SalasControlador {
     public ResponseEntity<List<DisponibilidadSalaDTO>> consultarFechasNoDisponibles(@PathVariable Integer salaId) {
         return ResponseEntity.ok(salasServicio.consultarFechasNoDisponibles(salaId));
     }
+
+
+    @GetMapping("/reservas")
+    public List<Object[]> obtenerCantidadReservasPorSala() {
+        return salasServicio.obtenerCantidadReservasPorSala();
+    }
 }

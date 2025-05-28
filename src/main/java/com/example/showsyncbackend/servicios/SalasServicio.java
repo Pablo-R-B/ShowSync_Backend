@@ -267,4 +267,8 @@ public class SalasServicio {
         dto.setSalaId(d.getSala().getId());
         return dto;
     }
+
+    public List<Object[]> obtenerCantidadReservasPorSala() {
+        return eventosRepositorio.obtenerCantidadReservasPorSala();
+    }
 }
