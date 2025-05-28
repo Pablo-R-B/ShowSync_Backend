@@ -4,6 +4,7 @@ import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,8 +14,8 @@ public class PostulacionDTO {
     private String artistaNombre;
     private String promotorNombre;
     private EstadoPostulacion estado;
-    private LocalDateTime fechaPostulacion;
-    private LocalDateTime fechaRespuesta;
+    private LocalDate fechaPostulacion;
+    private LocalDate fechaRespuesta;
 
 
     public PostulacionDTO(
@@ -30,7 +31,7 @@ public class PostulacionDTO {
         this.artistaNombre = artistaNombre;
         this.promotorNombre = promotorNombre;
         this.estado = estado;
-        this.fechaPostulacion = fechaPostulacion;
+        this.fechaPostulacion = LocalDate.from(fechaPostulacion);
     }
 
 }
