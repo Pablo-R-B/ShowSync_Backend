@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,7 +78,7 @@ public class PostulacionEventosServicio {
         PostulacionEvento pe = postulacionEventosRepositorio.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Postulación no encontrada"));
         pe.setEstadoPostulacion(nuevoEstado);
-        pe.setFechaRespuesta(LocalDateTime.now());
+        pe.setFechaRespuesta(LocalDate.now());
         postulacionEventosRepositorio.save(pe);
     }
 
