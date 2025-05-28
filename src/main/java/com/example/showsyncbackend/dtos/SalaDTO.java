@@ -1,7 +1,9 @@
 package com.example.showsyncbackend.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+@AllArgsConstructor
 @Data
 public class SalaDTO {
     private Integer id;
@@ -14,5 +16,8 @@ public class SalaDTO {
     private String provincia;
     private String codigoPostal;
 
+    public SalaDTO() {
+
+    }
 }
 

@@ -15,4 +15,5 @@ public interface GenerosMusicalesRepositorio extends JpaRepository<GenerosMusica
 
     List<GenerosMusicales> findByNombreIn(Set<String> nombres);
 
+    boolean existsByNombre(String nombre);
 }

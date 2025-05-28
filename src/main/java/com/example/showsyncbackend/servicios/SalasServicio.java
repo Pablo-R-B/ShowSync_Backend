@@ -8,6 +8,10 @@ import com.example.showsyncbackend.modelos.*;
 import com.example.showsyncbackend.repositorios.*;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -71,7 +75,6 @@ public class SalasServicio {
         }
     }
 
-
     public SalaDTO editarSala(Integer salaId, CrearSalaRequestDTO request) {
         Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
@@ -101,25 +104,49 @@ public class SalasServicio {
         return convertirASalaDTO(sala);
     }
 
-    public List<SalaDTO> obtenerTodasLasSalas() {
-        return salasRepositorio.findAll().stream()
+    public List<SalaDTO> obtenerTodasLasSalas(int page, int size, String termino) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+        Page<Salas> salasPage;
+
+        if (termino != null && !termino.trim().isEmpty()) {
+            salasPage = salasRepositorio.findAllConTermino(termino.trim(), pageable);
+        } else {
+            salasPage = salasRepositorio.findAll(pageable);
+        }
+
+        return salasPage.getContent().stream()
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
     }
 
     public List<SalaDTO> buscarSalas(String filtro) {
-        return salasRepositorio.buscarSalas(filtro).stream()
+        return salasRepositorio.buscarSalasSinPaginacion(filtro).stream()
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<SalaDTO> filtrarPorCapacidad(Integer min, Integer max) {
-        return salasRepositorio.filtrarPorCapacidad(min, max).stream()
+    // Método con paginación para búsqueda
+    public Page<SalaDTO> buscarSalasConPaginacion(String filtro, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+        Page<Salas> salasPage = salasRepositorio.buscarSalas(filtro, pageable);
+
+        return salasPage.map(this::convertirASalaDTO);
+    }
+
+    public List<SalaDTO> filtrarPorCapacidad(Integer min, Integer max, int page, int size, String termino) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("capacidad").ascending());
+        Page<Salas> salasPage;
+
+        if (termino != null && !termino.trim().isEmpty()) {
+            salasPage = salasRepositorio.filtrarPorCapacidadConTermino(min, max, termino.trim(), pageable);
+        } else {
+            salasPage = salasRepositorio.filtrarPorCapacidad(min, max, pageable);
+        }
+
+        return salasPage.getContent().stream()
                 .map(this::convertirASalaDTO)
                 .collect(Collectors.toList());
     }
-
-    // En SalasServicio.java
 
     public DisponibilidadSalaDTO consultarDisponibilidadPorFecha(Integer salaId, LocalDate fecha) {
         Salas sala = salasRepositorio.findById(salaId)
@@ -143,12 +170,11 @@ public class SalasServicio {
             dto.setEventoId(null);
             dto.setEstadoEvento(null);
         } else {
-            Eventos evento = eventosEnFecha.get(0); // asumimos uno por fecha
+            Eventos evento = eventosEnFecha.get(0);
             dto.setDisponibilidad(false);
             dto.setEventoId(evento.getId());
-            dto.setEstadoEvento(evento.getEstado().name()); // 👈 esto es lo nuevo
+            dto.setEstadoEvento(evento.getEstado().name());
         }
-
 
         return dto;
     }
@@ -159,22 +185,18 @@ public class SalasServicio {
 
         List<Estado> estados = List.of(Estado.en_revision, Estado.confirmado);
 
-        // Trae todos los eventos con estado relevante para esta sala
         List<Eventos> eventos = eventosRepositorio.findBySalaAndEstadoIn(sala, estados);
 
-        // Convertimos cada evento a un DTO de disponibilidad
         return eventos.stream().map(evento -> {
             DisponibilidadSalaDTO dto = new DisponibilidadSalaDTO();
             dto.setFecha(evento.getFechaEvento());
             dto.setSalaId(salaId);
-            dto.setDisponibilidad(false); // Porque estamos listando los no disponibles
+            dto.setDisponibilidad(false);
             dto.setEstadoEvento(evento.getEstado().name());
             dto.setEventoId(evento.getId());
             return dto;
         }).toList();
     }
-
-
 
     public void solicitarSala(Integer salaId, Integer promotorId, String nombreEvento, String descripcion, LocalDate fecha) {
         Salas sala = salasRepositorio.findById(salaId)
@@ -192,6 +214,36 @@ public class SalasServicio {
                 .build();
 
         eventosRepositorio.save(evento);
+    }
+
+    // Buscar sala por ciudad sin paginación
+    public List<SalaDTO> buscarSalasPorCiudad(String ciudad) {
+        return salasRepositorio.findByCiudadIgnoreCase(ciudad).stream()
+                .map(this::convertirASalaDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Buscar sala por ciudad con paginación
+    public Page<SalaDTO> buscarSalasPorCiudadConPaginacion(String ciudad, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+        Page<Salas> salasPage = salasRepositorio.findByCiudad(ciudad, pageable);
+
+        return salasPage.map(this::convertirASalaDTO);
+    }
+
+    // Buscar sala por provincia sin paginación
+    public List<SalaDTO> buscarSalasPorProvincia(String provincia) {
+        return salasRepositorio.findByProvinciaIgnoreCase(provincia).stream()
+                .map(this::convertirASalaDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Buscar sala por provincia con paginación
+    public Page<SalaDTO> buscarSalasPorProvinciaConPaginacion(String provincia, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+        Page<Salas> salasPage = salasRepositorio.findByProvincia(provincia, pageable);
+
+        return salasPage.map(this::convertirASalaDTO);
     }
 
     private SalaDTO convertirASalaDTO(Salas sala) {
@@ -214,19 +266,5 @@ public class SalasServicio {
         dto.setDisponibilidad(d.getDisponibilidad());
         dto.setSalaId(d.getSala().getId());
         return dto;
-    }
-
-    // Buscar sala por ciudad
-    public List<SalaDTO> buscarSalasPorCiudad(String ciudad) {
-        return salasRepositorio.findByCiudad(ciudad).stream()
-                .map(this::convertirASalaDTO)
-                .collect(Collectors.toList());
-    }
-
-    // Buscar sala por provincia
-    public List<SalaDTO> buscarSalasPorProvincia(String provincia) {
-        return salasRepositorio.findByProvincia(provincia).stream()
-                .map(this::convertirASalaDTO)
-                .collect(Collectors.toList());
     }
 }
