@@ -13,7 +13,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -411,8 +410,8 @@ public class EventosServicio {
                 .fechaEvento(evento.getFechaEvento())
                 .estado(evento.getEstado())
                 .imagenEvento(evento.getImagen_evento())
-                .idSala(evento.getSala() != null ? evento.getSala_id().getId() : null)
-                .nombreSala(evento.getSala() != null ? evento.getSala_id().getNombre() : null)
+                .idSala(evento.getSala() != null ? evento.getSala().getId() : null)
+                .nombreSala(evento.getSala() != null ? evento.getSala().getNombre() : null)
                 .idPromotor(evento.getPromotor() != null ? evento.getPromotor().getId() : null)
                 .nombrePromotor(evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null)
                 .generosMusicales(evento.getGenerosMusicales().stream()
