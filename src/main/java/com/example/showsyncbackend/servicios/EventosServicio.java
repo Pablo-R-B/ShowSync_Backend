@@ -13,6 +13,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -53,7 +57,7 @@ public class EventosServicio {
 
     // Obtener todos los eventos confirmados
     public List<EventosDTO> obtenerEventosConfirmados() {
-        // Busca todos los eventos que tienen el estado confirmado
+        // Busca todos los eventos que tienen el esta do confirmado
         return getEventosDTOS();
     }
 
@@ -392,6 +396,36 @@ public class EventosServicio {
 
         return dto;
     }
+
+
+
+    public Page<EventosDTO> obtenerEventosPaginados(Pageable pageable) {
+        return eventosRepositorio.findAll(pageable).map(this::convertirAEventoDTO);
+    }
+
+    private EventosDTO convertirAEventoDTO(Eventos evento) {
+        return EventosDTO.builder()
+                .id(evento.getId())
+                .nombreEvento(evento.getNombre_evento())
+                .descripcion(evento.getDescripcion())
+                .fechaEvento(evento.getFechaEvento())
+                .estado(evento.getEstado())
+                .imagenEvento(evento.getImagen_evento())
+                .idSala(evento.getSala() != null ? evento.getSala_id().getId() : null)
+                .nombreSala(evento.getSala() != null ? evento.getSala_id().getNombre() : null)
+                .idPromotor(evento.getPromotor() != null ? evento.getPromotor().getId() : null)
+                .nombrePromotor(evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null)
+                .generosMusicales(evento.getGenerosMusicales().stream()
+                        .map(g -> g.getNombre())
+                        .collect(Collectors.toSet()))
+                .artistasAsignados(evento.getArtistasAsignados().stream()
+                        .map(a -> a.getNombreArtista())
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+
+
 
 
 
