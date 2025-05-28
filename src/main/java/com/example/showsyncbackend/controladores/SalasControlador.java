@@ -158,4 +158,9 @@ public class SalasControlador {
     public List<Object[]> obtenerCantidadReservasPorSala() {
         return salasServicio.obtenerCantidadReservasPorSala();
     }
+
+    @GetMapping("/reservas-estado")
+    public List<Object[]> obtenerCantidadReservasPorSalaYEstado() {
+        return salasServicio.obtenerCantidadReservasPorSalaYEstado();
+    }
 }

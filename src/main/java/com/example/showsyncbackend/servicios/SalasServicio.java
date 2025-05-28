@@ -271,4 +271,7 @@ public class SalasServicio {
     public List<Object[]> obtenerCantidadReservasPorSala() {
         return eventosRepositorio.obtenerCantidadReservasPorSala();
     }
+    public List<Object[]> obtenerCantidadReservasPorSalaYEstado() {
+        return eventosRepositorio.obtenerCantidadReservasPorSalaYEstado();
+    }
 }
