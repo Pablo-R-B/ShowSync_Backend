@@ -23,7 +23,7 @@ public class UsuarioServicio {
 
 
 
-  public List<UsuarioDTO> obtenerTodosLosUsuarios() {
+  public List<UsuarioDTO> obtenerTodosLosUsuarios(int page, int size, String termino) {
       return usuarioRepositorio.findAll().stream()
               .map(usuario -> new UsuarioDTO(
                       usuario.getId(),

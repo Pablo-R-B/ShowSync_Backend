@@ -7,6 +7,7 @@ import com.example.showsyncbackend.servicios.UsuarioServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,11 +19,14 @@ public class UsuarioControlador {
     @Autowired
     private UsuarioServicio usuarioServicio;
 
-  @GetMapping
-  public ResponseEntity<List<UsuarioDTO>> obtenerTodosLosUsuarios() {
-      List<UsuarioDTO> usuarios = usuarioServicio.obtenerTodosLosUsuarios();
-      return ResponseEntity.ok(usuarios);
-  }
+    @GetMapping
+    public ResponseEntity<List<UsuarioDTO>> obtenerTodosLosUsuarios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(value = "termino", required = false) String termino) {
+        List<UsuarioDTO> usuarios = usuarioServicio.obtenerTodosLosUsuarios(page, size, termino);
+        return ResponseEntity.ok(usuarios);
+    }
 
 
 
