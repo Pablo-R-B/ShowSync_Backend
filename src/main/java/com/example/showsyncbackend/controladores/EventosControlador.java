@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -194,15 +195,17 @@ public class EventosControlador {
         }
     }
 
-    @PostMapping("/reserva/sala")
-    public ResponseEntity<?> crearEventoEnRevision(@RequestBody EventosDTO dto) {
+    @PostMapping(value = "/reserva/sala", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> crearEventoEnRevision(
+            @RequestPart("dto") EventosDTO dto,
+            @RequestPart(value = "imagenArchivo", required = false) MultipartFile imagenArchivo) {
         try {
-            RespuestaEventoRevisionDTO evento = eventosServicio.crearEventoEnRevision(dto);
+            RespuestaEventoRevisionDTO evento = eventosServicio.crearEventoEnRevision(dto, imagenArchivo);
             return ResponseEntity.ok(evento);
         } catch (EntityNotFoundException e) {
             return error(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (ResponseStatusException e) {
-            return error((HttpStatus) e.getStatusCode(), e.getReason());
+            return error(HttpStatus.valueOf(e.getStatusCode().value()), e.getReason());
         } catch (Exception e) {
             return error(HttpStatus.INTERNAL_SERVER_ERROR, "Error interno del servidor");
         }

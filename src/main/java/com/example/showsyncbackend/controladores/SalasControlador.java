@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.showsyncbackend.dtos.EventosDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -30,16 +31,25 @@ public class SalasControlador {
 
     // Solo adm pueden crear, editar y eliminar salas
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PostMapping("/crear")
-    public ResponseEntity<SalaDTO> crearSala(@RequestBody CrearSalaRequestDTO request) {
-        return ResponseEntity.ok(salasServicio.crearSala(request));
+    @PostMapping(value = "/crear", consumes = "multipart/form-data")
+    public ResponseEntity<SalaDTO> crearSala(
+            @RequestPart("data") CrearSalaRequestDTO request,
+            @RequestPart("imagen") MultipartFile imagenArchivo) {
+        return ResponseEntity.ok(salasServicio.crearSala(request, imagenArchivo));
     }
 
+
+
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/editar/{id}")
-    public ResponseEntity<SalaDTO> editarSala(@PathVariable Integer id, @RequestBody CrearSalaRequestDTO request) {
-        return ResponseEntity.ok(salasServicio.editarSala(id, request));
+    @PutMapping(value = "/editar/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<SalaDTO> editarSala(
+            @PathVariable Integer id,
+            @RequestPart("sala") CrearSalaRequestDTO request,
+            @RequestPart(value = "imagenArchivo", required = false) MultipartFile imagenArchivo) {
+
+        return ResponseEntity.ok(salasServicio.editarSala(id, request, imagenArchivo));
     }
+
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/eliminar/{id}")
@@ -151,5 +161,16 @@ public class SalasControlador {
     @GetMapping("/{salaId}/fechas-no-disponibles")
     public ResponseEntity<List<DisponibilidadSalaDTO>> consultarFechasNoDisponibles(@PathVariable Integer salaId) {
         return ResponseEntity.ok(salasServicio.consultarFechasNoDisponibles(salaId));
+    }
+
+
+    @GetMapping("/reservas")
+    public List<Object[]> obtenerCantidadReservasPorSala() {
+        return salasServicio.obtenerCantidadReservasPorSala();
+    }
+
+    @GetMapping("/reservas-estado")
+    public List<Object[]> obtenerCantidadReservasPorSalaYEstado() {
+        return salasServicio.obtenerCantidadReservasPorSalaYEstado();
     }
 }

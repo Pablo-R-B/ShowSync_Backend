@@ -15,7 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,20 +31,31 @@ public class SalasServicio {
     private final SalasRepositorio salasRepositorio;
     private final PromotoresServicio promotoresServicio;
     private final EventosRepositorio eventosRepositorio;
+    private final CloudinaryService cloudinaryService;
 
-    public SalaDTO crearSala(CrearSalaRequestDTO request) {
+
+    public SalaDTO crearSala(CrearSalaRequestDTO request, MultipartFile imagenArchivo) {
         Claims claims = obtenerClaimsDesdeContexto();
         String email = claims.getSubject();
 
         Usuario administrador = usuarioRepositorio.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        String imagenUrl = null;
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
+
         Salas nuevaSala = Salas.builder()
                 .nombre(request.getNombre())
                 .direccion(request.getDireccion())
                 .capacidad(request.getCapacidad())
                 .descripcion(request.getDescripcion())
-                .imagen(request.getImagen())
+                .imagen(imagenUrl) // usar URL de Cloudinary
                 .ciudad(request.getCiudad())
                 .provincia(request.getProvincia())
                 .codigoPostal(request.getCodigoPostal())
@@ -65,6 +78,7 @@ public class SalasServicio {
         return convertirASalaDTO(salaGuardada);
     }
 
+
     // Método reutilizable para obtener Claims desde el SecurityContext
     private Claims obtenerClaimsDesdeContexto() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -75,7 +89,7 @@ public class SalasServicio {
         }
     }
 
-    public SalaDTO editarSala(Integer salaId, CrearSalaRequestDTO request) {
+    public SalaDTO editarSala(Integer salaId, CrearSalaRequestDTO request, MultipartFile imagenArchivo) {
         Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
 
@@ -83,13 +97,22 @@ public class SalasServicio {
         sala.setDireccion(request.getDireccion());
         sala.setCapacidad(request.getCapacidad());
         sala.setDescripcion(request.getDescripcion());
-        sala.setImagen(request.getImagen());
         sala.setCiudad(request.getCiudad());
         sala.setProvincia(request.getProvincia());
         sala.setCodigoPostal(request.getCodigoPostal());
 
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                String imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+                sala.setImagen(imagenUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
+
         return convertirASalaDTO(salasRepositorio.save(sala));
     }
+
 
     public void eliminarSala(Integer salaId) {
         if (!salasRepositorio.existsById(salaId)) {
@@ -266,5 +289,12 @@ public class SalasServicio {
         dto.setDisponibilidad(d.getDisponibilidad());
         dto.setSalaId(d.getSala().getId());
         return dto;
+    }
+
+    public List<Object[]> obtenerCantidadReservasPorSala() {
+        return eventosRepositorio.obtenerCantidadReservasPorSala();
+    }
+    public List<Object[]> obtenerCantidadReservasPorSalaYEstado() {
+        return eventosRepositorio.obtenerCantidadReservasPorSalaYEstado();
     }
 }
