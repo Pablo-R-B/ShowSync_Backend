@@ -15,6 +15,7 @@ public class PostulacionDTO {
     private String artistaNombre;
     private String promotorNombre;
     private String eventoImagen;
+    private String salaNombre;
     private EstadoPostulacion estado;
     private LocalDate fechaPostulacion;
     private LocalDate fechaRespuesta;
@@ -27,6 +28,7 @@ public class PostulacionDTO {
             String artistaNombre,
             String promotorNombre,
             String eventoImagen,
+            String salaNombre,
             EstadoPostulacion estado,
             LocalDate fechaPostulacion,
             TipoSolicitud tipoSolicitud
@@ -36,6 +38,7 @@ public class PostulacionDTO {
         this.artistaNombre = artistaNombre;
         this.promotorNombre = promotorNombre;
         this.eventoImagen = eventoImagen;
+        this.salaNombre = salaNombre;
         this.estado = estado;
         this.fechaPostulacion = fechaPostulacion;
         this.tipoSolicitud = tipoSolicitud;
