@@ -57,7 +57,7 @@ public class Eventos {
     @ManyToMany
     @JoinTable(name = "eventos_artistas", joinColumns = @JoinColumn(name = "evento_id"),
             inverseJoinColumns = @JoinColumn(name = "artista_id"))
-    @JsonIgnore
+
     private Set<Artistas> artistasAsignados = new HashSet<>();
 
 

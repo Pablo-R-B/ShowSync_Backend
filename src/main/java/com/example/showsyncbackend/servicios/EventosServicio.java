@@ -194,11 +194,11 @@ public class EventosServicio {
 
 
     // Obtener evento por ID
-
+    @Transactional
     public EventosDTO obtenerEventoPorId(Integer eventoId) {
-        Eventos evento = eventosRepositorio.findById(eventoId)
+        Eventos evento = eventosRepositorio.findByIdWithArtistas(eventoId)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
-        Hibernate.initialize(evento.getGenerosMusicales());  // Inicializar la colección
+
         return new EventosDTO(
                 evento.getId(),
                 evento.getNombre_evento(),
@@ -206,10 +206,10 @@ public class EventosServicio {
                 evento.getFecha_evento(),
                 evento.getEstado(),
                 evento.getImagen_evento(),
-                evento.getSala_id().getId(),
-                evento.getSala_id().getNombre(),
-                evento.getPromotor().getId(),
-                evento.getPromotor().getNombrePromotor(),
+                evento.getSala_id() != null ? evento.getSala_id().getId() : null,
+                evento.getSala_id() != null ? evento.getSala_id().getNombre() : null,
+                evento.getPromotor() != null ? evento.getPromotor().getId() : null,
+                evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
                 evento.getGenerosMusicales().stream().map(GenerosMusicales::getNombre).collect(Collectors.toSet()),
                 evento.getArtistasAsignados().stream().map(Artistas::getNombreArtista).collect(Collectors.toSet())
         );

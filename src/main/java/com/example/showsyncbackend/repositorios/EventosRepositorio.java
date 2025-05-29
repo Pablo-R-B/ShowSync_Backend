@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
@@ -42,6 +43,12 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
             "LEFT JOIN FETCH e.generosMusicales " +
             "LEFT JOIN FETCH e.artistasAsignados")
     List<Eventos> findAllWithLazyCollections();
+
+    @Query("SELECT e FROM Eventos e " +
+            "LEFT JOIN FETCH e.generosMusicales " +
+            "LEFT JOIN FETCH e.artistasAsignados " +
+            "WHERE e.id = :eventoId")
+    Optional<Eventos> findByIdWithArtistas(@Param("eventoId") Integer eventoId);
 
 
 }
