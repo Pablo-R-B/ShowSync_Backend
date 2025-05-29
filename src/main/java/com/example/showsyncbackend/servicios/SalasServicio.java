@@ -89,7 +89,7 @@ public class SalasServicio {
         }
     }
 
-    public SalaDTO editarSala(Integer salaId, CrearSalaRequestDTO request) {
+    public SalaDTO editarSala(Integer salaId, CrearSalaRequestDTO request, MultipartFile imagenArchivo) {
         Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
 
@@ -97,13 +97,22 @@ public class SalasServicio {
         sala.setDireccion(request.getDireccion());
         sala.setCapacidad(request.getCapacidad());
         sala.setDescripcion(request.getDescripcion());
-        //sala.setImagen(request.getImagen());
         sala.setCiudad(request.getCiudad());
         sala.setProvincia(request.getProvincia());
         sala.setCodigoPostal(request.getCodigoPostal());
 
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                String imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+                sala.setImagen(imagenUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
+
         return convertirASalaDTO(salasRepositorio.save(sala));
     }
+
 
     public void eliminarSala(Integer salaId) {
         if (!salasRepositorio.existsById(salaId)) {

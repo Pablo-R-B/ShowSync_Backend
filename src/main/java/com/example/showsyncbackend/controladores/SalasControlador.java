@@ -39,11 +39,17 @@ public class SalasControlador {
     }
 
 
+
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    @PutMapping("/editar/{id}")
-    public ResponseEntity<SalaDTO> editarSala(@PathVariable Integer id, @RequestBody CrearSalaRequestDTO request) {
-        return ResponseEntity.ok(salasServicio.editarSala(id, request));
+    @PutMapping(value = "/editar/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<SalaDTO> editarSala(
+            @PathVariable Integer id,
+            @RequestPart("sala") CrearSalaRequestDTO request,
+            @RequestPart(value = "imagenArchivo", required = false) MultipartFile imagenArchivo) {
+
+        return ResponseEntity.ok(salasServicio.editarSala(id, request, imagenArchivo));
     }
+
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @DeleteMapping("/eliminar/{id}")
