@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.servicios;
 
+import com.cloudinary.Cloudinary;
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
@@ -15,11 +16,13 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +46,10 @@ public class EventosServicio {
 
     @Autowired
     private SalasRepositorio salasRepositorio;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
 
 
 
@@ -287,7 +294,7 @@ public class EventosServicio {
         eventosRepositorio.save(evento);
     }
 
-    public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto) {
+    public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto, MultipartFile imagenArchivo) {
         // Obtener id usuario desde JWT
         Integer idUsuario = obtenerIdUsuarioDesdeJWT();
 
@@ -322,12 +329,21 @@ public class EventosServicio {
             }
         }
 
+        String imagenUrl = null;
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
+
         // Crear evento
         Eventos evento = Eventos.builder()
                 .nombre_evento(dto.getNombreEvento())
                 .descripcion(dto.getDescripcion())
                 .fechaEvento(dto.getFechaEvento())
-                .imagen_evento(dto.getImagenEvento())
+                .imagen_evento(imagenUrl)
                 .sala(sala)
                 .promotor(promotor)
                 .estado(Estado.en_revision)
@@ -349,7 +365,7 @@ public class EventosServicio {
                 .descripcion(evento.getDescripcion())
                 .fechaEvento(evento.getFechaEvento())
                 .estado(evento.getEstado())
-                .imagenEvento(evento.getImagen_evento())
+                .imagenEvento(imagenUrl)
                 .idSala(sala.getId())
                 .nombreSala(sala.getNombre())
                 .nombrePromotor(promotor.getNombrePromotor())

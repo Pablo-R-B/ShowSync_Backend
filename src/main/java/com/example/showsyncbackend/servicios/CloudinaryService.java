@@ -34,7 +34,16 @@ public class CloudinaryService {
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
+        validarFormatoImagen(file); // Validar el formato de la imagen
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         return (String) uploadResult.get("secure_url");
     }
+
+    private void validarFormatoImagen(MultipartFile file) {
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Solo se permiten archivos de imagen.");
+        }
+    }
+
 }
