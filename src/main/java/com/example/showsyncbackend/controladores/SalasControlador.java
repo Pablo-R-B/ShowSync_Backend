@@ -1,11 +1,6 @@
 package com.example.showsyncbackend.controladores;
 
-import com.example.showsyncbackend.dtos.CrearSalaRequestDTO;
-import com.example.showsyncbackend.dtos.DisponibilidadSalaDTO;
-import com.example.showsyncbackend.dtos.SalaDTO;
-import com.example.showsyncbackend.enumerados.Estado;
-import com.example.showsyncbackend.modelos.Eventos;
-import com.example.showsyncbackend.modelos.Salas;
+import com.example.showsyncbackend.dtos.*;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import com.example.showsyncbackend.servicios.SalasServicio;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +9,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import com.example.showsyncbackend.dtos.EventosDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -170,7 +163,7 @@ public class SalasControlador {
     }
 
     @GetMapping("/reservas-estado")
-    public List<Object[]> obtenerCantidadReservasPorSalaYEstado() {
-        return salasServicio.obtenerCantidadReservasPorSalaYEstado();
+    public List<SalaEstadoCantidadDTO> obtenerCantidadReservasPorSalaYEstado() {
+        return salasServicio.obtenerCantidadReservasPorSalaYEstadoDTO();
     }
 }

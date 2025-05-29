@@ -3,6 +3,7 @@ package com.example.showsyncbackend.servicios;
 import com.example.showsyncbackend.dtos.CrearSalaRequestDTO;
 import com.example.showsyncbackend.dtos.DisponibilidadSalaDTO;
 import com.example.showsyncbackend.dtos.SalaDTO;
+import com.example.showsyncbackend.dtos.SalaEstadoCantidadDTO;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.*;
 import com.example.showsyncbackend.repositorios.*;
@@ -294,7 +295,15 @@ public class SalasServicio {
     public List<Object[]> obtenerCantidadReservasPorSala() {
         return eventosRepositorio.obtenerCantidadReservasPorSala();
     }
-    public List<Object[]> obtenerCantidadReservasPorSalaYEstado() {
-        return eventosRepositorio.obtenerCantidadReservasPorSalaYEstado();
+    public List<SalaEstadoCantidadDTO> obtenerCantidadReservasPorSalaYEstadoDTO() {
+        return eventosRepositorio.obtenerCantidadReservasPorSalaYEstado()
+                .stream()
+                .map(obj -> new SalaEstadoCantidadDTO(
+                        (String) obj[0],
+                        ((Estado) obj[1]).name(),
+                        (Long) obj[2]
+                ))
+                .collect(Collectors.toList());
     }
+
 }
