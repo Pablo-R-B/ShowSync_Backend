@@ -51,7 +51,7 @@ public class AuthenticationControlador {
         if (registroDTO.getContrasena() == null || registroDTO.getContrasena().length() < 6 ||
                 !registroDTO.getContrasena().matches(".*[A-Z].*") ||
                 !registroDTO.getContrasena().matches(".*[0-9].*") ||
-                !registroDTO.getContrasena().matches(".*[!@#$%^&*()].*")) {
+                !registroDTO.getContrasena().matches(".*[!@#$%^&*._()-?¿¡+<>/].*")) {
             return ResponseEntity.badRequest().body("La contraseña debe tener al menos 6 caracteres, incluir al menos una mayúscula, un número y un carácter especial.");
         }
 
