@@ -118,6 +118,9 @@ public class Usuario implements UserDetails {
     }
 
     public boolean tienePerfilCompleto() {
+        if (this.rol == Rol.ADMINISTRADOR) {
+            return true; // El administrador no necesita completar perfil
+        }
         if (this.rol == Rol.ARTISTA && this.artista != null) {
             return artista.getNombreArtista() != null && !artista.getNombreArtista().isBlank()
                     && artista.getBiografia() != null && !artista.getBiografia().isBlank()
