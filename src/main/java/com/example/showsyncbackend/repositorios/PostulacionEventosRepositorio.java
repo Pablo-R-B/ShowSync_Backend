@@ -3,6 +3,8 @@ package com.example.showsyncbackend.repositorios;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import com.example.showsyncbackend.modelos.PostulacionEvento;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -19,9 +21,24 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
             TipoSolicitud tipoSolicitud
     );
 
-    List<PostulacionEvento> findByEvento_Promotor_IdAndTipoSolicitudIn(
-            Integer promotorId,
-            List<TipoSolicitud> tiposSolicitud
+//    List<PostulacionEvento> findByEvento_Promotor_IdAndTipoSolicitudIn(
+//            Integer promotorId,
+//            List<TipoSolicitud> tiposSolicitud
+//    );
+
+    @Query("""
+    SELECT pe FROM PostulacionEvento pe
+    JOIN FETCH pe.evento e
+    JOIN FETCH e.promotor p
+    JOIN FETCH e.sala_id s
+    JOIN FETCH pe.artista a
+    WHERE p.id = :promotorId
+    AND pe.tipoSolicitud IN :tiposSolicitud
+""")
+    List<PostulacionEvento> findPostulacionesWithEventoAndArtista(
+            @Param("promotorId") Integer promotorId,
+            @Param("tiposSolicitud") List<TipoSolicitud> tiposSolicitud
     );
+
 
 }

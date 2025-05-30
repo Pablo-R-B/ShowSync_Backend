@@ -51,6 +51,7 @@ public class PostulacionEventosServicio {
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
                         pe.getEvento().getImagen_evento(),
+                        pe.getEvento().getSala_id().getNombre(),
                         pe.getEvento().getPromotor().getNombrePromotor(),
                         null,
                         pe.getEstadoPostulacion(),
@@ -65,7 +66,7 @@ public class PostulacionEventosServicio {
     /**Lista las solicitudes del promotor en perfil promotores
      * (del promotor arl artista y del artista al promotor)*/
     public List<PostulacionDTO> listarSolicitudesPromotor(Integer promotorId) {
-        return postulacionEventosRepositorio.findByEvento_Promotor_IdAndTipoSolicitudIn(promotorId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
+        return postulacionEventosRepositorio.findPostulacionesWithEventoAndArtista(promotorId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
                 .stream()
                 .map(pe -> new PostulacionDTO(
                         pe.getId(),
@@ -73,6 +74,7 @@ public class PostulacionEventosServicio {
                         pe.getArtista().getNombreArtista(),
                         null,
                         pe.getEvento().getImagen_evento(),
+                        pe.getEvento().getSala_id().getNombre(),
                         pe.getEstadoPostulacion(),
                         pe.getFechaPostulacion(),
                         pe.getTipoSolicitud()
