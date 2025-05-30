@@ -1,10 +1,15 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.enumerados.Rol;
+import com.example.showsyncbackend.modelos.Artistas;
+import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import com.example.showsyncbackend.utilidades.PerfilMapeador;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -37,12 +42,13 @@ public class PerfilUsuarioServicio {
         Usuario usuario = usuarioRepositorio.findByEmail(emailUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        return Map.of(
-                "id", usuario.getId(),
-                "email", usuario.getEmail(),
-                "nombreUsuario", usuario.getNombreUsuario(),
-                "rol", usuario.getRol()
-        );
+        return PerfilMapeador.mapearPerfilUsuario(usuario);
     }
+
+    public Usuario getUsuarioByEmail(String email) {
+        return usuarioRepositorio.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
+    }
+
 
 }

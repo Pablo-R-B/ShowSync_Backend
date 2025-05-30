@@ -3,6 +3,7 @@ package com.example.showsyncbackend.servicios;
 import com.example.showsyncbackend.dtos.EvetosPostulacionArtistaDTO;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
+import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import lombok.AllArgsConstructor;
@@ -62,6 +63,11 @@ public class PromotoresServicio {
     public Promotores obtenerPromotorPorUsuarioId(Integer usuarioId) {
         return promotoresRepositorio.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
+    }
+
+    public Promotores getByUsuario(Usuario usuario) {
+        return promotoresRepositorio.findByUsuario(usuario)
+                .orElse(null);
     }
 
     public List<EvetosPostulacionArtistaDTO> obtenerEventosPorUsuarioId(Integer usuarioId) {

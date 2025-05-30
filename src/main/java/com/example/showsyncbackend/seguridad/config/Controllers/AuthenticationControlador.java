@@ -1,12 +1,16 @@
 package com.example.showsyncbackend.seguridad.config.Controllers;
 
 import com.example.showsyncbackend.enumerados.Rol;
+import com.example.showsyncbackend.modelos.Artistas;
+import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.seguridad.config.dto.LoginRequestDTO;
 import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
+import com.example.showsyncbackend.servicios.ArtistasServicio;
 import com.example.showsyncbackend.servicios.PerfilUsuarioServicio;
+import com.example.showsyncbackend.servicios.PromotoresServicio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -33,10 +37,18 @@ public class AuthenticationControlador {
 
     private final PerfilUsuarioServicio perfilUsuarioServicio;
 
-    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio, PerfilUsuarioServicio perfilUsuarioServicio) {
+    private final ArtistasServicio artistasServicio;
+
+    private final PromotoresServicio promotoresServicio;
+
+    public AuthenticationControlador(AuthenticationService authenticationService, UsuarioRepositorio usuarioRepositorio,
+                                     PerfilUsuarioServicio perfilUsuarioServicio, ArtistasServicio artistasServicio,
+                                     PromotoresServicio promotoresServicio) {
         this.authenticationService = authenticationService;
         this.usuarioRepositorio = usuarioRepositorio;
         this.perfilUsuarioServicio = perfilUsuarioServicio;
+        this.artistasServicio = artistasServicio;
+        this.promotoresServicio = promotoresServicio;
     }
 
     @PostMapping("/registro")
@@ -102,6 +114,7 @@ public class AuthenticationControlador {
                     loginRequestDTO.getEmail(),
                     loginRequestDTO.getContrasena()
             );
+
             return ResponseEntity.ok( token);
         } catch (Exception e) {
             log.error("Error interno en /login", e);
@@ -131,6 +144,23 @@ public class AuthenticationControlador {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
             }
         }
+    }
+
+    @GetMapping("/perfil/completo")
+    public ResponseEntity<Boolean> isPerfilCompleto(Authentication auth) {
+        Usuario usuario = perfilUsuarioServicio.getUsuarioByEmail(auth.getName());
+
+        if (usuario.getRol() == Rol.ARTISTA) {
+            Artistas artista = artistasServicio.getByUsuario(usuario);
+            boolean completo = artista != null && artista.getNombreArtista() != null && artista.getBiografia() != null;
+            return ResponseEntity.ok(completo);
+        } else if (usuario.getRol() == Rol.PROMOTOR) {
+            Promotores promotor = promotoresServicio.getByUsuario(usuario);
+            boolean completo = promotor != null && promotor.getNombrePromotor() != null && promotor.getDescripcion() != null;
+            return ResponseEntity.ok(completo);
+        }
+
+        return ResponseEntity.ok(false);
     }
 
 
