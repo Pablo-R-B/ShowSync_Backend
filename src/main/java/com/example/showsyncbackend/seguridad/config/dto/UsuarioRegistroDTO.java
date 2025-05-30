@@ -21,7 +21,7 @@ public class UsuarioRegistroDTO {
     }
 
     private boolean esNombreUsuarioValido() {
-        if (nombreUsuario == null || nombreUsuario.trim().isEmpty()) {
+        if (nombreUsuario == null || nombreUsuario.trim().isEmpty() || nombreUsuario.contains(" ")) {
             return false;
         }
         return true;
