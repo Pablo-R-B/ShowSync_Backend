@@ -9,9 +9,7 @@ import com.example.showsyncbackend.seguridad.config.services.AuthenticationServi
 import com.example.showsyncbackend.servicios.PerfilUsuarioServicio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -42,8 +40,8 @@ public class AuthenticationControlador {
     @PostMapping("/registro")
     public ResponseEntity<String> registrarUsuario(@RequestBody UsuarioRegistroDTO registroDTO) {
         // Validación personalizada
-        if (registroDTO.getNombreUsuario() == null || registroDTO.getNombreUsuario().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("El nombre de usuario no puede estar vacío.");
+        if (registroDTO.getNombreUsuario() == null || registroDTO.getNombreUsuario().trim().isEmpty() || registroDTO.getNombreUsuario().contains(" ") || registroDTO.getNombreUsuario().matches(".*[!¡?¿+*^<>/ªº·#`;:'€~%,=()@¬|].*")) {
+            return ResponseEntity.badRequest().body("El nombre de usuario no puede estar vacío, contener espacios ni incluir caracteres especiales como: !¡?¿+*^<>/ªº·#`;:'€~%,=()@¬|");
         }
 
         if (registroDTO.getEmail() == null || registroDTO.getEmail().trim().isEmpty() || !registroDTO.getEmail().contains("@")) {
