@@ -1,12 +1,10 @@
 package com.example.showsyncbackend.servicios;
 
-import com.example.showsyncbackend.dtos.CrearSalaRequestDTO;
-import com.example.showsyncbackend.dtos.DisponibilidadSalaDTO;
-import com.example.showsyncbackend.dtos.SalaDTO;
-import com.example.showsyncbackend.dtos.SalaEstadoCantidadDTO;
+import com.example.showsyncbackend.dtos.*;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.*;
 import com.example.showsyncbackend.repositorios.*;
+import com.example.showsyncbackend.utilidades.PaginationUtils;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -161,8 +159,10 @@ public class SalasServicio {
         return convertirASalaDTO(sala);
     }
 
-    public List<SalaDTO> obtenerTodasLasSalas(int page, int size, String termino) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+    public RespuestaPaginacionDTO<SalaDTO> obtenerTodasLasSalas(int page, int size, String sortField, String sortDirection, String termino) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
+
         Page<Salas> salasPage;
 
         if (termino != null && !termino.trim().isEmpty()) {
@@ -171,9 +171,7 @@ public class SalasServicio {
             salasPage = salasRepositorio.findAll(pageable);
         }
 
-        return salasPage.getContent().stream()
-                .map(this::convertirASalaDTO)
-                .collect(Collectors.toList());
+        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
     }
 
     public List<SalaDTO> buscarSalas(String filtro) {
@@ -183,15 +181,17 @@ public class SalasServicio {
     }
 
     // Método con paginación para búsqueda
-    public Page<SalaDTO> buscarSalasConPaginacion(String filtro, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+    public RespuestaPaginacionDTO<SalaDTO> buscarSalasConPaginacion(String filtro, int page, int size, String sortField, String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
         Page<Salas> salasPage = salasRepositorio.buscarSalas(filtro, pageable);
-
-        return salasPage.map(this::convertirASalaDTO);
+        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
     }
 
-    public List<SalaDTO> filtrarPorCapacidad(Integer min, Integer max, int page, int size, String termino) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("capacidad").ascending());
+    public RespuestaPaginacionDTO<SalaDTO> filtrarPorCapacidad(Integer min, Integer max, int page, int size, String sortField, String sortDirection, String termino) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
+
         Page<Salas> salasPage;
 
         if (termino != null && !termino.trim().isEmpty()) {
@@ -200,9 +200,7 @@ public class SalasServicio {
             salasPage = salasRepositorio.filtrarPorCapacidad(min, max, pageable);
         }
 
-        return salasPage.getContent().stream()
-                .map(this::convertirASalaDTO)
-                .collect(Collectors.toList());
+        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
     }
 
     public DisponibilidadSalaDTO consultarDisponibilidadPorFecha(Integer salaId, LocalDate fecha) {
@@ -284,11 +282,11 @@ public class SalasServicio {
     }
 
     // Buscar sala por ciudad con paginación
-    public Page<SalaDTO> buscarSalasPorCiudadConPaginacion(String ciudad, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+    public RespuestaPaginacionDTO<SalaDTO> buscarSalasPorCiudadConPaginacion(String ciudad, int page, int size, String sortField, String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
         Page<Salas> salasPage = salasRepositorio.findByCiudad(ciudad, pageable);
-
-        return salasPage.map(this::convertirASalaDTO);
+        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
     }
 
     // Buscar sala por provincia sin paginación
@@ -299,11 +297,11 @@ public class SalasServicio {
     }
 
     // Buscar sala por provincia con paginación
-    public Page<SalaDTO> buscarSalasPorProvinciaConPaginacion(String provincia, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+    public RespuestaPaginacionDTO<SalaDTO> buscarSalasPorProvinciaConPaginacion(String provincia, int page, int size, String sortField, String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
         Page<Salas> salasPage = salasRepositorio.findByProvincia(provincia, pageable);
-
-        return salasPage.map(this::convertirASalaDTO);
+        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
     }
 
     private SalaDTO convertirASalaDTO(Salas sala) {
