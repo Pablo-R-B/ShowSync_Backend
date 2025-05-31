@@ -7,8 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -20,14 +22,17 @@ public class PromotoresControlador {
     private final PromotoresServicio promotoresServicio;
 
 
-    /**
-     * Obtener perfil de promotor por ID
-     * @param id
+    /**     * Obtener perfil de promotor por ID
+     * @param Id
      * @return
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<Promotores> obtenerPerfilPromotor(@PathVariable Integer id) {
-        return ResponseEntity.ok(promotoresServicio.obtenerPromotorPorId(id));
+    @GetMapping("/{Id}")
+    public ResponseEntity<PromotoresDTO> getPromotorById(@PathVariable Integer Id) {
+        PromotoresDTO promotorDTO = promotoresServicio.obtenerPromotorPorId(Id);
+        if (promotorDTO == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotor no encontrado");
+        }
+        return ResponseEntity.ok(promotorDTO);
     }
 
     /**
@@ -79,9 +84,9 @@ public class PromotoresControlador {
      */
 
     @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<Promotores> getPromotorByUsuarioId(@PathVariable Integer idUsuario) {
-        Promotores promotor = promotoresServicio.obtenerPromotorPorUsuarioId(idUsuario);
-        return ResponseEntity.ok(promotor);
+    public ResponseEntity<PromotoresDTO> getPromotorByUsuarioId(@PathVariable Integer idUsuario) {
+        PromotoresDTO promotorDTO = promotoresServicio.obtenerPromotorPorUsuarioId(idUsuario);
+        return ResponseEntity.ok(promotorDTO);
     }
 
     @GetMapping("/listar/promotores")

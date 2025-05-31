@@ -258,7 +258,10 @@ public class SalasServicio {
     public void solicitarSala(Integer salaId, Integer promotorId, String nombreEvento, String descripcion, LocalDate fecha) {
         Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
-        Promotores promotor = promotoresServicio.obtenerPromotorPorId(promotorId);
+        Promotores promotor = promotoresServicio.getByUsuario(
+                usuarioRepositorio.findById(promotorId)
+                        .orElseThrow(() -> new RuntimeException("Promotor no encontrado"))
+        );
 
         Eventos evento = Eventos.builder()
                 .sala(sala)
