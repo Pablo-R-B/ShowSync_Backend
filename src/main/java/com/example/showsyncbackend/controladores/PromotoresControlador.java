@@ -40,7 +40,7 @@ public class PromotoresControlador {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<Promotores>> listarPromotores() {
+    public ResponseEntity<List<PromotoresDTO>> listarPromotores() {
         return ResponseEntity.ok(promotoresServicio.listarPromotores());
     }
 
