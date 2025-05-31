@@ -4,7 +4,7 @@ package com.example.showsyncbackend.repositorios;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
-import com.example.showsyncbackend.modelos.Salas;º
+import com.example.showsyncbackend.modelos.Salas;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

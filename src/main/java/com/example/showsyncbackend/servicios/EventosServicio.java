@@ -11,6 +11,9 @@ import com.example.showsyncbackend.repositorios.SalasRepositorio;
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -419,11 +422,11 @@ public class EventosServicio {
                         evento.getId(),
                         evento.getNombre_evento(),
                         evento.getDescripcion(),
-                        evento.getFecha_evento(),
+                        evento.getFechaEvento(),
                         evento.getEstado(),
                         evento.getImagen_evento(),
-                        evento.getSala_id() != null ? evento.getSala_id().getId() : null,
-                        evento.getSala_id() != null ? evento.getSala_id().getNombre() : null,
+                        evento.getSala() != null ? evento.getSala().getId() : null,
+                        evento.getSala() != null ? evento.getSala().getNombre() : null,
                         evento.getPromotor() != null ? evento.getPromotor().getId() : null,
                         evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
                         evento.getGenerosMusicales() != null ? evento.getGenerosMusicales().stream()
@@ -443,11 +446,11 @@ public class EventosServicio {
                 .id(evento.getId())
                 .nombreEvento(evento.getNombre_evento())
                 .descripcion(evento.getDescripcion())
-                .fechaEvento(evento.getFecha_evento())
+                .fechaEvento(evento.getFechaEvento())
                 .estado(evento.getEstado())
                 .imagenEvento(evento.getImagen_evento())
-                .idSala(evento.getSala_id() != null ? evento.getSala_id().getId() : null)
-                .nombreSala(evento.getSala_id() != null ? evento.getSala_id().getNombre() : null)
+                .idSala(evento.getSala() != null ? evento.getSala().getId() : null)
+                .nombreSala(evento.getSala() != null ? evento.getSala().getNombre() : null)
                 .idPromotor(evento.getPromotor() != null ? evento.getPromotor().getId() : null)
                 .nombrePromotor(evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null)
                 .generosMusicales(evento.getGenerosMusicales().stream()

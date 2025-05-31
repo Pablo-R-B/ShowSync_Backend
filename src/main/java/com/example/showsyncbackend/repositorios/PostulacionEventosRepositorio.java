@@ -30,7 +30,7 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
     SELECT pe FROM PostulacionEvento pe
     JOIN FETCH pe.evento e
     JOIN FETCH e.promotor p
-    JOIN FETCH e.sala_id s
+    JOIN FETCH e.sala s
     JOIN FETCH pe.artista a
     WHERE p.id = :promotorId
     AND pe.tipoSolicitud IN :tiposSolicitud
