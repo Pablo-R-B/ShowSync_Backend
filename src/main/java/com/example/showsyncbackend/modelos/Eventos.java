@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.modelos;
 
 import com.example.showsyncbackend.enumerados.Estado;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,13 +14,15 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"generosMusicales"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "artistasAsignados")
 @Table(name="eventos", schema = "showsync", catalog = "postgres")
 public class Eventos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @ManyToOne
@@ -54,6 +57,7 @@ public class Eventos {
     @ManyToMany
     @JoinTable(name = "eventos_artistas", joinColumns = @JoinColumn(name = "evento_id"),
             inverseJoinColumns = @JoinColumn(name = "artista_id"))
+
     private Set<Artistas> artistasAsignados = new HashSet<>();
 
 

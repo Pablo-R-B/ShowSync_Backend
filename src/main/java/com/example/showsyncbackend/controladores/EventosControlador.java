@@ -32,6 +32,7 @@ public class EventosControlador {
     private GenerosMusicalesRepositorio generosMusicalesRepositorio;
 
 
+
     /**
      * Obtener eventos confirmados
      * @return
@@ -131,9 +132,14 @@ public class EventosControlador {
      * @return
      */
     @GetMapping("/evento/{eventoId}")
-    public ResponseEntity<EventosDTO> mostrarPerfilEvento(@PathVariable Integer eventoId) {
-        EventosDTO evento = eventosServicio.obtenerEventoPorId(eventoId);
-        return new ResponseEntity<>(evento, HttpStatus.OK);
+    public ResponseEntity<?> mostrarPerfilEvento(@PathVariable Integer eventoId) {
+        try {
+            EventosDTO evento = eventosServicio.obtenerEventoPorId(eventoId);
+            return new ResponseEntity<>(evento, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            // Devuelve un mensaje claro en caso de error
+            return new ResponseEntity<>("Evento no encontrado: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
@@ -260,6 +266,13 @@ public class EventosControlador {
         EventosDTO eventoDTO = eventosServicio.obtenerEventoPorPromotor(promotorId, eventoId);
         return new ResponseEntity<>(eventoDTO, HttpStatus.OK);
     }
+
+    /**
+     * Obtener eventos paginados
+     * @param page Número de página
+     * @param size Tamaño de página
+     * @return Página de eventos como DTO
+     */
 
     @GetMapping("/listar/eventos")
     public Page<EventosDTO> obtenerEventos(@RequestParam(defaultValue = "0") int page,

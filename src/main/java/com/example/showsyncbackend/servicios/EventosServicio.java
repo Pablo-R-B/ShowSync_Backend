@@ -11,14 +11,14 @@ import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import com.example.showsyncbackend.repositorios.SalasRepositorio;
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
@@ -170,9 +170,11 @@ public class EventosServicio {
     }
 
     // Listar todos los eventos
+    @Transactional
     public List<EventosDTO> listarTodosLosEventos() {
-        List<Eventos> eventos = eventosRepositorio.findAll();
+        List<Eventos> eventos = eventosRepositorio.findAllWithLazyCollections();
 
+        // Convertir a DTO
         return eventos.stream().map(evento -> new EventosDTO(
                 evento.getId(),
                 evento.getNombre_evento(),
@@ -196,11 +198,11 @@ public class EventosServicio {
 
 
     // Obtener evento por ID
-
+    @Transactional
     public EventosDTO obtenerEventoPorId(Integer eventoId) {
-        Eventos evento = eventosRepositorio.findById(eventoId)
+        Eventos evento = eventosRepositorio.findByIdWithArtistas(eventoId)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
-        Hibernate.initialize(evento.getGenerosMusicales());  // Inicializar la colección
+
         return new EventosDTO(
                 evento.getId(),
                 evento.getNombre_evento(),
@@ -241,7 +243,6 @@ public class EventosServicio {
                         .build())
                 .collect(Collectors.toList());
     }
-
 
 
     // Actualizar el seguimiento de un evento
@@ -414,8 +415,32 @@ public class EventosServicio {
 
 
 
+    @Transactional
     public Page<EventosDTO> obtenerEventosPaginados(Pageable pageable) {
-        return eventosRepositorio.findAll(pageable).map(this::convertirAEventoDTO);
+        List<Eventos> eventos = eventosRepositorio.findAllWithLazyCollections();
+        long total = eventosRepositorio.count(); // Total de elementos
+        return new PageImpl<>(
+                eventos.stream().map(evento -> new EventosDTO(
+                        evento.getId(),
+                        evento.getNombre_evento(),
+                        evento.getDescripcion(),
+                        evento.getFechaEvento(),
+                        evento.getEstado(),
+                        evento.getImagen_evento(),
+                        evento.getSala() != null ? evento.getSala().getId() : null,
+                        evento.getSala() != null ? evento.getSala().getNombre() : null,
+                        evento.getPromotor() != null ? evento.getPromotor().getId() : null,
+                        evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
+                        evento.getGenerosMusicales() != null ? evento.getGenerosMusicales().stream()
+                                .map(g -> g.getNombre())
+                                .collect(Collectors.toSet()) : null,
+                        evento.getArtistasAsignados() != null ? evento.getArtistasAsignados().stream()
+                                .map(a -> a.getNombreArtista())
+                                .collect(Collectors.toSet()) : null
+                )).toList(),
+                pageable,
+                total
+        );
     }
 
     private EventosDTO convertirAEventoDTO(Eventos evento) {

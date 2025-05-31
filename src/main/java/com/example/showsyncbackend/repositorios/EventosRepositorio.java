@@ -5,12 +5,16 @@ import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Salas;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 
 @Repository
 public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
@@ -19,9 +23,6 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     List<Eventos> findByEstado(Estado estado);
 
     List<Eventos> findByPromotorId(Integer promotorId);
-
-
-
 
 
     List<Eventos> findByPromotor(Promotores promotor);
@@ -46,6 +47,25 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     boolean existsBySalaAndFecha(Integer salaId, LocalDate fecha);
 
     List<Eventos> findByEstadoIn(List<Estado> estados);
+
+
+    @Query("SELECT e FROM Eventos e " +
+            "LEFT JOIN FETCH e.generosMusicales " +
+            "LEFT JOIN FETCH e.artistasAsignados")
+    List<Eventos> findAllWithLazyCollections();
+
+    @Query("SELECT e FROM Eventos e " +
+            "LEFT JOIN FETCH e.generosMusicales " +
+            "LEFT JOIN FETCH e.artistasAsignados " +
+            "WHERE e.id = :eventoId")
+    Optional<Eventos> findByIdWithArtistas(@Param("eventoId") Integer eventoId);
+
+
+    @Query("SELECT e FROM Eventos e " +
+            "LEFT JOIN FETCH e.generosMusicales " +
+            "LEFT JOIN FETCH e.artistasAsignados")
+    List<Eventos> findAllWithLazyCollections(Pageable pageable);
+
 
 
 

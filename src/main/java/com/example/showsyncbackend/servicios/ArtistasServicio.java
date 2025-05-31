@@ -138,4 +138,25 @@ public class ArtistasServicio {
                 .orElse(null);
     }
 
+
+    //Obtiene los artistas asignados a eventos de un promotor específico
+    public Page<ArtistasCatalogoDTO> obtenerArtistasPorPromotor(Integer promotorId, Pageable pageable) {
+        return artistasRepositorio.findArtistasByPromotorThroughEventos(promotorId, pageable)
+                .map(artista -> {
+                    List<String> generos = new ArrayList<>();
+                    for (GenerosMusicales g : artista.getGenerosMusicales()) {
+                        generos.add(g.getNombre());
+                    }
+                    return new ArtistasCatalogoDTO(
+                            artista.getId(),
+                            artista.getNombreArtista(),
+                            artista.getImagenPerfil(), // Imagen de perfil
+                            artista.getBiografia(),    // Biografía
+                            generos
+                    );
+                });
+    }
+
+
+
 }

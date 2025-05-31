@@ -14,13 +14,14 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = "generosMusicales")
-@ToString(exclude = "generosMusicales")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "eventos")
 @Table(name="artistas", schema = "showsync", catalog = "postgres")
 public class Artistas {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @EqualsAndHashCode.Include
     private Integer id;
 
     @OneToOne(cascade = CascadeType.ALL)
