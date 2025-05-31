@@ -1,7 +1,9 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.ArtistaDTO;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
+import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/artistas")
@@ -81,6 +80,12 @@ public class ArtistasControlador {
         Pageable pageable = PageRequest.of(page, size);
         Page<ArtistasCatalogoDTO> artistas = artistasServicio.obtenerArtistasPorPromotor(promotorId, pageable);
         return ResponseEntity.ok(artistas);
+    }
+
+    @PutMapping("/editar/artista/{id}")
+    public ResponseEntity<ArtistaDTO> editarArtista(@PathVariable Integer id, @RequestBody Artistas artista) {
+        ArtistaDTO dto = artistasServicio.editarArtista(id, artista);
+        return ResponseEntity.ok(dto);
     }
 
 

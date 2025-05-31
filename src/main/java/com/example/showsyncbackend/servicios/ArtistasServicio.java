@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.ArtistaDTO;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -155,6 +155,30 @@ public class ArtistasServicio {
                             generos
                     );
                 });
+    }
+
+    public Artistas obtenerArtistaPorId(Integer id) {
+        return artistasRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Artista no encontrado con ID: " + id));
+    }
+
+    public ArtistaDTO editarArtista(Integer id, Artistas artista) {
+        Artistas artistaExistente = obtenerArtistaPorId(id);
+
+        artistaExistente.setNombreArtista(artista.getNombreArtista());
+        artistaExistente.setBiografia(artista.getBiografia());
+        artistaExistente.setMusicUrl(artista.getMusicUrl());
+        artistaExistente.setImagenPerfil(artista.getImagenPerfil());
+
+        Artistas actualizado = artistasRepositorio.save(artistaExistente);
+
+        ArtistaDTO dto = new ArtistaDTO();
+        dto.setNombreArtista(actualizado.getNombreArtista());
+        dto.setBiografia(actualizado.getBiografia());
+        dto.setMusicUrl(actualizado.getMusicUrl());
+        dto.setImagenPerfil(actualizado.getImagenPerfil());
+
+        return dto;
     }
 
 

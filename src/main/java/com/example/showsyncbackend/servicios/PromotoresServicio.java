@@ -1,12 +1,15 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.ArtistaDTO;
 import com.example.showsyncbackend.dtos.EvetosPostulacionArtistaDTO;
 import com.example.showsyncbackend.dtos.PromotoresDTO;
+import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
+import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,7 @@ public class PromotoresServicio {
     private final EventosRepositorio eventosRepository;
     private final EventosRepositorio eventosRepositorio;
     private final PromotoresRepositorio promotoresRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
 
     // Obtener perfil de promotor por ID
     public PromotoresDTO obtenerPromotorPorId(Integer promotorId) {
@@ -120,5 +124,42 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
                         .imagenPerfil(promotor.getImagenPerfil())
                         .build());
     }
+
+    public Promotores obtenerPromotorPorIdEntity(Integer id) {
+        return promotoresRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotor no encontrado con ID: " + id));
+    }
+
+
+    public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos) {
+        Usuario usuario = usuarioRepositorio.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Promotores promotor = promotoresRepositorio.findByUsuarioId(usuarioId)
+                .orElse(null);
+
+        if (promotor == null) {
+            promotor = new Promotores();
+            promotor.setUsuario(usuario);
+        }else {
+            // Evitar problema de referencia cíclica al actualizar
+            promotor.setUsuario(usuario); // Asegúrate de que es la misma instancia
+        }
+
+        promotor.setNombrePromotor(datos.getNombrePromotor());
+        promotor.setDescripcion(datos.getDescripcion());
+        promotor.setImagenPerfil(datos.getImagenPerfil());
+
+        Promotores guardado = promotoresRepositorio.save(promotor);
+
+        PromotoresDTO dto = new PromotoresDTO();
+        dto.setId(guardado.getId());
+        dto.setUsuarioId(usuarioId);
+        dto.setNombrePromotor(guardado.getNombrePromotor());
+        dto.setDescripcion(guardado.getDescripcion());
+        dto.setImagenPerfil(guardado.getImagenPerfil());
+        return dto;
+    }
+
 
 }

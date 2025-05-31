@@ -53,10 +53,10 @@ public class Usuario implements UserDetails {
     @Column(name = "verificacion_token", nullable = true)
     private String verificacionToken;
 
-    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario")
     private Artistas artista;
 
-    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario")
     private Promotores promotor;
 
     @Override

@@ -65,6 +65,14 @@ public class PromotoresControlador {
         return ResponseEntity.ok(promotoresServicio.editarPromotor(id, promotor));
     }
 
+    /**Editar con DTO para evitar recursividad**/
+
+    @PutMapping("/promotor/usuario/{id}")
+    public ResponseEntity<PromotoresDTO> editarDatosPromotor(@PathVariable Integer id, @RequestBody Promotores promotor) {
+       PromotoresDTO dto = promotoresServicio.editarDatosPromotor(id, promotor);
+        return ResponseEntity.ok(dto);
+    }
+
     /**
      * Eliminar un promotor
      * @param id
