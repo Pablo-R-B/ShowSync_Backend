@@ -4,6 +4,7 @@ package com.example.showsyncbackend.repositorios;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,6 +50,12 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
             "LEFT JOIN FETCH e.artistasAsignados " +
             "WHERE e.id = :eventoId")
     Optional<Eventos> findByIdWithArtistas(@Param("eventoId") Integer eventoId);
+
+
+    @Query("SELECT e FROM Eventos e " +
+            "LEFT JOIN FETCH e.generosMusicales " +
+            "LEFT JOIN FETCH e.artistasAsignados")
+    List<Eventos> findAllWithLazyCollections(Pageable pageable);
 
 
 }
