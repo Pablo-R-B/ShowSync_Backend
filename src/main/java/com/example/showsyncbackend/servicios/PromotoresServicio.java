@@ -26,10 +26,18 @@ public class PromotoresServicio {
     private final EventosRepositorio eventosRepositorio;
     private final PromotoresRepositorio promotoresRepositorio;
 
-    //  Obtener perfil del promotor
-    public Promotores obtenerPromotorPorId(Integer id) {
-        return promotoresRepositorio.findById(id)
-                .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
+    // Obtener perfil de promotor por ID
+    public PromotoresDTO obtenerPromotorPorId(Integer promotorId) {
+        Promotores promotor = promotoresRepositorio.findById(promotorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Promotor no encontrado"));
+
+        return PromotoresDTO.builder()
+                .id(promotor.getId())
+                .usuarioId(promotor.getUsuario() != null ? promotor.getUsuario().getId() : null)
+                .nombrePromotor(promotor.getNombrePromotor())
+                .descripcion(promotor.getDescripcion())
+                .imagenPerfil(promotor.getImagenPerfil())
+                .build();
     }
 
     //  Listar todos los promotores
@@ -44,16 +52,19 @@ public class PromotoresServicio {
 
     // Editar un promotor
     public Promotores editarPromotor(Integer id, Promotores promotor) {
-        Promotores promotorExistente = obtenerPromotorPorId(id);
+        Promotores promotorExistente = promotoresRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
         promotorExistente.setUsuario(promotor.getUsuario());
         promotorExistente.setNombrePromotor(promotor.getNombrePromotor());
         promotorExistente.setDescripcion(promotor.getDescripcion());
         return promotoresRepositorio.save(promotorExistente);
     }
 
+
     // Eliminar un promotor
     public void eliminarPromotor(Integer id) {
-        Promotores promotor = obtenerPromotorPorId(id);
+        Promotores promotor = promotoresRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
         List<Eventos> eventos = eventosRepository.findByPromotor(promotor);
         if (!eventos.isEmpty()) {
             throw new RuntimeException("No se puede eliminar el promotor porque tiene eventos asociados");
@@ -61,12 +72,21 @@ public class PromotoresServicio {
         promotoresRepositorio.delete(promotor);
     }
 
+    // Obtener promotor por ID de usuario
+public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
+    Promotores promotor = promotoresRepositorio.findByUsuarioId(usuarioId)
+            .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
 
-//     Obtener promotor por idUsuario
-    public Promotores obtenerPromotorPorUsuarioId(Integer usuarioId) {
-        return promotoresRepositorio.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Promotor no encontrado"));
-    }
+    return PromotoresDTO.builder()
+            .id(promotor.getId())
+            .usuarioId(promotor.getUsuario().getId())
+            .nombrePromotor(promotor.getNombrePromotor())
+            .descripcion(promotor.getDescripcion())
+            .imagenPerfil(promotor.getImagenPerfil())
+            .build();
+}
+
+
 
     public Promotores getByUsuario(Usuario usuario) {
         return promotoresRepositorio.findByUsuario(usuario)
