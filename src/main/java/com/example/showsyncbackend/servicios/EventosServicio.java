@@ -9,22 +9,18 @@ import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import com.example.showsyncbackend.repositorios.SalasRepositorio;
 import io.jsonwebtoken.Claims;
-
-
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +45,10 @@ public class EventosServicio {
     @Autowired
     private SalasRepositorio salasRepositorio;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+
 
 
     // Constructor con dependencia para inyección de eventosRepositorio
@@ -58,7 +58,7 @@ public class EventosServicio {
 
     // Obtener todos los eventos confirmados
     public List<EventosDTO> obtenerEventosConfirmados() {
-        // Busca todos los eventos que tienen el esta do confirmado
+        // Busca todos los eventos que tienen el estado confirmado
         return getEventosDTOS();
     }
 
@@ -72,11 +72,11 @@ public class EventosServicio {
                         .id(evento.getId())
                         .nombreEvento(evento.getNombre_evento())
                         .descripcion(evento.getDescripcion())
-                        .fechaEvento(evento.getFecha_evento())
+                        .fechaEvento(evento.getFechaEvento())
                         .estado(evento.getEstado())
                         .imagenEvento(evento.getImagen_evento())
-                        .idSala(evento.getSala_id().getId())
-                        .nombreSala(evento.getSala_id().getNombre())
+                        .idSala(evento.getSala().getId())
+                        .nombreSala(evento.getSala().getNombre())
                         .idPromotor(evento.getPromotor().getId())
                         .nombrePromotor(evento.getPromotor().getNombrePromotor())
                         .build())
@@ -124,8 +124,8 @@ public class EventosServicio {
         // Actualizar los datos del evento
         eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
         eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
-        eventoExistente.setFecha_evento(eventoActualizado.getFecha_evento());
-        eventoExistente.setSala_id(eventoActualizado.getSala_id());
+        eventoExistente.setFechaEvento(eventoActualizado.getFechaEvento());
+        eventoExistente.setSala(eventoActualizado.getSala());
         eventoExistente.setEstado(eventoActualizado.getEstado());
         eventoExistente.setImagen_evento(eventoActualizado.getImagen_evento());
         eventoExistente.setGenerosMusicales(eventoActualizado.getGenerosMusicales());
@@ -138,8 +138,8 @@ public class EventosServicio {
         dto.setId(eventoGuardado.getId());
         dto.setNombreEvento(eventoGuardado.getNombre_evento());
         dto.setDescripcion(eventoGuardado.getDescripcion());
-        dto.setFechaEvento(eventoGuardado.getFecha_evento());
-        dto.setIdSala(eventoGuardado.getSala_id() != null ? eventoGuardado.getSala_id().getId() : null);
+        dto.setFechaEvento(eventoGuardado.getFechaEvento());
+        dto.setIdSala(eventoGuardado.getSala() != null ? eventoGuardado.getSala().getId() : null);
         dto.setEstado(eventoGuardado.getEstado());
         dto.setImagenEvento(eventoGuardado.getImagen_evento());
 
@@ -174,11 +174,11 @@ public class EventosServicio {
                 evento.getId(),
                 evento.getNombre_evento(),
                 evento.getDescripcion(),
-                evento.getFecha_evento(),
+                evento.getFechaEvento(),
                 evento.getEstado(),
                 evento.getImagen_evento(),
-                evento.getSala_id() != null ? evento.getSala_id().getId() : null,
-                evento.getSala_id() != null ? evento.getSala_id().getNombre() : null,
+                evento.getSala() != null ? evento.getSala().getId() : null,
+                evento.getSala() != null ? evento.getSala().getNombre() : null,
                 evento.getPromotor() != null ? evento.getPromotor().getId() : null,
                 evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
                 evento.getGenerosMusicales() != null ? evento.getGenerosMusicales().stream()
@@ -191,6 +191,7 @@ public class EventosServicio {
     }
 
 
+
     // Obtener evento por ID
     @Transactional
     public EventosDTO obtenerEventoPorId(Integer eventoId) {
@@ -201,18 +202,17 @@ public class EventosServicio {
                 evento.getId(),
                 evento.getNombre_evento(),
                 evento.getDescripcion(),
-                evento.getFecha_evento(),
+                evento.getFechaEvento(),
                 evento.getEstado(),
                 evento.getImagen_evento(),
-                evento.getSala_id() != null ? evento.getSala_id().getId() : null,
-                evento.getSala_id() != null ? evento.getSala_id().getNombre() : null,
-                evento.getPromotor() != null ? evento.getPromotor().getId() : null,
-                evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null,
+                evento.getSala().getId(),
+                evento.getSala().getNombre(),
+                evento.getPromotor().getId(),
+                evento.getPromotor().getNombrePromotor(),
                 evento.getGenerosMusicales().stream().map(GenerosMusicales::getNombre).collect(Collectors.toSet()),
                 evento.getArtistasAsignados().stream().map(Artistas::getNombreArtista).collect(Collectors.toSet())
         );
     }
-
 
     // Obtener catalogo de eventos
     public List<EventosDTO> obtenerCatalogoEventos() {
@@ -220,18 +220,19 @@ public class EventosServicio {
     }
 
     private List<EventosDTO> getEventosDTOS() {
-        List<Eventos> eventos = eventosRepositorio.findByEstado(Estado.confirmado);
+        List<Estado> estadosDeseados = List.of(Estado.en_revision, Estado.confirmado);
+        List<Eventos> eventos = eventosRepositorio.findByEstadoIn(estadosDeseados);
 
         return eventos.stream()
                 .map(evento -> EventosDTO.builder()
                         .id(evento.getId())
                         .nombreEvento(evento.getNombre_evento())
                         .descripcion(evento.getDescripcion())
-                        .fechaEvento(evento.getFecha_evento())
+                        .fechaEvento(evento.getFechaEvento())
                         .estado(evento.getEstado())
                         .imagenEvento(evento.getImagen_evento())
-                        .idSala(evento.getSala_id().getId())
-                        .nombreSala(evento.getSala_id().getNombre())
+                        .idSala(evento.getSala().getId())
+                        .nombreSala(evento.getSala().getNombre())
                         .idPromotor(evento.getPromotor().getId())
                         .nombrePromotor(evento.getPromotor().getNombrePromotor())
                         .build())
@@ -262,7 +263,7 @@ public class EventosServicio {
         }
     }
 
-    public List<String> obtenerEstados() {
+    public List<Estado> obtenerEstados() {
         try {
             return eventosRepositorio.findDistinctEstados();
         } catch (Exception e) {
@@ -292,7 +293,7 @@ public class EventosServicio {
         eventosRepositorio.save(evento);
     }
 
-    public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto) {
+    public RespuestaEventoRevisionDTO crearEventoEnRevision(EventosDTO dto, MultipartFile imagenArchivo) {
         // Obtener id usuario desde JWT
         Integer idUsuario = obtenerIdUsuarioDesdeJWT();
 
@@ -304,8 +305,16 @@ public class EventosServicio {
         Salas sala = salasRepositorio.findById(dto.getIdSala())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sala no encontrada"));
 
-        // Validar disponibilidad de sala en la fecha
+        // Validar que la fecha del evento no sea anterior a la fecha actual
         LocalDate fechaEvento = dto.getFechaEvento();
+        LocalDate fechaActual = LocalDate.now();
+
+        if (fechaEvento.isBefore(fechaActual)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "No se puede crear un evento en una fecha pasada. La fecha debe ser igual o posterior a la fecha actual.");
+        }
+
+        // Validar disponibilidad de sala en la fecha
         if (eventosRepositorio.existsBySalaAndFecha(sala.getId(), fechaEvento)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La sala ya está reservada para esa fecha.");
         }
@@ -319,13 +328,22 @@ public class EventosServicio {
             }
         }
 
+        String imagenUrl = null;
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        }
+
         // Crear evento
         Eventos evento = Eventos.builder()
                 .nombre_evento(dto.getNombreEvento())
                 .descripcion(dto.getDescripcion())
-                .fecha_evento(dto.getFechaEvento())
-                .imagen_evento(dto.getImagenEvento())
-                .sala_id(sala)
+                .fechaEvento(dto.getFechaEvento())
+                .imagen_evento(imagenUrl)
+                .sala(sala)
                 .promotor(promotor)
                 .estado(Estado.en_revision)
                 .generosMusicales(generos)
@@ -340,20 +358,19 @@ public class EventosServicio {
                 .collect(Collectors.toSet());
 
         // Construir respuesta
-       return RespuestaEventoRevisionDTO.builder()
-               .id(evento.getId())
-               .nombreEvento(evento.getNombre_evento())
-               .descripcion(evento.getDescripcion())
-               .fechaEvento(evento.getFecha_evento())
-               .estado(evento.getEstado())
-               .imagenEvento(evento.getImagen_evento())
-               .idSala(sala.getId())
-               .nombreSala(sala.getNombre())
-               .nombrePromotor(promotor.getNombrePromotor())
-               .generosMusicales(nombresGeneros)
-               .build();
+        return RespuestaEventoRevisionDTO.builder()
+                .id(evento.getId())
+                .nombreEvento(evento.getNombre_evento())
+                .descripcion(evento.getDescripcion())
+                .fechaEvento(evento.getFechaEvento())
+                .estado(evento.getEstado())
+                .imagenEvento(imagenUrl)
+                .idSala(sala.getId())
+                .nombreSala(sala.getNombre())
+                .nombrePromotor(promotor.getNombrePromotor())
+                .generosMusicales(nombresGeneros)
+                .build();
     }
-
 
     public Integer obtenerIdUsuarioDesdeJWT() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -383,13 +400,15 @@ public class EventosServicio {
         dto.setId(evento.getId());
         dto.setNombreEvento(evento.getNombre_evento());
         dto.setDescripcion(evento.getDescripcion());
-        dto.setFechaEvento(evento.getFecha_evento());
-        dto.setIdSala(evento.getSala_id() != null ? evento.getSala_id().getId() : null);
+        dto.setFechaEvento(evento.getFechaEvento());
+        dto.setIdSala(evento.getSala() != null ? evento.getSala().getId() : null);
         dto.setEstado(evento.getEstado());
         dto.setImagenEvento(evento.getImagen_evento());
 
         return dto;
     }
+
+
 
     @Transactional
     public Page<EventosDTO> obtenerEventosPaginados(Pageable pageable) {

@@ -31,4 +31,9 @@ public class GenerosMusicales {
     @ManyToMany(mappedBy = "generosMusicales")
     private Set<Eventos> eventos = new HashSet<>();
 
+    public GenerosMusicales(Long id, String nombre) {
+        this.id = id.intValue();
+        this.nombre = nombre;
+    }
+
 }
