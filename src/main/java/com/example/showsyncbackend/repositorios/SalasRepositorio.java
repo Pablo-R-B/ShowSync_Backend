@@ -68,4 +68,6 @@ public interface SalasRepositorio extends JpaRepository<Salas, Integer> {
 
     // Buscar sala por provincia sin paginación
     List<Salas> findByProvinciaIgnoreCase(String provincia);
+
+    boolean existsByNombreAndDireccion(String nombre, String direccion);
 }
