@@ -51,7 +51,7 @@ public class PostulacionEventosServicio {
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
                         pe.getEvento().getImagen_evento(),
-                        pe.getEvento().getSala_id().getNombre(),
+                        pe.getEvento().getSala().getNombre(),
                         pe.getEvento().getPromotor().getNombrePromotor(),
                         null,
                         pe.getEstadoPostulacion(),
@@ -74,7 +74,7 @@ public class PostulacionEventosServicio {
                         pe.getArtista().getNombreArtista(),
                         null,
                         pe.getEvento().getImagen_evento(),
-                        pe.getEvento().getSala_id().getNombre(),
+                        pe.getEvento().getSala().getNombre(),
                         pe.getEstadoPostulacion(),
                         pe.getFechaPostulacion(),
                         pe.getTipoSolicitud()
