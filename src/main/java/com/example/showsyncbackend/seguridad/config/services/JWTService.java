@@ -1,6 +1,10 @@
 package com.example.showsyncbackend.seguridad.config.services;
 
+import com.example.showsyncbackend.enumerados.Rol;
+import com.example.showsyncbackend.modelos.Artistas;
+import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
+import com.example.showsyncbackend.utilidades.PerfilMapeador;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -41,9 +45,8 @@ public class JWTService {
         Map<String, Object> extraClaims = new HashMap<>();
 
         if (userDetails instanceof Usuario usuario) {
-            extraClaims.put("rol", usuario.getRol().name());
-            extraClaims.put("nombre", usuario.getNombreUsuario());
-            extraClaims.put("id", usuario.getId());
+            extraClaims.putAll(PerfilMapeador.mapearPerfilUsuario(usuario));
+            extraClaims.put("perfilCompleto", usuario.tienePerfilCompleto());
         }
 
 

@@ -53,6 +53,12 @@ public class Usuario implements UserDetails {
     @Column(name = "verificacion_token", nullable = true)
     private String verificacionToken;
 
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+    private Artistas artista;
+
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+    private Promotores promotor;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.rol.name()));
@@ -110,5 +116,21 @@ public class Usuario implements UserDetails {
     public boolean esAdmin() {
         return this.rol == Rol.ADMINISTRADOR;
     }
+
+    public boolean tienePerfilCompleto() {
+        if (this.rol == Rol.ADMINISTRADOR) {
+            return true; // El administrador no necesita completar perfil
+        }
+        if (this.rol == Rol.ARTISTA && this.artista != null) {
+            return artista.getNombreArtista() != null && !artista.getNombreArtista().isBlank()
+                    && artista.getBiografia() != null && !artista.getBiografia().isBlank()
+                    && artista.getMusicUrl() != null && !artista.getMusicUrl().isBlank();
+        } else if (this.rol == Rol.PROMOTOR && this.promotor != null) {
+            return promotor.getNombrePromotor() != null && !promotor.getNombrePromotor().isBlank()
+                    && promotor.getDescripcion() != null && !promotor.getDescripcion().isBlank();
+        }
+        return false;
+    }
+
 
 }

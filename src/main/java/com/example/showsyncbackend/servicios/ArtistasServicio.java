@@ -4,6 +4,7 @@ import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
+import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -130,6 +131,11 @@ public class ArtistasServicio {
                         new EntityNotFoundException("No existe Artista para usuarioId=" + usuarioId)
                 );
         return artista.getId();
+    }
+
+    public Artistas getByUsuario(Usuario usuario) {
+        return artistasRepositorio.findByUsuario(usuario)
+                .orElse(null);
     }
 
 }
