@@ -1,8 +1,5 @@
 package com.example.showsyncbackend.seguridad.config.services;
 
-import com.example.showsyncbackend.enumerados.Rol;
-import com.example.showsyncbackend.modelos.Artistas;
-import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.utilidades.PerfilMapeador;
 import com.fasterxml.jackson.databind.DeserializationFeature;
