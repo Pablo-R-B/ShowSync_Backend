@@ -29,7 +29,8 @@ public class CorsConfig {
                 "Accept",
                 "Origin",
                 "X-Requested-With",
-                "Cache-Control"
+                "Cache-Control",
+                "X-User-Role"
         ));
 
         // Permitir credenciales (necesario para cookies/token)
