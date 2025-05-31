@@ -12,7 +12,6 @@ import io.jsonwebtoken.Claims;
 
 
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -27,7 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -214,6 +212,7 @@ public class EventosServicio {
                 evento.getArtistasAsignados().stream().map(Artistas::getNombreArtista).collect(Collectors.toSet())
         );
     }
+
 
     // Obtener catalogo de eventos
     public List<EventosDTO> obtenerCatalogoEventos() {

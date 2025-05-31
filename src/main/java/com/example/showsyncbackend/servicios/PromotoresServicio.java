@@ -1,11 +1,14 @@
 package com.example.showsyncbackend.servicios;
 
 import com.example.showsyncbackend.dtos.EvetosPostulacionArtistaDTO;
+import com.example.showsyncbackend.dtos.PromotoresDTO;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -77,6 +80,19 @@ public class PromotoresServicio {
                 .stream()
                 .map(evt -> new EvetosPostulacionArtistaDTO(evt.getId(), evt.getNombre_evento()))
                 .collect(Collectors.toList());
+    }
+
+
+    //Paginación de promotores
+    public Page<PromotoresDTO> obtenerPromotoresPaginados(Pageable pageable) {
+        return promotoresRepositorio.findAll(pageable)
+                .map(promotor -> PromotoresDTO.builder()
+                        .id(promotor.getId())
+                        .usuarioId(promotor.getUsuario().getId())
+                        .nombrePromotor(promotor.getNombrePromotor())
+                        .descripcion(promotor.getDescripcion())
+                        .imagenPerfil(promotor.getImagenPerfil())
+                        .build());
     }
 
 }

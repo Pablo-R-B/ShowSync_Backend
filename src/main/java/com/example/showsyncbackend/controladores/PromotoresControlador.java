@@ -1,8 +1,12 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.PromotoresDTO;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.servicios.PromotoresServicio;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,7 +84,12 @@ public class PromotoresControlador {
         return ResponseEntity.ok(promotor);
     }
 
-
+    @GetMapping("/listar/promotores")
+    public Page<PromotoresDTO> obtenerPromotoresPaginados(@RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "9") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return promotoresServicio.obtenerPromotoresPaginados(pageable);
+    }
 
 
 }

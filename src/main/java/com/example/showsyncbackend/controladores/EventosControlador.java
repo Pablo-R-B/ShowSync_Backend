@@ -264,6 +264,13 @@ public class EventosControlador {
         return new ResponseEntity<>(eventoDTO, HttpStatus.OK);
     }
 
+    /**
+     * Obtener eventos paginados
+     * @param page Número de página
+     * @param size Tamaño de página
+     * @return Página de eventos como DTO
+     */
+
     @GetMapping("/listar/eventos")
     public Page<EventosDTO> obtenerEventos(@RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "6") int size) {
