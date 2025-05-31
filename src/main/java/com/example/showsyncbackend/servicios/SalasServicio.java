@@ -63,6 +63,34 @@ public class SalasServicio {
                 .administrador(administrador)
                 .build();
 
+        if (salasRepositorio.existsByNombreAndDireccion(request.getNombre(), request.getDireccion())) {
+            throw new RuntimeException("Ya existe una sala con el mismo nombre y dirección");
+        }
+
+        if (request.getCapacidad() <= 0) {
+            throw new RuntimeException("La capacidad debe ser mayor a 0");
+        }
+
+        if (request.getCiudad() == null || request.getCiudad().isEmpty()) {
+            throw new RuntimeException("La ciudad no puede estar vacía");
+        }
+
+        if (request.getProvincia() == null || request.getProvincia().isEmpty()) {
+            throw new RuntimeException("La provincia no puede estar vacía");
+        }
+
+        if (request.getCodigoPostal() == null || request.getCodigoPostal().isEmpty()) {
+            throw new RuntimeException("El código postal no puede estar vacío");
+        }
+
+        if (request.getDescripcion() == null || request.getDescripcion().isEmpty() || request.getDescripcion().length() < 20 || request.getDescripcion().length() > 500) {
+            throw new RuntimeException("La descripción no puede estar vacía");
+        }
+
+        if (request.getNombre() == null || request.getNombre().isEmpty() || request.getNombre().length() < 3 || request.getNombre().length() > 50) {
+            throw new RuntimeException("El nombre de la sala debe tener entre 3 y 50 caracteres");
+        }
+
         Salas salaGuardada = salasRepositorio.save(nuevaSala);
 
         LocalDate fechaInicio = LocalDate.now();
@@ -109,6 +137,10 @@ public class SalasServicio {
             } catch (IOException e) {
                 throw new RuntimeException("Error al subir imagen a Cloudinary", e);
             }
+        }
+
+        if (salasRepositorio.existsByNombreAndDireccion(request.getNombre(), request.getDireccion())) {
+            throw new RuntimeException("Ya existe una sala con el mismo nombre y dirección");
         }
 
         return convertirASalaDTO(salasRepositorio.save(sala));
