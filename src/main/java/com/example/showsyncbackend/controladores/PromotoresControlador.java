@@ -86,7 +86,7 @@ public class PromotoresControlador {
 
     @GetMapping("/listar/promotores")
     public Page<PromotoresDTO> obtenerPromotoresPaginados(@RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "9") int size) {
+                                                          @RequestParam(defaultValue = "6") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return promotoresServicio.obtenerPromotoresPaginados(pageable);
     }
