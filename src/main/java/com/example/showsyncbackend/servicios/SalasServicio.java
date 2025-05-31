@@ -139,9 +139,10 @@ public class SalasServicio {
             }
         }
 
-        if (salasRepositorio.existsByNombreAndDireccion(request.getNombre(), request.getDireccion())) {
+        if (salasRepositorio.existsByNombreAndDireccionAndIdNot(request.getNombre(), request.getDireccion(), salaId)) {
             throw new RuntimeException("Ya existe una sala con el mismo nombre y dirección");
         }
+
 
         return convertirASalaDTO(salasRepositorio.save(sala));
     }

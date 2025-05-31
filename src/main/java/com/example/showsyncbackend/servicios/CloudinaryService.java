@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.servicios;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,9 +36,18 @@ public class CloudinaryService {
 
     public String uploadFile(MultipartFile file) throws IOException {
         validarFormatoImagen(file); // Validar el formato de la imagen
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+
+        Map<String, Object> params = ObjectUtils.asMap(
+                "transformation", new Transformation()
+                        .width(800)
+                        .height(600)
+                        .crop("limit")
+        );
+
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
         return (String) uploadResult.get("secure_url");
     }
+
 
     private void validarFormatoImagen(MultipartFile file) {
         String contentType = file.getContentType();

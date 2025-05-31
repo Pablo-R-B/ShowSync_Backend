@@ -70,4 +70,8 @@ public interface SalasRepositorio extends JpaRepository<Salas, Integer> {
     List<Salas> findByProvinciaIgnoreCase(String provincia);
 
     boolean existsByNombreAndDireccion(String nombre, String direccion);
+
+    boolean existsByNombreAndDireccionAndIdNot(String nombre, String direccion, Integer id);
+
+
 }
