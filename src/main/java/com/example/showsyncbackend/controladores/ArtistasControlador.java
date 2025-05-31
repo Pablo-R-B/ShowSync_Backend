@@ -85,4 +85,16 @@ public class ArtistasControlador {
 
 
 
+    /**
+     * Listar todos los artistas sin paginación
+     * @return Lista de ArtistasCatalogoDTO
+     */
+    @GetMapping("/imagenes")
+    public ResponseEntity<List<String>> obtenerImagenesDeTodosLosArtistas() {
+        List<String> imagenes = artistasServicio.obtenerImagenesDeTodosLosArtistas();
+        return ResponseEntity.ok(imagenes);
+    }
+
+
+
 }
