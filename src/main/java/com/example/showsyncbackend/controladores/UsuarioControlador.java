@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -68,11 +68,6 @@ public class UsuarioControlador {
         return ResponseEntity.ok(respuesta);
     }
 
-
-
-
-
-
     @GetMapping("/{id}")
    public ResponseEntity<UsuarioDTO> obtenerUsuarioPorId(@PathVariable Integer id) {
        try {
@@ -121,9 +116,14 @@ public class UsuarioControlador {
     }
 
 
-    @GetMapping("/rol/{rol}")
-    public ResponseEntity<List<UsuarioDTO>> obtenerUsuariosPorRol(@PathVariable Rol rol) {
-        List<UsuarioDTO> usuarios = usuarioServicio.obtenerUsuariosPorRol(rol);
-        return ResponseEntity.ok(usuarios);
+
+
+    @GetMapping("/contar-usuarios-por-rol")
+    public ResponseEntity<Map<String, Long>> contarUsuariosPorRol() {
+        Map<String, Long> resultado = usuarioServicio.contarUsuariosPorRol(null);
+        return ResponseEntity.ok(resultado);
     }
+
+
+
 }
