@@ -159,7 +159,7 @@ public class SalasServicio {
         return convertirASalaDTO(sala);
     }
 
-    public RespuestaPaginacionDTO<SalaDTO> obtenerTodasLasSalas(int page, int size, String sortField, String sortDirection, String termino) {
+    public RespuestaPaginacionDTO<SalaDTO> obtenerTodasLasSalas2(int page, int size, String sortField, String sortDirection, String termino) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
 
@@ -172,6 +172,21 @@ public class SalasServicio {
         }
 
         return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
+    }
+
+    public List<SalaDTO> obtenerTodasLasSalas(int page, int size, String termino) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("nombre").ascending());
+        Page<Salas> salasPage;
+
+        if (termino != null && !termino.trim().isEmpty()) {
+            salasPage = salasRepositorio.findAllConTermino(termino.trim(), pageable);
+        } else {
+            salasPage = salasRepositorio.findAll(pageable);
+        }
+
+        return salasPage.getContent().stream()
+                .map(this::convertirASalaDTO)
+                .collect(Collectors.toList());
     }
 
     public List<SalaDTO> buscarSalas(String filtro) {
