@@ -45,9 +45,17 @@ public class PromotoresServicio {
                 .build();
     }
 
-    //  Listar todos los promotores
-    public List<Promotores> listarPromotores() {
-        return promotoresRepositorio.findAll();
+    // Listar todos los promotores
+    public List<PromotoresDTO> listarPromotores() {
+        return promotoresRepositorio.findAll().stream()
+                .map(promotor -> PromotoresDTO.builder()
+                        .id(promotor.getId())
+                        .usuarioId(promotor.getUsuario() != null ? promotor.getUsuario().getId() : null)
+                        .nombrePromotor(promotor.getNombrePromotor())
+                        .descripcion(promotor.getDescripcion())
+                        .imagenPerfil(promotor.getImagenPerfil())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     //  Crear un nuevo promotor

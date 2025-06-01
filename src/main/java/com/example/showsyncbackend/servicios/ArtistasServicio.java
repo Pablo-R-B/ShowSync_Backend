@@ -202,5 +202,14 @@ public class ArtistasServicio {
 
 
 
+    public List<String> obtenerImagenesDeTodosLosArtistas() {
+        return artistasRepositorio.findAll().stream()
+                .map(Artistas::getImagenPerfil)
+                .collect(Collectors.toList());
+    }
+
+
+
+
 
 }

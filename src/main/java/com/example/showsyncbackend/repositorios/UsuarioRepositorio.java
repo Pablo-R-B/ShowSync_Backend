@@ -2,7 +2,11 @@ package com.example.showsyncbackend.repositorios;
 
 import com.example.showsyncbackend.enumerados.Rol;
 import com.example.showsyncbackend.modelos.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +24,26 @@ public interface UsuarioRepositorio extends JpaRepository<Usuario, Integer> {
 
     // Método para encontrar usuarios por su rol
     List<Usuario> findByRol(Rol rol);
+
+    // Método para buscar usuarios por nombre de usuario o email, ignorando mayúsculas y minúsculas
+    Page<Usuario> findByNombreUsuarioContainingIgnoreCaseOrEmailContainingIgnoreCase(String nombreUsuario, String email, Pageable pageable);
+
+
+
+    @Query("""
+SELECT u FROM Usuario u
+WHERE (:rol IS NULL OR u.rol = :rol)
+AND (
+    :termino IS NULL OR
+    u.nombreUsuario LIKE CONCAT('%', CAST(:termino AS string), '%') OR
+    u.email LIKE CONCAT('%', CAST(:termino AS string), '%')
+)
+""")
+    Page<Usuario> buscarUsuariosFiltrados(
+            @Param("rol") Rol rol,
+            @Param("termino") String termino,
+            Pageable pageable
+    );
 
 
 

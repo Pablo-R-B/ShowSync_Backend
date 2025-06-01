@@ -45,11 +45,17 @@ public class ArtistasControlador {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
     ) {
-        RespuestaPaginacionDTO<ArtistasCatalogoDTO> artistasFiltrados =
-                artistasServicio.artistasPorGenero(genero, termino, page, size);
-        return artistasFiltrados.getItems().isEmpty()
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.ok(artistasFiltrados);
+        try {
+            RespuestaPaginacionDTO<ArtistasCatalogoDTO> artistasFiltrados =
+                    artistasServicio.artistasPorGenero(genero, termino, page, size);
+
+            // Siempre retornar 200, incluso si la lista está vacía
+            return ResponseEntity.ok(artistasFiltrados);
+
+        } catch (Exception e) {
+            // Solo retornar error si hay un problema real (ej: error de BD)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
@@ -94,6 +100,18 @@ public class ArtistasControlador {
         respuesta.put("mensaje", "Perfil actualizado correctamente");
 
         return ResponseEntity.ok(respuesta);
+    }
+
+
+
+    /**
+     * Listar todos los artistas sin paginación
+     * @return Lista de ArtistasCatalogoDTO
+     */
+    @GetMapping("/imagenes")
+    public ResponseEntity<List<String>> obtenerImagenesDeTodosLosArtistas() {
+        List<String> imagenes = artistasServicio.obtenerImagenesDeTodosLosArtistas();
+        return ResponseEntity.ok(imagenes);
     }
 
 
