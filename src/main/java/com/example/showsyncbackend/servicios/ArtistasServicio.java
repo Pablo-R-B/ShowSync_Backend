@@ -2,11 +2,14 @@ package com.example.showsyncbackend.servicios;
 
 import com.example.showsyncbackend.dtos.ArtistaDTO;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
+import com.example.showsyncbackend.dtos.PromotoresDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
+import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
+import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 
@@ -16,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -28,6 +32,7 @@ public class ArtistasServicio {
 
     @Autowired
     private ArtistasRepositorio artistasRepositorio;
+    private UsuarioRepositorio usuarioRepositorio;
 
     public RespuestaPaginacionDTO<ArtistasCatalogoDTO> obtenerArtistasConGeneros(int page, int size, String termino) {
         Pageable pageable = PageRequest.of(page, size);
@@ -162,24 +167,39 @@ public class ArtistasServicio {
                 .orElseThrow(() -> new RuntimeException("Artista no encontrado con ID: " + id));
     }
 
-    public ArtistaDTO editarArtista(Integer id, Artistas artista) {
-        Artistas artistaExistente = obtenerArtistaPorId(id);
+    @Transactional
+    public ArtistaDTO editarDatosArtista(Integer usuarioId, Artistas datos) {
+        Usuario usuario = usuarioRepositorio.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        artistaExistente.setNombreArtista(artista.getNombreArtista());
-        artistaExistente.setBiografia(artista.getBiografia());
-        artistaExistente.setMusicUrl(artista.getMusicUrl());
-        artistaExistente.setImagenPerfil(artista.getImagenPerfil());
+        Artistas artista = artistasRepositorio.findByUsuario_Id(usuarioId)
+                .orElse(null);
 
-        Artistas actualizado = artistasRepositorio.save(artistaExistente);
+        if (artista == null) {
+            artista = new Artistas();
+            artista.setUsuario(usuario);
+        }else {
+            artista.setUsuario(usuario);
+        }
 
-        ArtistaDTO dto = new ArtistaDTO();
-        dto.setNombreArtista(actualizado.getNombreArtista());
-        dto.setBiografia(actualizado.getBiografia());
-        dto.setMusicUrl(actualizado.getMusicUrl());
-        dto.setImagenPerfil(actualizado.getImagenPerfil());
+        artista.setNombreArtista(datos.getNombreArtista());
+        artista.setBiografia(datos.getBiografia());
+        artista.setImagenPerfil(datos.getImagenPerfil());
+        artista.setMusicUrl(datos.getMusicUrl());
 
+        Artistas guardado = artistasRepositorio.save(artista);
+
+       ArtistaDTO dto = new ArtistaDTO();
+        dto.setId(guardado.getId());
+        dto.setUsuarioId(usuarioId);
+        dto.setNombreArtista(guardado.getNombreArtista());
+        dto.setBiografia(guardado.getBiografia());
+        dto.setImagenPerfil(guardado.getImagenPerfil());
+        dto.setMusicUrl(guardado.getMusicUrl());
         return dto;
     }
+
+
 
 
 

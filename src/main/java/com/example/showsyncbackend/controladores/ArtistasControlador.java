@@ -2,8 +2,10 @@ package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.ArtistaDTO;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
+import com.example.showsyncbackend.dtos.PromotoresDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
+import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/artistas")
@@ -82,10 +87,13 @@ public class ArtistasControlador {
         return ResponseEntity.ok(artistas);
     }
 
-    @PutMapping("/editar/artista/{id}")
-    public ResponseEntity<ArtistaDTO> editarArtista(@PathVariable Integer id, @RequestBody Artistas artista) {
-        ArtistaDTO dto = artistasServicio.editarArtista(id, artista);
-        return ResponseEntity.ok(dto);
+    @PutMapping("/artista/usuario/{id}")
+    public ResponseEntity<Map<String, String>> editarDatosArtista(@PathVariable Integer id, @RequestBody Artistas artista) {
+        ArtistaDTO dto = artistasServicio.editarDatosArtista(id, artista);
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Perfil actualizado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
 

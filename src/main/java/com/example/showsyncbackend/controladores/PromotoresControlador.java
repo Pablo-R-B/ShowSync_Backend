@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/promotores")
@@ -68,9 +70,12 @@ public class PromotoresControlador {
     /**Editar con DTO para evitar recursividad**/
 
     @PutMapping("/promotor/usuario/{id}")
-    public ResponseEntity<PromotoresDTO> editarDatosPromotor(@PathVariable Integer id, @RequestBody Promotores promotor) {
+    public ResponseEntity<Map<String, String>> editarDatosPromotor(@PathVariable Integer id, @RequestBody Promotores promotor) {
        PromotoresDTO dto = promotoresServicio.editarDatosPromotor(id, promotor);
-        return ResponseEntity.ok(dto);
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Perfil actualizado correctamente");
+
+        return ResponseEntity.ok(respuesta);
     }
 
     /**

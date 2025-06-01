@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -131,6 +132,7 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
     }
 
 
+    @Transactional
     public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos) {
         Usuario usuario = usuarioRepositorio.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -142,8 +144,7 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
             promotor = new Promotores();
             promotor.setUsuario(usuario);
         }else {
-            // Evitar problema de referencia cíclica al actualizar
-            promotor.setUsuario(usuario); // Asegúrate de que es la misma instancia
+            promotor.setUsuario(usuario);
         }
 
         promotor.setNombrePromotor(datos.getNombrePromotor());

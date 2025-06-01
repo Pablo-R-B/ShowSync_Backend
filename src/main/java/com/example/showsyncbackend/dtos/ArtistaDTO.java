@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ArtistaDTO {
+    private Integer id;
+    private Integer usuarioId;
     private String nombreArtista;
     private String biografia;
     private String imagenPerfil;
