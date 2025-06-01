@@ -25,6 +25,7 @@ public class PaginationUtils {
         response.setCurrentPage(page.getNumber());
         response.setTotalItems((int) page.getTotalElements());
         response.setPageSize(page.getSize());
+        response.setMensaje(page.getTotalElements() > 0 ? "" : "No se encontraron resultados.");
         return response;
     }
 }
