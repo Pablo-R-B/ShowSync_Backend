@@ -333,13 +333,7 @@ public class SalasServicio {
         return dto;
     }
 
-    private DisponibilidadSalaDTO convertirADTO(DisponibilidadSalas d) {
-        DisponibilidadSalaDTO dto = new DisponibilidadSalaDTO();
-        dto.setFecha(d.getFecha());
-        dto.setDisponibilidad(d.getDisponibilidad());
-        dto.setSalaId(d.getSala().getId());
-        return dto;
-    }
+
 
     public List<Object[]> obtenerCantidadReservasPorSala() {
         return eventosRepositorio.obtenerCantidadReservasPorSala();
@@ -360,5 +354,9 @@ public class SalasServicio {
     public long obtenerTotalSalas() {
         return salasRepositorio.count();
     }
+
+
+
+
 
 }
