@@ -355,4 +355,10 @@ public class SalasServicio {
                 .collect(Collectors.toList());
     }
 
+
+    //Método para obtener el total de salas
+    public long obtenerTotalSalas() {
+        return salasRepositorio.count();
+    }
+
 }
