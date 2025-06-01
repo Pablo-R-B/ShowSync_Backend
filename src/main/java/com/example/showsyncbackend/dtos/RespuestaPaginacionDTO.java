@@ -11,4 +11,7 @@ public class RespuestaPaginacionDTO<T> {
     private int currentPage;
     private int totalItems;
     private int pageSize;
+
+    private String mensaje = "";
+
 }
