@@ -14,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -104,5 +106,23 @@ public class UsuarioServicio {
                         usuario.getFechaRegistro()
                 ))
                 .toList();
-}
+    }
+
+
+ // Calcular el total de usuarios y distinguir el tipo de rol
+  public Map<String, Long> contarUsuariosPorRol(Rol rol) {
+      Map<String, Long> resultado = new HashMap<>();
+
+      // Contar el total de usuarios en la base de datos
+      resultado.put("totalUsuarios", usuarioRepositorio.count());
+
+      // Contar el total de usuarios por cada rol específico
+      resultado.put("Promotores", usuarioRepositorio.countByRol(Rol.PROMOTOR));
+      resultado.put("Artistas", usuarioRepositorio.countByRol(Rol.ARTISTA));
+      resultado.put("Administrador", usuarioRepositorio.countByRol(Rol.ADMINISTRADOR));
+
+      return resultado;
+  }
+
+
 }
