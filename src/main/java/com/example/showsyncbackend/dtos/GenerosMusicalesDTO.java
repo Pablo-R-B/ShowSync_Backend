@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GenerosMusicalesDTO {
-    private Long id;
+    private Integer id;
     private String nombre;
 
 

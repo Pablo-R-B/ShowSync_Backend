@@ -1,6 +1,6 @@
 package com.example.showsyncbackend.controladores;
 
-import com.example.showsyncbackend.modelos.GenerosMusicales;
+import com.example.showsyncbackend.dtos.GenerosMusicalesDTO;
 import com.example.showsyncbackend.servicios.GenerosMusicalesServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,8 @@ public class GenerosMusicalesControlador {
     private final GenerosMusicalesServicio generosMusicalesServicio;
 
     @GetMapping("/listar-generos")
-    public ResponseEntity<List<String>> listarGeneros() {
-        List<String> generos = generosMusicalesServicio.mostrarTodos();
+    public ResponseEntity<List<GenerosMusicalesDTO>> listarGeneros() {
+        List<GenerosMusicalesDTO> generos = generosMusicalesServicio.listarGenerosConId();
         return ResponseEntity.ok(generos);
     }
 }

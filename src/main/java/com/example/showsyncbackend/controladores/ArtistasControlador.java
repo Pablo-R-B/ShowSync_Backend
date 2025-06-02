@@ -1,11 +1,10 @@
 package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.ArtistaDTO;
+import com.example.showsyncbackend.dtos.ArtistaEditarDTO;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
-import com.example.showsyncbackend.dtos.PromotoresDTO;
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.modelos.Artistas;
-import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/artistas")
@@ -60,11 +62,11 @@ public class ArtistasControlador {
 
 
     @GetMapping("/artista/{id}")
-    public ResponseEntity<ArtistasCatalogoDTO> obtenerArtistasPorId(@PathVariable Integer id) {
+    public ResponseEntity<ArtistaEditarDTO> obtenerArtistasPorId(@PathVariable Integer id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido"); // [[4]]
         }
-        ArtistasCatalogoDTO artistas= artistasServicio.artistaPorId(id);
+        ArtistaEditarDTO artistas= artistasServicio.artistaPorId(id);
         return ResponseEntity.ok(artistas);
     }
 
@@ -94,7 +96,7 @@ public class ArtistasControlador {
     }
 
     @PutMapping("/artista/usuario/{id}")
-    public ResponseEntity<Map<String, String>> editarDatosArtista(@PathVariable Integer id, @RequestBody Artistas artista) {
+    public ResponseEntity<Map<String, String>> editarDatosArtista(@PathVariable Integer id, @RequestBody ArtistaEditarDTO artista) {
         ArtistaDTO dto = artistasServicio.editarDatosArtista(id, artista);
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("mensaje", "Perfil actualizado correctamente");

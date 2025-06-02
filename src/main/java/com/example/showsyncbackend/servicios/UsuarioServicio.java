@@ -7,7 +7,9 @@ import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.utilidades.PaginationUtils;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -105,4 +107,17 @@ public class UsuarioServicio {
                 ))
                 .toList();
 }
+
+
+    @Transactional
+    public Usuario getUsuarioByEmail(String email) {
+        Usuario usuario = usuarioRepositorio.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getRol() == Rol.ARTISTA && usuario.getArtista() != null) {
+            Hibernate.initialize(usuario.getArtista().getGenerosMusicales());
+        }
+
+        return usuario;
+    }
 }

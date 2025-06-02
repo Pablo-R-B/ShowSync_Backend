@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "eventos")
+@ToString(exclude = {"eventos", "generosMusicales", "usuario"})
 @Table(name="artistas", schema = "showsync", catalog = "postgres")
 public class Artistas {
     @Id
@@ -41,6 +41,7 @@ public class Artistas {
     private String imagenPerfil;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinTable(name = "artistas_generos",joinColumns = {@JoinColumn(name="artista_id", referencedColumnName = "id",nullable = false)},
     inverseJoinColumns = {@JoinColumn(name = "genero_id", referencedColumnName = "id",nullable = false)})
     private Set<GenerosMusicales> generosMusicales = new HashSet<>(0);

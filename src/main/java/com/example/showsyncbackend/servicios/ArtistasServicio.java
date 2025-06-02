@@ -1,14 +1,11 @@
 package com.example.showsyncbackend.servicios;
 
-import com.example.showsyncbackend.dtos.ArtistaDTO;
-import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
-import com.example.showsyncbackend.dtos.PromotoresDTO;
-import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
+import com.example.showsyncbackend.dtos.*;
 import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
-import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
+import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -33,6 +30,8 @@ public class ArtistasServicio {
     @Autowired
     private ArtistasRepositorio artistasRepositorio;
     private UsuarioRepositorio usuarioRepositorio;
+    @Autowired
+    private GenerosMusicalesRepositorio generosMusicalesRepositorio;
 
     public RespuestaPaginacionDTO<ArtistasCatalogoDTO> obtenerArtistasConGeneros(int page, int size, String termino) {
         Pageable pageable = PageRequest.of(page, size);
@@ -50,6 +49,7 @@ public class ArtistasServicio {
                         art.getNombreArtista(),
                         art.getImagenPerfil(),
                         art.getBiografia(),
+                        art.getMusicUrl(),
                         art.getGenerosMusicales()
                                 .stream()
                                 .map(GenerosMusicales::getNombre)
@@ -86,6 +86,7 @@ public class ArtistasServicio {
                         art.getNombreArtista(),
                         art.getImagenPerfil(),
                         art.getBiografia(),
+                        art.getMusicUrl(),
                         art.getGenerosMusicales()
                                 .stream()
                                 .map(GenerosMusicales::getNombre)
@@ -102,27 +103,34 @@ public class ArtistasServicio {
         return respuesta;
     }
 
-    public ArtistasCatalogoDTO artistaPorId(Integer id) {
-        // JPQL fetch-join:
+    public ArtistaEditarDTO artistaPorId(Integer id) {
         return artistasRepositorio.findByIdWithGeneros(id)
-                .map(art -> mapToDto(art.getId(),
-                        art.getNombreArtista(),
-                        art.getImagenPerfil(),
-                        art.getBiografia(),
-                        art.getGenerosMusicales()
-                                .stream()
-                                .map(GenerosMusicales::getNombre)
-                                .collect(Collectors.toList())))
+                .map(art -> {
+                    List<GenerosMusicalesDTO> generosDto = art.getGenerosMusicales()
+                            .stream()
+                            .map(gen -> new GenerosMusicalesDTO(gen.getId(), gen.getNombre()))
+                            .collect(Collectors.toList());
+
+                    ArtistaEditarDTO dto = new ArtistaEditarDTO();
+                    dto.setId(art.getId());
+                    dto.setNombreArtista(art.getNombreArtista());
+                    dto.setImagenPerfil(art.getImagenPerfil());
+                    dto.setBiografia(art.getBiografia());
+                    dto.setMusicUrl(art.getMusicUrl());
+                    dto.setGenerosMusicales(generosDto);
+                    return dto;
+                })
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Artista no encontrado")
                 );
     }
         private ArtistasCatalogoDTO mapToDto(Integer id,
-                String nombre,
-                String imagen,
-                String biografia,
-                List<String> generos) {
-            return new ArtistasCatalogoDTO(id, nombre, imagen, biografia, generos);
+                                             String nombre,
+                                             String imagen,
+                                             String biografia,
+                                             String musicUrl,
+                                             List<String> generos) {
+            return new ArtistasCatalogoDTO(id, nombre, imagen, biografia, musicUrl ,generos);
         }
 
     /**
@@ -156,7 +164,8 @@ public class ArtistasServicio {
                             artista.getId(),
                             artista.getNombreArtista(),
                             artista.getImagenPerfil(), // Imagen de perfil
-                            artista.getBiografia(),    // Biografía
+                            artista.getBiografia(),
+                            artista.getMusicUrl(),
                             generos
                     );
                 });
@@ -168,7 +177,7 @@ public class ArtistasServicio {
     }
 
     @Transactional
-    public ArtistaDTO editarDatosArtista(Integer usuarioId, Artistas datos) {
+    public ArtistaDTO editarDatosArtista(Integer usuarioId, ArtistaEditarDTO datos) {
         Usuario usuario = usuarioRepositorio.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -187,7 +196,16 @@ public class ArtistasServicio {
         artista.setImagenPerfil(datos.getImagenPerfil());
         artista.setMusicUrl(datos.getMusicUrl());
 
-        Artistas guardado = artistasRepositorio.save(artista);
+        if (datos.getGenerosMusicales() != null) {
+            Set<GenerosMusicales> generos = datos.getGenerosMusicales().stream()
+                    .map(gDto -> generosMusicalesRepositorio.findById(gDto.getId())
+                            .orElseThrow(() -> new RuntimeException("Género no encontrado: " + gDto.getId())))
+                    .collect(Collectors.toSet());
+
+            artista.setGenerosMusicales(generos);
+        }
+
+        Artistas guardado = artistasRepositorio.saveAndFlush(artista);
 
        ArtistaDTO dto = new ArtistaDTO();
         dto.setId(guardado.getId());
