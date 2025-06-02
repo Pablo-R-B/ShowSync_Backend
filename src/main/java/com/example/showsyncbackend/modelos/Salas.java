@@ -1,10 +1,7 @@
 package com.example.showsyncbackend.modelos;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Data
@@ -45,6 +42,13 @@ public class Salas {
 
     @Column(name = "codigo_postal")
     private String codigoPostal;
+
+    // Asegúrate que tienes getter y setter
+    @Setter
+    @Getter
+    @Column(name = "suspendida")
+    private boolean suspendida;
+
 
     public Salas(Integer salaId) {
     }

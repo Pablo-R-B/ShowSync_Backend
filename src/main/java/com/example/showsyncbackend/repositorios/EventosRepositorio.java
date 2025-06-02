@@ -83,4 +83,7 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     long countByFechaEventoBeforeAndEstadoNot(LocalDate hoy, Estado estado);
 
     long countByFechaEventoAfterAndEstadoNotOrFechaEventoEqualsAndEstadoNot(LocalDate hoy, Estado estado, LocalDate hoy1, Estado estado1);
+
+    // Esto es para obtener eventos futuros de una sala
+    List<Eventos> findBySalaAndFechaEventoAfter(Salas sala, LocalDate now);
 }

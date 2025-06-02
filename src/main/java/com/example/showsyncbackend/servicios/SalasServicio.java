@@ -5,6 +5,7 @@ import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.*;
 import com.example.showsyncbackend.repositorios.*;
 import com.example.showsyncbackend.utilidades.PaginationUtils;
+import com.example.showsyncbackend.utilidades.SalaMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -31,6 +33,7 @@ public class SalasServicio {
     private final PromotoresServicio promotoresServicio;
     private final EventosRepositorio eventosRepositorio;
     private final CloudinaryService cloudinaryService;
+    private final SalaMapper salaMapper;
 
 
     public SalaDTO crearSala(CrearSalaRequestDTO request, MultipartFile imagenArchivo) {
@@ -59,6 +62,7 @@ public class SalasServicio {
                 .provincia(request.getProvincia())
                 .codigoPostal(request.getCodigoPostal())
                 .administrador(administrador)
+                .suspendida(false) // Por defecto, la sala no está suspendida
                 .build();
 
         if (salasRepositorio.existsByNombreAndDireccion(request.getNombre(), request.getDireccion())) {
@@ -102,7 +106,7 @@ public class SalasServicio {
             );
         }
 
-        return convertirASalaDTO(salaGuardada);
+        return salaMapper.salaToSalaDTO(salaGuardada);
     }
 
 
@@ -142,7 +146,8 @@ public class SalasServicio {
         }
 
 
-        return convertirASalaDTO(salasRepositorio.save(sala));
+        Salas salaGuardada = salasRepositorio.save(sala);
+        return salaMapper.salaToSalaDTO(salaGuardada);
     }
 
 
@@ -156,7 +161,7 @@ public class SalasServicio {
     public SalaDTO obtenerSalaPorId(Integer id) {
         Salas sala = salasRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
-        return convertirASalaDTO(sala);
+        return salaMapper.salaToSalaDTO(sala);
     }
 
     public RespuestaPaginacionDTO<SalaDTO> obtenerTodasLasSalas2(int page, int size, String sortField, String sortDirection, String termino) {
@@ -171,7 +176,7 @@ public class SalasServicio {
             salasPage = salasRepositorio.findAll(pageable);
         }
 
-        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
+        return PaginationUtils.toPaginationResponse(salasPage.map(salaMapper::salaToSalaDTO));
     }
 
     public List<SalaDTO> obtenerTodasLasSalas(int page, int size, String termino) {
@@ -185,13 +190,13 @@ public class SalasServicio {
         }
 
         return salasPage.getContent().stream()
-                .map(this::convertirASalaDTO)
+                .map(salaMapper::salaToSalaDTO)
                 .collect(Collectors.toList());
     }
 
     public List<SalaDTO> buscarSalas(String filtro) {
         return salasRepositorio.buscarSalasSinPaginacion(filtro).stream()
-                .map(this::convertirASalaDTO)
+                .map(salaMapper::salaToSalaDTO)
                 .collect(Collectors.toList());
     }
 
@@ -200,9 +205,10 @@ public class SalasServicio {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
         Page<Salas> salasPage = salasRepositorio.buscarSalas(filtro, pageable);
-        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
+        return PaginationUtils.toPaginationResponse(salasPage.map(salaMapper::salaToSalaDTO));
     }
 
+    // Método para filtrar salas por capacidad con paginación
     public RespuestaPaginacionDTO<SalaDTO> filtrarPorCapacidad(Integer min, Integer max, int page, int size, String sortField, String sortDirection, String termino) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
@@ -215,12 +221,16 @@ public class SalasServicio {
             salasPage = salasRepositorio.filtrarPorCapacidad(min, max, pageable);
         }
 
-        return PaginationUtils.toPaginationResponse(salasPage.map(this::convertirASalaDTO));
+        return PaginationUtils.toPaginationResponse(salasPage.map(salaMapper::salaToSalaDTO));
     }
 
     public DisponibilidadSalaDTO consultarDisponibilidadPorFecha(Integer salaId, LocalDate fecha) {
         Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        if (Boolean.TRUE.equals(sala.isSuspendida())) {
+            throw new IllegalStateException("La sala está suspendida y no está disponible para reservas.");
+        }
 
         List<Estado> estados = List.of(Estado.en_revision, Estado.confirmado);
 
@@ -252,6 +262,10 @@ public class SalasServicio {
     public List<DisponibilidadSalaDTO> consultarFechasNoDisponibles(Integer salaId) {
         Salas sala = salasRepositorio.findById(salaId)
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        if (Boolean.TRUE.equals(sala.isSuspendida())) {
+            throw new IllegalStateException("La sala está suspendida y no está disponible para reservas.");
+        }
 
         List<Estado> estados = List.of(Estado.en_revision, Estado.confirmado);
 
@@ -356,7 +370,21 @@ public class SalasServicio {
     }
 
 
+    // Método para desactivar sala y cancelar los eentos asignados
 
+    public void cambiarEstadoSuspendida(Integer salaId, boolean suspendida) {
+        Salas sala = salasRepositorio.findById(salaId)
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
 
+        sala.setSuspendida(suspendida);
+        salasRepositorio.save(sala);
 
+        if (suspendida) {
+            List<Eventos> eventosFuturos = eventosRepositorio.findBySalaAndFechaEventoAfter(sala, LocalDate.now());
+            for (Eventos evento : eventosFuturos) {
+                evento.setEstado(Estado.cancelado);
+                eventosRepositorio.save(evento);
+            }
+        }
+    }
 }

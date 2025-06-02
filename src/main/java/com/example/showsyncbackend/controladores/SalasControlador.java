@@ -188,4 +188,14 @@ public class SalasControlador {
     public ResponseEntity<Long> obtenerTotalSalas() {
         return ResponseEntity.ok(salasServicio.obtenerTotalSalas());
     }
+
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR')")
+    @PutMapping("/{salaId}/cambiar-estado-suspendida")
+    public ResponseEntity<Void> cambiarEstadoSuspendida(
+            @PathVariable Integer salaId,
+            @RequestParam boolean suspendida) {
+        salasServicio.cambiarEstadoSuspendida(salaId, suspendida);
+        return ResponseEntity.noContent().build();
+    }
 }

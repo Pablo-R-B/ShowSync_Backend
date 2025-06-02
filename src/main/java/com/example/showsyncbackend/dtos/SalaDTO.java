@@ -15,6 +15,8 @@ public class SalaDTO {
     private String ciudad;
     private String provincia;
     private String codigoPostal;
+    private boolean suspendida; // Tipo primitivo (no puede ser null)
+
 
     public SalaDTO() {
 
