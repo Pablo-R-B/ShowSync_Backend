@@ -27,9 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -463,6 +461,21 @@ public class EventosServicio {
                         .collect(Collectors.toSet()))
                 .build();
     }
+
+
+   public Map<String, Long> contarTotalEventos() {
+       LocalDate hoy = LocalDate.now();
+       long totalEventos = eventosRepositorio.count();
+       long eventosPasados = eventosRepositorio.countByFechaEventoBeforeAndEstadoNot(hoy, Estado.cancelado);
+        long eventosFuturos = eventosRepositorio.countByFechaEventoAfterAndEstadoNotOrFechaEventoEqualsAndEstadoNot(hoy, Estado.cancelado, hoy, Estado.cancelado);
+
+       Map<String, Long> resultado = new HashMap<>();
+       resultado.put("total", totalEventos);
+       resultado.put("pasados", eventosPasados);
+       resultado.put("futuros", eventosFuturos);
+
+       return resultado;
+   }
 
 
 

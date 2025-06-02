@@ -1,16 +1,18 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.dtos.UsuarioDTO;
 import com.example.showsyncbackend.enumerados.Rol;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.servicios.UsuarioServicio;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -19,16 +21,52 @@ public class UsuarioControlador {
     @Autowired
     private UsuarioServicio usuarioServicio;
 
+
     @GetMapping
-    public ResponseEntity<List<UsuarioDTO>> obtenerTodosLosUsuarios(
+    public ResponseEntity<RespuestaPaginacionDTO<UsuarioDTO>> listarUsuarios(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size,
-            @RequestParam(value = "termino", required = false) String termino) {
-        List<UsuarioDTO> usuarios = usuarioServicio.obtenerTodosLosUsuarios(page, size, termino);
-        return ResponseEntity.ok(usuarios);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String termino,
+            @RequestParam(required = false) String rol,
+            @RequestParam(defaultValue = "id") String sortField,
+            @RequestParam(defaultValue = "ASC") Sort.Direction direction) {
+
+        // Validación básica de parámetros
+        if (page < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El número de página no puede ser negativo");
+        }
+
+        if (size <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El tamaño de página debe ser mayor a 0");
+        }
+
+        // Conversión del rol
+        Rol rolEnum = null;
+        if (rol != null && !rol.isBlank()) {
+            try {
+                rolEnum = Rol.valueOf(rol.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol inválido. Valores aceptados: ADMINISTRADOR, ARTISTA, PROMOTOR");
+            }
+        }
+
+        // Limpieza del término de búsqueda
+        if (termino != null && termino.isBlank()) {
+            termino = null;
+        }
+
+        // Obtención de los resultados paginados
+        RespuestaPaginacionDTO<UsuarioDTO> respuesta = usuarioServicio.obtenerUsuariosFiltrados(
+                page, size, termino, rolEnum, sortField, direction);
+
+        // Manejo de respuesta vacía
+        if (respuesta.getItems().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(respuesta);
+        }
+
+        return ResponseEntity.ok(respuesta);
     }
-
-
 
     @GetMapping("/{id}")
    public ResponseEntity<UsuarioDTO> obtenerUsuarioPorId(@PathVariable Integer id) {
@@ -78,9 +116,14 @@ public class UsuarioControlador {
     }
 
 
-    @GetMapping("/rol/{rol}")
-    public ResponseEntity<List<UsuarioDTO>> obtenerUsuariosPorRol(@PathVariable Rol rol) {
-        List<UsuarioDTO> usuarios = usuarioServicio.obtenerUsuariosPorRol(rol);
-        return ResponseEntity.ok(usuarios);
+
+
+    @GetMapping("/contar-usuarios-por-rol")
+    public ResponseEntity<Map<String, Long>> contarUsuariosPorRol() {
+        Map<String, Long> resultado = usuarioServicio.contarUsuariosPorRol(null);
+        return ResponseEntity.ok(resultado);
     }
+
+
+
 }

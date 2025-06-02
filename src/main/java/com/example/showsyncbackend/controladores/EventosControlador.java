@@ -281,6 +281,12 @@ public class EventosControlador {
         return eventosServicio.obtenerEventosPaginados(pageable);
     }
 
+    @GetMapping("/total")
+    public ResponseEntity<Map<String, Long>> contarTotalEventos() {
+        Map<String, Long> resultado = eventosServicio.contarTotalEventos();
+        return ResponseEntity.ok(resultado);
+    }
+
 
 
 

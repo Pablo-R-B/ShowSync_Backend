@@ -1,15 +1,22 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.dtos.UsuarioDTO;
 import com.example.showsyncbackend.enumerados.Rol;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.ArtistasRepositorio;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import com.example.showsyncbackend.utilidades.PaginationUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -23,19 +30,44 @@ public class UsuarioServicio {
 
 
 
-  public List<UsuarioDTO> obtenerTodosLosUsuarios(int page, int size, String termino) {
-      return usuarioRepositorio.findAll().stream()
-              .map(usuario -> new UsuarioDTO(
-                      usuario.getId(),
-                      usuario.getNombreUsuario(),
-                      usuario.getEmail(),
-                      usuario.getRol(),             // Ajustado al orden correcto
-                      usuario.isVerificado(),       // Ajustado al orden correcto
-                      usuario.getFechaNacimiento(), // Ajustado al orden correcto
-                      usuario.getFechaRegistro()
-              ))
-              .toList();
-  }
+    public RespuestaPaginacionDTO<UsuarioDTO> obtenerUsuariosFiltrados(int page, int size, String termino, Rol rol, String sortField, Sort.Direction direction) {
+        Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
+
+        // Limpieza del término de búsqueda (por si viene en blanco)
+        if (termino != null && termino.isBlank()) {
+            termino = null;
+        }
+
+        Page<Usuario> usuariosPage = usuarioRepositorio.buscarUsuariosFiltrados(rol, termino, pageable);
+
+        // Verificar si no hay resultados
+        if (usuariosPage.isEmpty()) {
+            RespuestaPaginacionDTO<UsuarioDTO> response = new RespuestaPaginacionDTO<>();
+            response.setItems(List.of());
+            response.setTotalPages(0);
+            response.setCurrentPage(page);
+            response.setTotalItems(0);
+            response.setPageSize(size);
+            response.setMensaje("No se encontraron usuarios. Intente con otros datos de búsqueda.");
+            return response;
+        }
+
+        Page<UsuarioDTO> usuarioDTOPage = usuariosPage.map(usuario -> new UsuarioDTO(
+                usuario.getId(),
+                usuario.getNombreUsuario(),
+                usuario.getEmail(),
+                usuario.getRol(),
+                usuario.isVerificado(),
+                usuario.getFechaNacimiento(),
+                usuario.getFechaRegistro()
+        ));
+
+        RespuestaPaginacionDTO<UsuarioDTO> response = PaginationUtils.toPaginationResponse(usuarioDTOPage);
+        response.setMensaje(usuariosPage.getTotalElements() > 0 ? "" : "No se encontraron usuarios. Intente con otros datos de búsqueda.");
+
+        return response;
+    }
+
 
     public Usuario obtenerUsuarioPorId(Integer id) {
         return usuarioRepositorio.findById(id)
@@ -74,5 +106,23 @@ public class UsuarioServicio {
                         usuario.getFechaRegistro()
                 ))
                 .toList();
-}
+    }
+
+
+ // Calcular el total de usuarios y distinguir el tipo de rol
+  public Map<String, Long> contarUsuariosPorRol(Rol rol) {
+      Map<String, Long> resultado = new HashMap<>();
+
+      // Contar el total de usuarios en la base de datos
+      resultado.put("totalUsuarios", usuarioRepositorio.count());
+
+      // Contar el total de usuarios por cada rol específico
+      resultado.put("Promotores", usuarioRepositorio.countByRol(Rol.PROMOTOR));
+      resultado.put("Artistas", usuarioRepositorio.countByRol(Rol.ARTISTA));
+      resultado.put("Administrador", usuarioRepositorio.countByRol(Rol.ADMINISTRADOR));
+
+      return resultado;
+  }
+
+
 }
