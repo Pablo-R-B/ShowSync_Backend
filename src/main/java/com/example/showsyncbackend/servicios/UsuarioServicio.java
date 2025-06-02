@@ -1,5 +1,4 @@
 package com.example.showsyncbackend.servicios;
-
 import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
 import com.example.showsyncbackend.dtos.UsuarioDTO;
 import com.example.showsyncbackend.enumerados.Rol;
@@ -29,8 +28,6 @@ public class UsuarioServicio {
 
     @Autowired
     private ArtistasRepositorio artistasRepositorio;
-
-
 
     public RespuestaPaginacionDTO<UsuarioDTO> obtenerUsuariosFiltrados(int page, int size, String termino, Rol rol, String sortField, Sort.Direction direction) {
         Pageable pageable = PaginationUtils.createPageable(page, size, sortField, direction);
@@ -71,6 +68,7 @@ public class UsuarioServicio {
     }
 
 
+
     public Usuario obtenerUsuarioPorId(Integer id) {
         return usuarioRepositorio.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
@@ -95,7 +93,6 @@ public class UsuarioServicio {
         usuarioRepositorio.delete(usuario);
     }
 
-
     public List<UsuarioDTO> obtenerUsuariosPorRol(Rol rol) {
         return usuarioRepositorio.findByRol(rol).stream()
                 .map(usuario -> new UsuarioDTO(
@@ -110,23 +107,19 @@ public class UsuarioServicio {
                 .toList();
     }
 
+    public Map<String, Long> contarUsuariosPorRol(Rol rol) {
+        Map<String, Long> resultado = new HashMap<>();
 
- // Calcular el total de usuarios y distinguir el tipo de rol
-  public Map<String, Long> contarUsuariosPorRol(Rol rol) {
-      Map<String, Long> resultado = new HashMap<>();
+        // Contar el total de usuarios en la base de datos
+        resultado.put("totalUsuarios", usuarioRepositorio.count());
 
-      // Contar el total de usuarios en la base de datos
-      resultado.put("totalUsuarios", usuarioRepositorio.count());
+        // Contar el total de usuarios por cada rol específico
+        resultado.put("Promotores", usuarioRepositorio.countByRol(Rol.PROMOTOR));
+        resultado.put("Artistas", usuarioRepositorio.countByRol(Rol.ARTISTA));
+        resultado.put("Administrador", usuarioRepositorio.countByRol(Rol.ADMINISTRADOR));
 
-      // Contar el total de usuarios por cada rol específico
-      resultado.put("Promotores", usuarioRepositorio.countByRol(Rol.PROMOTOR));
-      resultado.put("Artistas", usuarioRepositorio.countByRol(Rol.ARTISTA));
-      resultado.put("Administrador", usuarioRepositorio.countByRol(Rol.ADMINISTRADOR));
-
-      return resultado;
-  }
-}
-
+        return resultado;
+    }
 
     @Transactional
     public Usuario getUsuarioByEmail(String email) {
