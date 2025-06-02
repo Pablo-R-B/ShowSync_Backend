@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/eventos/**",
                                 "/artistas/**",
                                 "/genero/**",
-                                "/error"
+                                "/error",
+                                "/api/**"
 
 
                         ).permitAll()

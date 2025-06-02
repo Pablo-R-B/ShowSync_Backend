@@ -46,7 +46,6 @@ AND (
     );
 
 
-
-
+    long countByRol(Rol rol);
 }
 

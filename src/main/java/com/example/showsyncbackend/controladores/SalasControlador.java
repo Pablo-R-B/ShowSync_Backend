@@ -181,4 +181,11 @@ public class SalasControlador {
             @RequestParam(value = "termino", required = false) String termino) {
         return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas(page, size, termino));
     }
+
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/total")
+    public ResponseEntity<Long> obtenerTotalSalas() {
+        return ResponseEntity.ok(salasServicio.obtenerTotalSalas());
+    }
 }
