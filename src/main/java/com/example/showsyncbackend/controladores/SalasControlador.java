@@ -55,14 +55,14 @@ public class SalasControlador {
 
     // Endpoints paginados actualizados
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
-    @GetMapping("/todas")
+    @GetMapping("/todas-paginadas")
     public ResponseEntity<RespuestaPaginacionDTO<SalaDTO>> obtenerTodasLasSalas(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "nombre") String sortField,
             @RequestParam(defaultValue = "ASC") String sortDirection,
             @RequestParam(value = "termino", required = false) String termino) {
-        return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas(page, size, sortField, sortDirection, termino));
+        return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas2(page, size, sortField, sortDirection, termino));
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
@@ -170,5 +170,15 @@ public class SalasControlador {
     @GetMapping("/reservas-estado")
     public List<SalaEstadoCantidadDTO> obtenerCantidadReservasPorSalaYEstado() {
         return salasServicio.obtenerCantidadReservasPorSalaYEstadoDTO();
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROMOTOR')")
+    @GetMapping("/todas")
+    public ResponseEntity<List<SalaDTO>> obtenerTodasLasSalas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(value = "termino", required = false) String termino) {
+        return ResponseEntity.ok(salasServicio.obtenerTodasLasSalas(page, size, termino));
     }
 }
