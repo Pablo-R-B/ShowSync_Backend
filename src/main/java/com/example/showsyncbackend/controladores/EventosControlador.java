@@ -5,6 +5,7 @@ import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
+import com.example.showsyncbackend.repositorios.EventosArtistasRepositorio;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.servicios.EventosServicio;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,6 +31,10 @@ public class EventosControlador {
 
     @Autowired
     private GenerosMusicalesRepositorio generosMusicalesRepositorio;
+
+    @Autowired
+    private EventosArtistasRepositorio eventosArtistasRepositorio;
+
 
 
 
@@ -85,20 +90,25 @@ public class EventosControlador {
     }
 
     /**
-     * Editar evento de un promotor
-     * @param promotorId ID del promotor
-     * @param eventoId ID del evento
-     * @param eventoActualizado Datos nuevos del evento
-     * @return Evento actualizado como DTO
+     * Edita un evento existente del promotor especificado.
+     *
+     * @param promotorId ID del promotor que edita el evento.
+     * @param eventoId ID del evento a editar.
+     * @param eventoActualizado Objeto con los nuevos datos del evento.
+     * @return El evento actualizado como DTO.
      */
     @PutMapping("/promotor/{promotorId}/evento/{eventoId}")
-    public ResponseEntity<EventosDTO> editarEvento(@PathVariable Integer promotorId,
-                                                  @PathVariable Integer eventoId,
-                                                  @RequestBody Eventos eventoActualizado) {
-        eventoActualizado.setId(eventoId);
-        EventosDTO eventoDTO = eventosServicio.editarEvento(promotorId, eventoActualizado);
-        return new ResponseEntity<>(eventoDTO, HttpStatus.OK);
+    public ResponseEntity<EventosDTO> editarEvento(
+            @PathVariable Integer promotorId,
+            @PathVariable Integer eventoId,
+            @RequestBody Eventos eventoActualizado) {
+
+        eventoActualizado.setId(eventoId); // Aseguramos que el ID coincida con el de la ruta
+        EventosDTO eventoEditado = eventosServicio.editarEvento(promotorId, eventoActualizado);
+        return ResponseEntity.ok(eventoEditado);
     }
+
+
 
 
     /**
