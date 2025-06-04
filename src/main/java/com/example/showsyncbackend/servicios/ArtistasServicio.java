@@ -124,14 +124,7 @@ public class ArtistasServicio {
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Artista no encontrado")
                 );
     }
-        private ArtistasCatalogoDTO mapToDto(Integer id,
-                                             String nombre,
-                                             String imagen,
-                                             String biografia,
-                                             String musicUrl,
-                                             List<String> generos) {
-            return new ArtistasCatalogoDTO(id, nombre, imagen, biografia, musicUrl ,generos);
-        }
+
 
     /**
      * Busca el artista cuyo usuario asociado tiene el ID dado,

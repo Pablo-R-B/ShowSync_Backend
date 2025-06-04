@@ -40,5 +40,18 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
             @Param("tiposSolicitud") List<TipoSolicitud> tiposSolicitud
     );
 
+    @Query("""
+    SELECT pe FROM PostulacionEvento pe
+    JOIN FETCH pe.evento e
+    JOIN FETCH e.promotor p
+    JOIN FETCH e.sala s
+    WHERE pe.artista.id = :artistaId
+    AND pe.tipoSolicitud IN :tipos
+""")
+    List<PostulacionEvento> findPostulacionesConDetallesByArtistaId(
+            @Param("artistaId") Integer artistaId,
+            @Param("tipos") List<TipoSolicitud> tipos
+    );
+
 
 }

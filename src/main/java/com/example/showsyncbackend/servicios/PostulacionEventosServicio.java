@@ -31,6 +31,10 @@ public class PostulacionEventosServicio {
         Eventos evento = eventosRepository.findById(eventoId)
                 .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado"));
 
+        if (evento.getFechaEvento().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("No se puede crear una solicitud para un evento pasado.");
+        }
+
         Artistas artista = artistasRepositorio.findById(artistaId)
                 .orElseThrow(() -> new EntityNotFoundException("Artista no encontrado"));
 
@@ -45,15 +49,15 @@ public class PostulacionEventosServicio {
 
     public List<PostulacionDTO> listarOfertasArtista(Integer artistaId) {
         return postulacionEventosRepositorio
-                .findByArtista_IdAndTipoSolicitud(artistaId, TipoSolicitud.oferta)
+                .findPostulacionesConDetallesByArtistaId(artistaId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
                 .stream()
                 .map(pe -> new PostulacionDTO(
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
+                        null,
+                        pe.getEvento().getPromotor().getNombrePromotor(),
                         pe.getEvento().getImagen_evento(),
                         pe.getEvento().getSala().getNombre(),
-                        pe.getEvento().getPromotor().getNombrePromotor(),
-                        null,
                         pe.getEstadoPostulacion(),
                         pe.getFechaPostulacion(),
                         pe.getTipoSolicitud()
