@@ -116,6 +116,14 @@ public class ArtistasControlador {
         return ResponseEntity.ok(imagenes);
     }
 
+    @GetMapping("/miperfil")
+    public ResponseEntity<ArtistaEditarDTO> perfilArtistaPorIdArtista(@RequestParam Integer usuarioId) {
+        Integer artistaId = artistasServicio.getArtistaIdByUsuarioId(usuarioId);
+        ArtistaEditarDTO artista = artistasServicio.artistaPorId(artistaId);
+        return ResponseEntity.ok(artista);
+    }
+
+
 
 
 }
