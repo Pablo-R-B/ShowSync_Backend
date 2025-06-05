@@ -72,4 +72,6 @@ public interface ArtistasRepositorio extends JpaRepository<Artistas, Integer> {
 
     Optional<Artistas> findByUsuario(Usuario usuario);
 
+    Optional<Artistas> findByNombreArtista(String nombreArtista);
+
 }

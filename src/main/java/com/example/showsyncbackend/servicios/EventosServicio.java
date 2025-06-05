@@ -2,6 +2,7 @@ package com.example.showsyncbackend.servicios;
 
 import com.cloudinary.Cloudinary;
 import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
+import com.example.showsyncbackend.dtos.EventoEditarDTO;
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
@@ -54,8 +55,8 @@ public class EventosServicio {
 
     @Autowired
     private CloudinaryService cloudinaryService;
-
-
+    @Autowired
+    private ArtistasRepositorio artistasRepositorio;
 
 
     // Constructor con dependencia para inyección de eventosRepositorio
@@ -196,9 +197,45 @@ public class EventosServicio {
 
 
 
+    // Actualizar un evento existente
+    public void actualizarEvento(Integer idPromotor, Integer idEvento, EventoEditarDTO dto) {
+        Eventos evento = eventosRepositorio.findById(idEvento)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+
+        // Validar que el evento pertenece al promotor
+        if (!evento.getPromotor().getId().equals(idPromotor)) {
+            throw new RuntimeException("El evento no pertenece al promotor especificado");
+        }
+
+        // Actualizar campos básicos
+        evento.setNombre_evento(dto.getNombreEvento());
+        evento.setDescripcion(dto.getDescripcion());
+        evento.setEstado(Estado.valueOf(dto.getEstado()));
+        evento.setImagen_evento(dto.getImagenEvento());
+
+        // Actualizar sala si existe
+        if (dto.getIdSala() != null) {
+            salasRepositorio.findById(dto.getIdSala())
+                    .ifPresent(evento::setSala);
+        }
+
+        // Actualizar artistas asignados
+        if (dto.getArtistasAsignados() != null) {
+            Set<Artistas> artistas = dto.getArtistasAsignados().stream()
+                    .map(artistaDTO -> artistasRepositorio.findById(artistaDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Artista no encontrado: " + artistaDTO.getId())))
+                    .collect(Collectors.toSet());
+            evento.setArtistasAsignados(artistas);
+        }
+
+        eventosRepositorio.save(evento);
+    }
 
 
-        // Eliminar evento existente
+
+
+
+    // Eliminar evento existente
     public void eliminarEvento(Integer promotorId, Integer eventoId) {
         // Buscar evento por ID
         Eventos evento = eventosRepositorio.findById(eventoId)

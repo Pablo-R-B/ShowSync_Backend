@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.controladores;
 
+import com.example.showsyncbackend.dtos.EventoEditarDTO;
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
@@ -106,6 +107,30 @@ public class EventosControlador {
         eventoActualizado.setId(eventoId); // Aseguramos que el ID coincida con el de la ruta
         EventosDTO eventoEditado = eventosServicio.editarEvento(promotorId, eventoActualizado);
         return ResponseEntity.ok(eventoEditado);
+    }
+
+    /**
+     * Actualizar evento
+     * @param idEvento ID del evento a actualizar
+     * @param eventoEditarDTO DTO con los datos actualizados del evento
+     * @return Respuesta HTTP con el estado de la operación
+     */
+
+    @PutMapping("/promotor/{promotorId}/evento/{idEvento}/editar")
+    public ResponseEntity<String> actualizarEvento(
+            @PathVariable Integer promotorId,
+            @PathVariable Integer idEvento,
+            @RequestBody EventoEditarDTO eventoEditarDTO) {
+        try {
+            // Asignar el id del evento al DTO para evitar inconsistencias
+            eventoEditarDTO.setId(idEvento);
+
+            // Actualizar el evento
+            eventosServicio.actualizarEvento(promotorId, idEvento, eventoEditarDTO);
+            return ResponseEntity.ok("Evento actualizado correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 
