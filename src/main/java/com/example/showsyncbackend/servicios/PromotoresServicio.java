@@ -30,6 +30,8 @@ public class PromotoresServicio {
     private final EventosRepositorio eventosRepositorio;
     private final PromotoresRepositorio promotoresRepositorio;
     private final UsuarioRepositorio usuarioRepositorio;
+    private final CloudinaryService cloudinaryService;
+
 
     // Obtener perfil de promotor por ID
     public PromotoresDTO obtenerPromotorPorId(Integer promotorId) {
@@ -140,6 +142,7 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
     }
 
 
+    // Este método permite editar los datos de un promotor y también crea un nuevo promotor si no existe.
     @Transactional
     public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos) {
         Usuario usuario = usuarioRepositorio.findById(usuarioId)

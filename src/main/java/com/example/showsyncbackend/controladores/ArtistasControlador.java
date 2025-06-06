@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -92,14 +93,19 @@ public class ArtistasControlador {
         return ResponseEntity.ok(artistas);
     }
 
-    @PutMapping("/artista/usuario/{id}")
-    public ResponseEntity<Map<String, String>> editarDatosArtista(@PathVariable Integer id, @RequestBody ArtistaEditarDTO artista) {
-        ArtistaDTO dto = artistasServicio.editarDatosArtista(id, artista);
+    @PutMapping(value = "/artista/usuario/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<Map<String, String>> editarDatosArtista(
+            @PathVariable Integer id,
+            @RequestPart("artista") ArtistaEditarDTO artista,
+            @RequestPart(value = "imagenArchivo", required = false) MultipartFile imagenArchivo) {
+
+        artistasServicio.editarDatosArtista(id, artista, imagenArchivo);
+
         Map<String, String> respuesta = new HashMap<>();
         respuesta.put("mensaje", "Perfil actualizado correctamente");
-
         return ResponseEntity.ok(respuesta);
     }
+
 
 
 

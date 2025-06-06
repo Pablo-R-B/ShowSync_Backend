@@ -17,8 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,9 +31,15 @@ public class ArtistasServicio {
 
     @Autowired
     private ArtistasRepositorio artistasRepositorio;
+
+    @Autowired
     private UsuarioRepositorio usuarioRepositorio;
+
     @Autowired
     private GenerosMusicalesRepositorio generosMusicalesRepositorio;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public RespuestaPaginacionDTO<ArtistasCatalogoDTO> obtenerArtistasConGeneros(int page, int size, String termino) {
         Pageable pageable = PageRequest.of(page, size);
@@ -169,8 +177,9 @@ public class ArtistasServicio {
                 .orElseThrow(() -> new RuntimeException("Artista no encontrado con ID: " + id));
     }
 
+    // Este método permite editar los datos de un artista y también crea un nuevo artista si no existe.
     @Transactional
-    public ArtistaDTO editarDatosArtista(Integer usuarioId, ArtistaEditarDTO datos) {
+    public ArtistaDTO editarDatosArtista(Integer usuarioId, ArtistaEditarDTO datos, MultipartFile imagenArchivo) {
         Usuario usuario = usuarioRepositorio.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -180,14 +189,26 @@ public class ArtistasServicio {
         if (artista == null) {
             artista = new Artistas();
             artista.setUsuario(usuario);
-        }else {
+        } else {
             artista.setUsuario(usuario);
         }
 
         artista.setNombreArtista(datos.getNombreArtista());
         artista.setBiografia(datos.getBiografia());
-        artista.setImagenPerfil(datos.getImagenPerfil());
         artista.setMusicUrl(datos.getMusicUrl());
+
+        // Si se ha subido una imagen, la subimos a Cloudinary
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                String urlImagen = cloudinaryService.uploadFile(imagenArchivo);
+                artista.setImagenPerfil(urlImagen);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir la imagen a Cloudinary", e);
+            }
+        } else {
+            // Si no se sube una nueva imagen, mantenemos la existente (si se envió en el DTO)
+            artista.setImagenPerfil(datos.getImagenPerfil());
+        }
 
         if (datos.getGenerosMusicales() != null) {
             Set<GenerosMusicales> generos = datos.getGenerosMusicales().stream()
@@ -200,7 +221,7 @@ public class ArtistasServicio {
 
         Artistas guardado = artistasRepositorio.saveAndFlush(artista);
 
-       ArtistaDTO dto = new ArtistaDTO();
+        ArtistaDTO dto = new ArtistaDTO();
         dto.setId(guardado.getId());
         dto.setUsuarioId(usuarioId);
         dto.setNombreArtista(guardado.getNombreArtista());
@@ -209,6 +230,7 @@ public class ArtistasServicio {
         dto.setMusicUrl(guardado.getMusicUrl());
         return dto;
     }
+
 
 
 
