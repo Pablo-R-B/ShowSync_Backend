@@ -12,11 +12,14 @@ import com.example.showsyncbackend.repositorios.PostulacionEventosRepositorio;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,13 +33,27 @@ public class PostulacionEventosServicio {
     public void nuevaSolicitud(Integer eventoId, Integer artistaId, TipoSolicitud tipo){
         Eventos evento = eventosRepository.findById(eventoId)
                 .orElseThrow(() -> new EntityNotFoundException("Evento no encontrado"));
+        Artistas artista = artistasRepositorio.findById(artistaId)
+                .orElseThrow(() -> new EntityNotFoundException("Artista no encontrado"));
 
         if (evento.getFechaEvento().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("No se puede crear una solicitud para un evento pasado.");
         }
 
-        Artistas artista = artistasRepositorio.findById(artistaId)
-                .orElseThrow(() -> new EntityNotFoundException("Artista no encontrado"));
+        Optional<PostulacionEvento> existente = postulacionEventosRepositorio
+                .findByEventoIdAndArtistaId(eventoId, artistaId);
+
+
+        if (existente.isPresent()) {
+            PostulacionEvento existenteSolicitud = existente.get();
+            if (existenteSolicitud.getTipoSolicitud() == TipoSolicitud.postulacion) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya te has postulado para este evento.");
+            } else if (existenteSolicitud.getTipoSolicitud() == TipoSolicitud.oferta) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "El artista ya ha recibido una oferta para este evento.");
+            } else {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe una oferta/postulación previa.");
+            }
+        }
 
         PostulacionEvento pe = new PostulacionEvento();
         pe.setEvento(evento);

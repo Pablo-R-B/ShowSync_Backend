@@ -91,7 +91,7 @@ public class EventosServicio {
         Promotores promotor = promotoresRepositorio.findByUsuarioId(idUsuario)
                 .orElseThrow(()-> new EntityNotFoundException("Promotor no encontrado"));
         Integer promotorId = promotor.getId();
-        List<Eventos> eventos = eventosRepositorio.findByPromotorId(promotorId);
+        List<Eventos> eventos = eventosRepositorio.findByPromotorIdAndEstado(promotorId, Estado.en_revision);
 
 
         return eventos.stream().map( ev -> EventosDTO.builder()

@@ -1,9 +1,6 @@
 package com.example.showsyncbackend.controladores;
 
-import com.example.showsyncbackend.dtos.ArtistaDTO;
-import com.example.showsyncbackend.dtos.ArtistaEditarDTO;
-import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
-import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
+import com.example.showsyncbackend.dtos.*;
 import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
@@ -122,6 +119,13 @@ public class ArtistasControlador {
         ArtistaEditarDTO artista = artistasServicio.artistaPorId(artistaId);
         return ResponseEntity.ok(artista);
     }
+
+    @GetMapping("/artista/{id}/generos")
+    public ResponseEntity<List<GenerosMusicalesDTO>> obtenerGenerosDelArtista(@PathVariable Integer id) {
+        List<GenerosMusicalesDTO> generos = artistasServicio.obtenerGenerosPorArtistaId(id);
+        return ResponseEntity.ok(generos);
+    }
+
 
 
 

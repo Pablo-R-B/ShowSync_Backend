@@ -219,6 +219,22 @@ public class ArtistasServicio {
                 .collect(Collectors.toList());
     }
 
+    public List<GenerosMusicalesDTO> obtenerGenerosPorArtistaId(Integer artistaId) {
+        Artistas artista = artistasRepositorio.findByIdWithGeneros(artistaId)
+                .orElseThrow(() -> new RuntimeException("Artista no encontrado"));
+
+        return artista.getGenerosMusicales()
+                .stream()
+                .map(genero -> {
+                    GenerosMusicalesDTO dto = new GenerosMusicalesDTO();
+                    dto.setId(genero.getId());
+                    dto.setNombre(genero.getNombre());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+
 
 
 
