@@ -1,19 +1,25 @@
 package com.example.showsyncbackend.servicios;
 
+import com.example.showsyncbackend.dtos.ArtistaDTO;
 import com.example.showsyncbackend.dtos.EvetosPostulacionArtistaDTO;
 import com.example.showsyncbackend.dtos.PromotoresDTO;
+import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.EventosRepositorio;
 import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
+import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +31,9 @@ public class PromotoresServicio {
     private final EventosRepositorio eventosRepository;
     private final EventosRepositorio eventosRepositorio;
     private final PromotoresRepositorio promotoresRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
+    private final CloudinaryService cloudinaryService;
+
 
     // Obtener perfil de promotor por ID
     public PromotoresDTO obtenerPromotorPorId(Integer promotorId) {
@@ -128,5 +137,51 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
                         .imagenPerfil(promotor.getImagenPerfil())
                         .build());
     }
+
+    public Promotores obtenerPromotorPorIdEntity(Integer id) {
+        return promotoresRepositorio.findById(id)
+                .orElseThrow(() -> new RuntimeException("Promotor no encontrado con ID: " + id));
+    }
+
+
+    // Este método permite editar los datos de un promotor y también crea un nuevo promotor si no existe.
+    @Transactional
+    public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos, MultipartFile imagenArchivo) throws IOException {
+        Usuario usuario = usuarioRepositorio.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Promotores promotor = promotoresRepositorio.findByUsuarioId(usuarioId)
+                .orElse(null);
+
+        if (promotor == null) {
+            promotor = new Promotores();
+            promotor.setUsuario(usuario);
+        } else {
+            promotor.setUsuario(usuario);
+        }
+
+        promotor.setNombrePromotor(datos.getNombrePromotor());
+        promotor.setDescripcion(datos.getDescripcion());
+
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            // Subir imagen a Cloudinary
+            String urlImagen = cloudinaryService.uploadFile(imagenArchivo);
+            promotor.setImagenPerfil(urlImagen);
+        } else {
+            // Mantener la imagen anterior (si viene en datos)
+            promotor.setImagenPerfil(datos.getImagenPerfil());
+        }
+
+        Promotores guardado = promotoresRepositorio.save(promotor);
+
+        PromotoresDTO dto = new PromotoresDTO();
+        dto.setId(guardado.getId());
+        dto.setUsuarioId(usuarioId);
+        dto.setNombrePromotor(guardado.getNombrePromotor());
+        dto.setDescripcion(guardado.getDescripcion());
+        dto.setImagenPerfil(guardado.getImagenPerfil());
+        return dto;
+    }
+
 
 }

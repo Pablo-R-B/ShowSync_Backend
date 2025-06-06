@@ -10,9 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/promotores")
@@ -64,6 +68,23 @@ public class PromotoresControlador {
     public ResponseEntity<Promotores> editarPromotor(@PathVariable Integer id, @RequestBody Promotores promotor) {
         return ResponseEntity.ok(promotoresServicio.editarPromotor(id, promotor));
     }
+
+    /**Editar con DTO para evitar recursividad**/
+
+    @PutMapping(value = "/promotor/usuario/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<Map<String, String>> editarDatosPromotor(
+            @PathVariable Integer id,
+            @RequestPart("promotor") Promotores promotor,
+            @RequestPart(value = "imagenArchivo", required = false) MultipartFile imagenArchivo) throws IOException {
+
+        promotoresServicio.editarDatosPromotor(id, promotor, imagenArchivo);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Perfil actualizado correctamente");
+
+        return ResponseEntity.ok(respuesta);
+    }
+
 
     /**
      * Eliminar un promotor

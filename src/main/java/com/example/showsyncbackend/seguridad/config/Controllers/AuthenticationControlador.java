@@ -151,7 +151,13 @@ public class AuthenticationControlador {
 
         if (usuario.getRol() == Rol.ARTISTA) {
             Artistas artista = artistasServicio.getByUsuario(usuario);
-            boolean completo = artista != null && artista.getNombreArtista() != null && artista.getBiografia() != null;
+            boolean completo = artista != null &&
+                    artista.getNombreArtista() != null &&
+                    artista.getBiografia() != null &&
+                    artista.getImagenPerfil() != null &&
+                    artista.getMusicUrl() != null &&
+                    artista.getGenerosMusicales() != null &&
+                    !artista.getGenerosMusicales().isEmpty();
             return ResponseEntity.ok(completo);
         } else if (usuario.getRol() == Rol.PROMOTOR) {
             Promotores promotor = promotoresServicio.getByUsuario(usuario);

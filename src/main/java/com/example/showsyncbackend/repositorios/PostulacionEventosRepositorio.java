@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostulacionEventosRepositorio extends JpaRepository<PostulacionEvento, Integer> {
     List<PostulacionEvento> findByArtista_IdAndTipoSolicitud(
@@ -40,6 +41,22 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
             @Param("promotorId") Integer promotorId,
             @Param("tiposSolicitud") List<TipoSolicitud> tiposSolicitud
     );
+
+    @Query("""
+    SELECT pe FROM PostulacionEvento pe
+    JOIN FETCH pe.evento e
+    JOIN FETCH e.promotor p
+    JOIN FETCH e.sala s
+    WHERE pe.artista.id = :artistaId
+    AND pe.tipoSolicitud IN :tipos
+""")
+    List<PostulacionEvento> findPostulacionesConDetallesByArtistaId(
+            @Param("artistaId") Integer artistaId,
+            @Param("tipos") List<TipoSolicitud> tipos
+    );
+
+    Optional<PostulacionEvento> findByEventoIdAndArtistaId(Integer eventoId, Integer artistaId);
+
 
 
 

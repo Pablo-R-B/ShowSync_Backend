@@ -18,7 +18,7 @@ public class Promotores {
     private Integer id;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="usuario_id", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name="usuario_id", nullable = false, unique = true ,referencedColumnName = "id")
     private Usuario usuario;
 
     @Column(name="nombre_promotor")

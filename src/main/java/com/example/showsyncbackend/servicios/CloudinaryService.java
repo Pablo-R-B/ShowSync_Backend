@@ -36,6 +36,7 @@ public class CloudinaryService {
 
     public String uploadFile(MultipartFile file) throws IOException {
         validarFormatoImagen(file); // Validar el formato de la imagen
+        System.out.println("➡️ Subiendo imagen a Cloudinary: " + file.getOriginalFilename());
 
         Map<String, Object> params = ObjectUtils.asMap(
                 "transformation", new Transformation()

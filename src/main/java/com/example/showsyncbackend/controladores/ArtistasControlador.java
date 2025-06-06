@@ -1,7 +1,7 @@
 package com.example.showsyncbackend.controladores;
 
-import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
-import com.example.showsyncbackend.dtos.RespuestaPaginacionDTO;
+import com.example.showsyncbackend.dtos.*;
+import com.example.showsyncbackend.modelos.Artistas;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/artistas")
@@ -56,11 +60,11 @@ public class ArtistasControlador {
 
 
     @GetMapping("/artista/{id}")
-    public ResponseEntity<ArtistasCatalogoDTO> obtenerArtistasPorId(@PathVariable Integer id) {
+    public ResponseEntity<ArtistaEditarDTO> obtenerArtistasPorId(@PathVariable Integer id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID inválido"); // [[4]]
         }
-        ArtistasCatalogoDTO artistas= artistasServicio.artistaPorId(id);
+        ArtistaEditarDTO artistas= artistasServicio.artistaPorId(id);
         return ResponseEntity.ok(artistas);
     }
 
@@ -89,6 +93,20 @@ public class ArtistasControlador {
         return ResponseEntity.ok(artistas);
     }
 
+    @PutMapping(value = "/artista/usuario/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<Map<String, String>> editarDatosArtista(
+            @PathVariable Integer id,
+            @RequestPart("artista") ArtistaEditarDTO artista,
+            @RequestPart(value = "imagenArchivo", required = false) MultipartFile imagenArchivo) {
+
+        artistasServicio.editarDatosArtista(id, artista, imagenArchivo);
+
+        Map<String, String> respuesta = new HashMap<>();
+        respuesta.put("mensaje", "Perfil actualizado correctamente");
+        return ResponseEntity.ok(respuesta);
+    }
+
+
 
 
     /**
@@ -100,6 +118,21 @@ public class ArtistasControlador {
         List<String> imagenes = artistasServicio.obtenerImagenesDeTodosLosArtistas();
         return ResponseEntity.ok(imagenes);
     }
+
+    @GetMapping("/miperfil")
+    public ResponseEntity<ArtistaEditarDTO> perfilArtistaPorIdArtista(@RequestParam Integer usuarioId) {
+        Integer artistaId = artistasServicio.getArtistaIdByUsuarioId(usuarioId);
+        ArtistaEditarDTO artista = artistasServicio.artistaPorId(artistaId);
+        return ResponseEntity.ok(artista);
+    }
+
+    @GetMapping("/artista/{id}/generos")
+    public ResponseEntity<List<GenerosMusicalesDTO>> obtenerGenerosDelArtista(@PathVariable Integer id) {
+        List<GenerosMusicalesDTO> generos = artistasServicio.obtenerGenerosPorArtistaId(id);
+        return ResponseEntity.ok(generos);
+    }
+
+
 
 
 

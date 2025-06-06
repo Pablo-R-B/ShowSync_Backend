@@ -26,7 +26,7 @@ public class GenerosMusicalesServicio {
     public List<GenerosMusicalesDTO> listarGenerosConId() {
         List<GenerosMusicales> generos = generosMusicalesRepositorio.findAll();
         return generos.stream()
-                .map(g -> new GenerosMusicalesDTO(Long.valueOf(g.getId()), g.getNombre()))
+                .map(g -> new GenerosMusicalesDTO(g.getId(), g.getNombre()))
                 .collect(Collectors.toList());
     }
 
@@ -41,7 +41,7 @@ public class GenerosMusicalesServicio {
 
         generosMusicalesRepositorio.save(genero);
 
-        return new GenerosMusicalesDTO(Long.valueOf(genero.getId()), genero.getNombre());
+        return new GenerosMusicalesDTO(genero.getId(), genero.getNombre());
     }
 
 
@@ -58,7 +58,7 @@ public class GenerosMusicalesServicio {
                 .build();
 
         GenerosMusicales actualizado = generosMusicalesRepositorio.save(entidad);
-        return new GenerosMusicalesDTO(Long.valueOf(actualizado.getId()), actualizado.getNombre());
+        return new GenerosMusicalesDTO(actualizado.getId(), actualizado.getNombre());
     }
 
     // Eliminar género
