@@ -156,7 +156,7 @@ public class EventosServicio {
                     .findByEvento_IdAndTipoSolicitudAndEstadoPostulacion(
                             eventoGuardado.getId(),
                             TipoSolicitud.oferta,
-                            EstadoPostulacion.valueOf("pendiente")
+                            EstadoPostulacion.valueOf("aceptado")
                     );
 
 
