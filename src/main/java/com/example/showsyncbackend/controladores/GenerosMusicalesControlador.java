@@ -22,4 +22,11 @@ public class GenerosMusicalesControlador {
         List<GenerosMusicalesDTO> generos = generosMusicalesServicio.listarGenerosConId();
         return ResponseEntity.ok(generos);
     }
+
+    @GetMapping("/listar-generos-eventos")
+    public ResponseEntity<List<String>> listarGenerosConEventos() {
+        List<String> generosmusicales = generosMusicalesServicio.mostrarTodos();
+        return ResponseEntity.ok(generosmusicales);
+    }
+
 }
