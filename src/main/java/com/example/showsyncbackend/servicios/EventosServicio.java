@@ -247,7 +247,30 @@ public class EventosServicio {
     }
 
 
+    // Aceptar postulación de artista
 
+    @Transactional
+    public void aceptarPostulacionArtista(Integer postulacionId) {
+        PostulacionEvento postulacion = postulacionEventosRepositorio.findById(postulacionId)
+                .orElseThrow(() -> new RuntimeException("Postulación no encontrada"));
+
+        if (!postulacion.getEstadoPostulacion().equals(EstadoPostulacion.pendiente)) {
+            throw new RuntimeException("La postulación no está en estado pendiente");
+        }
+
+        postulacion.setEstadoPostulacion(EstadoPostulacion.aceptado);
+        postulacion.setFechaRespuesta(LocalDate.now());
+
+        Eventos evento = postulacion.getEvento();
+        Artistas artista = postulacion.getArtista();
+
+        if (evento.getArtistasAsignados().stream().noneMatch(a -> a.getId().equals(artista.getId()))) {
+            evento.getArtistasAsignados().add(artista);
+            eventosRepositorio.save(evento);
+        }
+
+        postulacionEventosRepositorio.save(postulacion);
+    }
 
 
     // Eliminar evento existente
