@@ -9,14 +9,11 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArtistasCatalogoDTO {
+public class ArtistaEditarDTO {
     Integer id;
     String nombreArtista;
     String imagenPerfil;
     String biografia;
     String musicUrl;
-    List<String> generosMusicales;
-
-
-
+    List<GenerosMusicalesDTO> generosMusicales;
 }

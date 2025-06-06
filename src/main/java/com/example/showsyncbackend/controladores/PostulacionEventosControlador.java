@@ -5,10 +5,12 @@ import com.example.showsyncbackend.dtos.PostulacionDTO;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import com.example.showsyncbackend.modelos.PostulacionEvento;
 import com.example.showsyncbackend.servicios.PostulacionEventosServicio;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -21,34 +23,45 @@ public class PostulacionEventosControlador {
     private PostulacionEventosServicio  postulacionEventosServicio;
 
     @PostMapping("/{eventoId}/solicitud")
-    public ResponseEntity<Void> crearSolitud(
+    public ResponseEntity<?> crearSolitud(
             @PathVariable Integer eventoId,
             @RequestBody(required = false) Map<String, Integer> body,
             @RequestHeader("X-User-Role") String rol
     ) {
 
-        Integer artistaIdParam = body != null ? body.get("artistaId") : null;
-        Integer artistaId;
-        TipoSolicitud tipo;
+        try {
+            Integer artistaIdParam = body != null ? body.get("artistaId") : null;
+            Integer artistaId;
+            TipoSolicitud tipo;
 
-        if ("PROMOTOR".equalsIgnoreCase(rol)) {
-            if (artistaIdParam == null) {
-                throw new IllegalArgumentException("Promotor debe especificar artistaId");
+            if ("PROMOTOR".equalsIgnoreCase(rol)) {
+                if (artistaIdParam == null) {
+                    throw new IllegalArgumentException("Promotor debe especificar artistaId");
+                }
+                artistaId = artistaIdParam;
+                tipo = TipoSolicitud.oferta;
+            } else {
+                if (artistaIdParam == null) {
+                    throw new IllegalArgumentException("Artista debe indicar su artistaId");
+                }
+                artistaId = artistaIdParam;
+                tipo = TipoSolicitud.postulacion;
             }
-            artistaId = artistaIdParam;
-            tipo = TipoSolicitud.oferta;
-        } else {
-            // En este caso, el artistaId podría venir en el body
-            if (artistaIdParam == null) {
-                throw new IllegalArgumentException("Artista debe indicar su artistaId");
-            }
-            artistaId = artistaIdParam;
-            tipo = TipoSolicitud.postulacion;
+
+            postulacionEventosServicio.nuevaSolicitud(eventoId, artistaId, tipo);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
+        } catch (ResponseStatusException e) {
+            assert e.getReason() != null;
+            return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", e.getReason()));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Error interno del servidor"));
         }
-
-        postulacionEventosServicio.nuevaSolicitud(eventoId, artistaId, tipo);
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 

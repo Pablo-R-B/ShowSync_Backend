@@ -2,6 +2,7 @@ package com.example.showsyncbackend.seguridad.config.services;
 
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import com.example.showsyncbackend.servicios.UsuarioServicio;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +24,7 @@ public class AuthenticationService implements UserDetailsService {
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final UsuarioServicio usuarioServicio;
 
     @PostConstruct
     public void init() {
@@ -73,12 +75,7 @@ public class AuthenticationService implements UserDetailsService {
         System.out.println("\n==== INTENTO DE AUTENTICACIÓN ====");
         System.out.println("Email recibido: " + email);
 
-        Usuario usuario = usuarioRepositorio.findByEmail(email)
-                .orElseThrow(() -> {
-                    System.out.println("Usuario no encontrado en la base de datos");
-                    return new UsernameNotFoundException("Usuario no encontrado");
-                });
-
+        Usuario usuario = usuarioServicio.getUsuarioByEmail(email);
         // 1. Verificar si el email está verificado
         if (!usuario.isVerificado()) {
             throw new RuntimeException("Por favor verifica tu email antes de iniciar sesión");

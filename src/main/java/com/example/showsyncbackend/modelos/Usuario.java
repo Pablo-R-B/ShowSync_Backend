@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.modelos;
 
 import com.example.showsyncbackend.enumerados.Rol;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -53,10 +54,11 @@ public class Usuario implements UserDetails {
     @Column(name = "verificacion_token", nullable = true)
     private String verificacionToken;
 
-    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario")
+    @JsonIgnore
     private Artistas artista;
 
-    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "usuario")
     private Promotores promotor;
 
     @Override
@@ -124,7 +126,8 @@ public class Usuario implements UserDetails {
         if (this.rol == Rol.ARTISTA && this.artista != null) {
             return artista.getNombreArtista() != null && !artista.getNombreArtista().isBlank()
                     && artista.getBiografia() != null && !artista.getBiografia().isBlank()
-                    && artista.getMusicUrl() != null && !artista.getMusicUrl().isBlank();
+                    && artista.getMusicUrl() != null && !artista.getMusicUrl().isBlank()
+            && artista.getGenerosMusicales() != null && !artista.getGenerosMusicales().isEmpty();
         } else if (this.rol == Rol.PROMOTOR && this.promotor != null) {
             return promotor.getNombrePromotor() != null && !promotor.getNombrePromotor().isBlank()
                     && promotor.getDescripcion() != null && !promotor.getDescripcion().isBlank();
