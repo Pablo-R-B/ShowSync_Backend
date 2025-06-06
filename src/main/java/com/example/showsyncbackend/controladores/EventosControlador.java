@@ -110,6 +110,17 @@ public class EventosControlador {
         return ResponseEntity.ok(eventoEditado);
     }
 
+    /**
+     * Aceptar una postulación de artista para un evento
+     * @param postulacionId ID de la postulación a aceptar
+     * @return Respuesta HTTP con el estado de la operación
+     */
+    @PutMapping("/{postulacionId}/aceptar")
+    public ResponseEntity<Void> aceptarPostulacionArtista(@PathVariable Integer postulacionId) {
+        eventosServicio.aceptarPostulacionArtista(postulacionId);
+        return ResponseEntity.ok().build();
+    }
+
 
     /**
      * Actualizar evento
