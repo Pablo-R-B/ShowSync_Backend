@@ -125,16 +125,20 @@ public class EventosServicio {
         Eventos eventoExistente = eventosRepositorio.findById(eventoActualizado.getId())
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
+
         if (!eventoExistente.getPromotor().getId().equals(promotorId)) {
             throw new RuntimeException("El evento no pertenece al promotor especificado");
         }
+
 
         if (eventoActualizado.getSala() == null || eventoActualizado.getSala().getId() == null) {
             throw new RuntimeException("La sala no puede ser nula. Asegúrate de enviar el campo sala_id con un ID válido.");
         }
 
+
         Salas sala = salasRepositorio.findById(eventoActualizado.getSala().getId())
                 .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
 
         eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
         eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
@@ -143,7 +147,9 @@ public class EventosServicio {
         eventoExistente.setImagen_evento(eventoActualizado.getImagen_evento());
         eventoExistente.setGenerosMusicales(new HashSet<>(eventoActualizado.getGenerosMusicales()));
 
+
         Eventos eventoGuardado = eventosRepositorio.save(eventoExistente);
+
 
         if ("confirmado".equalsIgnoreCase(String.valueOf(eventoActualizado.getEstado()))) {
             List<PostulacionEvento> postulaciones = postulacionEventosRepositorio
@@ -153,31 +159,39 @@ public class EventosServicio {
                             EstadoPostulacion.valueOf("pendiente")
                     );
 
+
             for (PostulacionEvento postulacion : postulaciones) {
                 postulacion.setEstadoPostulacion(EstadoPostulacion.aceptado);
                 postulacion.setFechaPostulacion(LocalDate.now());
 
+
                 boolean yaAsignado = eventoGuardado.getArtistasAsignados().stream()
                         .anyMatch(a -> a.getId().equals(postulacion.getArtista().getId()));
+
 
                 if (!yaAsignado) {
                     eventoGuardado.getArtistasAsignados().add(postulacion.getArtista());
                 }
 
+
                 postulacionEventosRepositorio.save(postulacion);
             }
 
+
             eventosRepositorio.save(eventoGuardado);
         }
+
 
         // Convertimos generosMusicales y artistasAsignados a Set<String>
         Set<String> generosMusicales = eventoGuardado.getGenerosMusicales().stream()
                 .map(GenerosMusicales::getNombre)
                 .collect(Collectors.toSet());
 
+
         Set<String> artistasAsignados = eventoGuardado.getArtistasAsignados().stream()
                 .map(Artistas::getNombreArtista)
                 .collect(Collectors.toSet());
+
 
         return EventosDTO.builder()
                 .id(eventoGuardado.getId())
@@ -194,6 +208,7 @@ public class EventosServicio {
                 .artistasAsignados(artistasAsignados)
                 .build();
     }
+
 
 
 

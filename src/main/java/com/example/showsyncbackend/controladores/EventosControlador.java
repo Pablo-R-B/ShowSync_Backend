@@ -91,7 +91,7 @@ public class EventosControlador {
     }
 
     /**
-     * Edita un evento existente del promotor especificado.
+     * Confirmar un evento  del promotor especificado.
      *
      * @param promotorId ID del promotor que edita el evento.
      * @param eventoId ID del evento a editar.
@@ -104,10 +104,12 @@ public class EventosControlador {
             @PathVariable Integer eventoId,
             @RequestBody Eventos eventoActualizado) {
 
+
         eventoActualizado.setId(eventoId); // Aseguramos que el ID coincida con el de la ruta
         EventosDTO eventoEditado = eventosServicio.editarEvento(promotorId, eventoActualizado);
         return ResponseEntity.ok(eventoEditado);
     }
+
 
     /**
      * Actualizar evento
