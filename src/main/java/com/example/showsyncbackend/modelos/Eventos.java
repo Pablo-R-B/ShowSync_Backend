@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.modelos;
 
 import com.example.showsyncbackend.enumerados.Estado;
+import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

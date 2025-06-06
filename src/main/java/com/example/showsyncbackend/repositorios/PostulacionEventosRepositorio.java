@@ -1,5 +1,6 @@
 package com.example.showsyncbackend.repositorios;
 
+import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import com.example.showsyncbackend.modelos.PostulacionEvento;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,6 +40,16 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
             @Param("promotorId") Integer promotorId,
             @Param("tiposSolicitud") List<TipoSolicitud> tiposSolicitud
     );
+
+
+
+    List<PostulacionEvento> findByEvento_IdAndTipoSolicitudAndEstadoPostulacion(
+            Integer eventoId,
+            TipoSolicitud tipoSolicitud,
+            EstadoPostulacion estadoPostulacion);
+
+
+
 
 
 }

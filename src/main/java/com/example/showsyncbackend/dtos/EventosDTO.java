@@ -2,6 +2,7 @@ package com.example.showsyncbackend.dtos;
 
 
 import com.example.showsyncbackend.enumerados.Estado;
+import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.example.showsyncbackend.modelos.Eventos;
 import lombok.*;
 
