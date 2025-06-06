@@ -16,8 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,7 +146,7 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
 
     // Este método permite editar los datos de un promotor y también crea un nuevo promotor si no existe.
     @Transactional
-    public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos) {
+    public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos, MultipartFile imagenArchivo) throws IOException {
         Usuario usuario = usuarioRepositorio.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -154,13 +156,21 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
         if (promotor == null) {
             promotor = new Promotores();
             promotor.setUsuario(usuario);
-        }else {
+        } else {
             promotor.setUsuario(usuario);
         }
 
         promotor.setNombrePromotor(datos.getNombrePromotor());
         promotor.setDescripcion(datos.getDescripcion());
-        promotor.setImagenPerfil(datos.getImagenPerfil());
+
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            // Subir imagen a Cloudinary
+            String urlImagen = cloudinaryService.uploadFile(imagenArchivo);
+            promotor.setImagenPerfil(urlImagen);
+        } else {
+            // Mantener la imagen anterior (si viene en datos)
+            promotor.setImagenPerfil(datos.getImagenPerfil());
+        }
 
         Promotores guardado = promotoresRepositorio.save(promotor);
 
