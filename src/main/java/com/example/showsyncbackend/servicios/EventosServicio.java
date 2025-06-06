@@ -1,16 +1,18 @@
 package com.example.showsyncbackend.servicios;
 
 import com.cloudinary.Cloudinary;
+import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
+import com.example.showsyncbackend.dtos.EventoEditarDTO;
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
+import com.example.showsyncbackend.enumerados.EstadoPostulacion;
+import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import com.example.showsyncbackend.modelos.*;
-import com.example.showsyncbackend.repositorios.EventosRepositorio;
-import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
-import com.example.showsyncbackend.repositorios.PromotoresRepositorio;
-import com.example.showsyncbackend.repositorios.SalasRepositorio;
+import com.example.showsyncbackend.repositorios.*;
 import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
+import org.antlr.v4.runtime.misc.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
@@ -49,9 +51,12 @@ public class EventosServicio {
     private SalasRepositorio salasRepositorio;
 
     @Autowired
+    private PostulacionEventosRepositorio postulacionEventosRepositorio;
+
+    @Autowired
     private CloudinaryService cloudinaryService;
-
-
+    @Autowired
+    private ArtistasRepositorio artistasRepositorio;
 
 
     // Constructor con dependencia para inyección de eventosRepositorio
@@ -113,43 +118,136 @@ public class EventosServicio {
         return eventosRepositorio.save(eventoNuevo);
     }
 
-    // Editar evento existente
+
+
+    @Transactional
     public EventosDTO editarEvento(Integer promotorId, Eventos eventoActualizado) {
-        // Buscar evento existente por ID
         Eventos eventoExistente = eventosRepositorio.findById(eventoActualizado.getId())
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
-        // Verificar que el promotor tenga acceso al evento
+
         if (!eventoExistente.getPromotor().getId().equals(promotorId)) {
             throw new RuntimeException("El evento no pertenece al promotor especificado");
         }
 
-        // Actualizar los datos del evento
+
+        if (eventoActualizado.getSala() == null || eventoActualizado.getSala().getId() == null) {
+            throw new RuntimeException("La sala no puede ser nula. Asegúrate de enviar el campo sala_id con un ID válido.");
+        }
+
+
+        Salas sala = salasRepositorio.findById(eventoActualizado.getSala().getId())
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+
         eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
         eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
-        eventoExistente.setFechaEvento(eventoActualizado.getFechaEvento());
-        eventoExistente.setSala(eventoActualizado.getSala());
+        eventoExistente.setSala(sala);
         eventoExistente.setEstado(eventoActualizado.getEstado());
         eventoExistente.setImagen_evento(eventoActualizado.getImagen_evento());
-        eventoExistente.setGenerosMusicales(eventoActualizado.getGenerosMusicales());
+        eventoExistente.setGenerosMusicales(new HashSet<>(eventoActualizado.getGenerosMusicales()));
 
-        // Guardar los cambios
+
         Eventos eventoGuardado = eventosRepositorio.save(eventoExistente);
 
-        // Devolver solo los datos necesarios con un DTO construido manualmente
-        EventosDTO dto = new EventosDTO();
-        dto.setId(eventoGuardado.getId());
-        dto.setNombreEvento(eventoGuardado.getNombre_evento());
-        dto.setDescripcion(eventoGuardado.getDescripcion());
-        dto.setFechaEvento(eventoGuardado.getFechaEvento());
-        dto.setIdSala(eventoGuardado.getSala() != null ? eventoGuardado.getSala().getId() : null);
-        dto.setEstado(eventoGuardado.getEstado());
-        dto.setImagenEvento(eventoGuardado.getImagen_evento());
+
+        if ("confirmado".equalsIgnoreCase(String.valueOf(eventoActualizado.getEstado()))) {
+            List<PostulacionEvento> postulaciones = postulacionEventosRepositorio
+                    .findByEvento_IdAndTipoSolicitudAndEstadoPostulacion(
+                            eventoGuardado.getId(),
+                            TipoSolicitud.oferta,
+                            EstadoPostulacion.valueOf("pendiente")
+                    );
 
 
-        return dto;
+            for (PostulacionEvento postulacion : postulaciones) {
+                postulacion.setEstadoPostulacion(EstadoPostulacion.aceptado);
+                postulacion.setFechaPostulacion(LocalDate.now());
 
+
+                boolean yaAsignado = eventoGuardado.getArtistasAsignados().stream()
+                        .anyMatch(a -> a.getId().equals(postulacion.getArtista().getId()));
+
+
+                if (!yaAsignado) {
+                    eventoGuardado.getArtistasAsignados().add(postulacion.getArtista());
+                }
+
+
+                postulacionEventosRepositorio.save(postulacion);
+            }
+
+
+            eventosRepositorio.save(eventoGuardado);
+        }
+
+
+        // Convertimos generosMusicales y artistasAsignados a Set<String>
+        Set<String> generosMusicales = eventoGuardado.getGenerosMusicales().stream()
+                .map(GenerosMusicales::getNombre)
+                .collect(Collectors.toSet());
+
+
+        Set<String> artistasAsignados = eventoGuardado.getArtistasAsignados().stream()
+                .map(Artistas::getNombreArtista)
+                .collect(Collectors.toSet());
+
+
+        return EventosDTO.builder()
+                .id(eventoGuardado.getId())
+                .nombreEvento(eventoGuardado.getNombre_evento())
+                .descripcion(eventoGuardado.getDescripcion())
+                .fechaEvento(eventoGuardado.getFechaEvento())
+                .estado(eventoGuardado.getEstado())
+                .imagenEvento(eventoGuardado.getImagen_evento())
+                .idSala(eventoGuardado.getSala().getId())
+                .nombreSala(eventoGuardado.getSala().getNombre())
+                .idPromotor(eventoGuardado.getPromotor().getId())
+                .nombrePromotor(eventoGuardado.getPromotor().getNombrePromotor())
+                .generosMusicales(generosMusicales)
+                .artistasAsignados(artistasAsignados)
+                .build();
     }
+
+
+
+
+    // Actualizar un evento existente
+    public void actualizarEvento(Integer idPromotor, Integer idEvento, EventoEditarDTO dto) {
+        Eventos evento = eventosRepositorio.findById(idEvento)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+
+        // Validar que el evento pertenece al promotor
+        if (!evento.getPromotor().getId().equals(idPromotor)) {
+            throw new RuntimeException("El evento no pertenece al promotor especificado");
+        }
+
+        // Actualizar campos básicos
+        evento.setNombre_evento(dto.getNombreEvento());
+        evento.setDescripcion(dto.getDescripcion());
+        evento.setEstado(Estado.valueOf(dto.getEstado()));
+        evento.setImagen_evento(dto.getImagenEvento());
+
+        // Actualizar sala si existe
+        if (dto.getIdSala() != null) {
+            salasRepositorio.findById(dto.getIdSala())
+                    .ifPresent(evento::setSala);
+        }
+
+        // Actualizar artistas asignados
+        if (dto.getArtistasAsignados() != null) {
+            Set<Artistas> artistas = dto.getArtistasAsignados().stream()
+                    .map(artistaDTO -> artistasRepositorio.findById(artistaDTO.getId())
+                            .orElseThrow(() -> new RuntimeException("Artista no encontrado: " + artistaDTO.getId())))
+                    .collect(Collectors.toSet());
+            evento.setArtistasAsignados(artistas);
+        }
+
+        eventosRepositorio.save(evento);
+    }
+
+
+
 
 
     // Eliminar evento existente
