@@ -1,10 +1,7 @@
 package com.example.showsyncbackend.servicios;
 
 import com.cloudinary.Cloudinary;
-import com.example.showsyncbackend.dtos.ArtistasCatalogoDTO;
-import com.example.showsyncbackend.dtos.EventoEditarDTO;
-import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
-import com.example.showsyncbackend.dtos.EventosDTO;
+import com.example.showsyncbackend.dtos.*;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
@@ -286,6 +283,40 @@ public class EventosServicio {
 
         postulacionEventosRepositorio.save(postulacion);
     }
+
+    //Evento detallas para la edición
+
+    @Transactional(readOnly = true)
+    public EventosActualizadoDTO obtenerEventoDetalleParaEdicion(Integer eventoId) {
+        Eventos evento = eventosRepositorio.findByIdWithArtistas(eventoId)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado para edición con ID: " + eventoId));
+
+        // Mapear artistas asignados a ArtistasDTO (con ID, nombre, imagenPerfil)
+        List<ArtistasDTO> artistasAsignadosDTOs = evento.getArtistasAsignados().stream()
+                .map(a -> new ArtistasDTO(a.getId(), a.getNombreArtista(), a.getImagenPerfil()))
+                .collect(Collectors.toList());
+
+        // Mapear géneros musicales a GenerosMusicalesDTO (con ID y nombre)
+        List<GenerosMusicalesDTO> generosMusicalesDTOs = evento.getGenerosMusicales().stream()
+                .map(g -> new GenerosMusicalesDTO(g.getId(), g.getNombre()))
+                .collect(Collectors.toList());
+
+        return EventosActualizadoDTO.builder()
+                .id(evento.getId())
+                .nombreEvento(evento.getNombre_evento())
+                .descripcion(evento.getDescripcion())
+                .fechaEvento(evento.getFechaEvento())
+                .estado(evento.getEstado())
+                .imagenEvento(evento.getImagen_evento())
+                .idSala(evento.getSala() != null ? evento.getSala().getId() : null)
+                .nombreSala(evento.getSala() != null ? evento.getSala().getNombre() : null)
+                .idPromotor(evento.getPromotor() != null ? evento.getPromotor().getId() : null)
+                .nombrePromotor(evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null)
+                .generosMusicales(generosMusicalesDTOs) // ¡Ahora List<GenerosMusicalesDTO>!
+                .artistasAsignados(artistasAsignadosDTOs) // ¡Ahora List<ArtistasDTO>!
+                .build();
+    }
+
 
 
     // Eliminar evento existente
