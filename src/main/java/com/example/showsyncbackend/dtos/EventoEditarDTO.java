@@ -18,6 +18,6 @@ public class EventoEditarDTO {
     private Integer idSala;
     private String estado;
     private String imagenEvento;
-    private String estadoPublicacion;
+    private Set<Integer> generosMusicalesIds;
     private Set<ArtistasDTO> artistasAsignados;
 }
