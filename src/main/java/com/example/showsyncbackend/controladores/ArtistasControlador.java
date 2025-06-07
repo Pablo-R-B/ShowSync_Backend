@@ -83,15 +83,19 @@ public class ArtistasControlador {
      * @return Una lista de DTOs de artistas asignados al promotor.
      */
     @GetMapping("/promotor/{promotorId}")
-    public ResponseEntity<Page<ArtistasCatalogoDTO>> getArtistasPorPromotor(
+    public ResponseEntity<List<ArtistasCatalogoDTO>> getArtistasPorPromotor(
             @PathVariable Integer promotorId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ArtistasCatalogoDTO> artistas = artistasServicio.obtenerArtistasPorPromotor(promotorId, pageable);
-        return ResponseEntity.ok(artistas);
+        Page<ArtistasCatalogoDTO> artistasPage = artistasServicio.obtenerArtistasPorPromotor(promotorId, pageable);
+        List<ArtistasCatalogoDTO> artistasList = artistasPage.getContent();
+
+        return ResponseEntity.ok(artistasList);
     }
+
+
 
     @PutMapping(value = "/artista/usuario/{id}", consumes = {"multipart/form-data"})
     public ResponseEntity<Map<String, String>> editarDatosArtista(

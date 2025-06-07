@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.controladores;
 
 import com.example.showsyncbackend.dtos.EventoEditarDTO;
+import com.example.showsyncbackend.dtos.EventosActualizadoDTO;
 import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
 import com.example.showsyncbackend.dtos.EventosDTO;
 import com.example.showsyncbackend.enumerados.Estado;
@@ -143,6 +144,22 @@ public class EventosControlador {
             return ResponseEntity.ok("Evento actualizado correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Obtener detalle de un evento para edición
+     * @param eventoId ID del evento a editar
+     * @return Detalle del evento como DTO
+     */
+
+    @GetMapping("/detalle-edicion/{eventoId}") // <-- Nueva URL para no conflictuar
+    public ResponseEntity<EventosActualizadoDTO> getEventoDetalleParaEdicion(@PathVariable Integer eventoId) {
+        try {
+            EventosActualizadoDTO eventoDetalle = eventosServicio.obtenerEventoDetalleParaEdicion(eventoId);
+            return new ResponseEntity<>(eventoDetalle, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // O un mensaje de error específico
         }
     }
 
