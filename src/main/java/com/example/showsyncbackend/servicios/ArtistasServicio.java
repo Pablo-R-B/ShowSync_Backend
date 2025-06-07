@@ -197,7 +197,7 @@ public class ArtistasServicio {
         artista.setBiografia(datos.getBiografia());
         artista.setMusicUrl(datos.getMusicUrl());
 
-        // Si se ha subido una imagen, la subimos a Cloudinary
+        // 🖼️ Lógica corregida para mantener la imagen anterior si no se sube una nueva
         if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
             try {
                 String urlImagen = cloudinaryService.uploadFile(imagenArchivo);
@@ -205,17 +205,16 @@ public class ArtistasServicio {
             } catch (IOException e) {
                 throw new RuntimeException("Error al subir la imagen a Cloudinary", e);
             }
-        } else {
-            // Si no se sube una nueva imagen, mantenemos la existente (si se envió en el DTO)
-            artista.setImagenPerfil(datos.getImagenPerfil());
         }
+        // ❌ No sobrescribas con null si no se sube imagen nueva
+        // Si el archivo no se sube y no viene URL en el DTO, se mantiene la imagen actual
 
-        if (datos.getGenerosMusicales() != null) {
+        // 🎵 Actualización de géneros musicales
+        if (datos.getGenerosMusicales() != null && !datos.getGenerosMusicales().isEmpty()) {
             Set<GenerosMusicales> generos = datos.getGenerosMusicales().stream()
                     .map(gDto -> generosMusicalesRepositorio.findById(gDto.getId())
                             .orElseThrow(() -> new RuntimeException("Género no encontrado: " + gDto.getId())))
                     .collect(Collectors.toSet());
-
             artista.setGenerosMusicales(generos);
         }
 

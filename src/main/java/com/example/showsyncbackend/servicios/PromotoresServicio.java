@@ -147,6 +147,7 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
     // Este método permite editar los datos de un promotor y también crea un nuevo promotor si no existe.
     @Transactional
     public PromotoresDTO editarDatosPromotor(Integer usuarioId, Promotores datos, MultipartFile imagenArchivo) throws IOException {
+
         Usuario usuario = usuarioRepositorio.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -167,9 +168,6 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
             // Subir imagen a Cloudinary
             String urlImagen = cloudinaryService.uploadFile(imagenArchivo);
             promotor.setImagenPerfil(urlImagen);
-        } else {
-            // Mantener la imagen anterior (si viene en datos)
-            promotor.setImagenPerfil(datos.getImagenPerfil());
         }
 
         Promotores guardado = promotoresRepositorio.save(promotor);
