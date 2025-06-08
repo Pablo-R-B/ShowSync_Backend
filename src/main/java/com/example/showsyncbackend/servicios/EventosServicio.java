@@ -222,7 +222,7 @@ public class EventosServicio {
         // Actualizar campos básicos
         evento.setNombre_evento(dto.getNombreEvento());
         evento.setDescripcion(dto.getDescripcion());
-        evento.setEstado(Estado.valueOf(dto.getEstado())); // Asegúrate de que Estado es un Enum y el String coincida
+        evento.setEstado(Estado.valueOf(dto.getEstado()));
         evento.setImagen_evento(dto.getImagenEvento());
 
         // Actualizar sala si existe
@@ -233,23 +233,29 @@ public class EventosServicio {
 
         // Actualizar artistas asignados
         if (dto.getArtistasAsignados() != null) {
-            Set<Artistas> artistas = dto.getArtistasAsignados().stream()
+            Set<Artistas> artistasActualizados = dto.getArtistasAsignados().stream()
                     .map(artistaDTO -> artistasRepositorio.findById(artistaDTO.getId())
                             .orElseThrow(() -> new RuntimeException("Artista no encontrado: " + artistaDTO.getId())))
                     .collect(Collectors.toSet());
-            evento.setArtistasAsignados(artistas);
+            evento.setArtistasAsignados(artistasActualizados);
+
+            // --- LÓGICA DE NEGOCIO: Si el evento se queda sin artistas, cambia el estado a EN_REVISION ---
+            if (artistasActualizados.isEmpty()) { // Si la lista de artistas asignados está vacía
+                evento.setEstado(Estado.en_revision); // Asume que 'EN_REVISION' es un valor válido de tu Enum Estado
+            }
         } else {
-            // Si el DTO no trae artistas o es null, vacía la lista de artistas del evento
+
             evento.setArtistasAsignados(new HashSet<>());
+            evento.setEstado(Estado.en_revision); // Si un envío nulo significa "sin artistas"
         }
 
-        // --- CORRECCIÓN AQUÍ: Actualizar géneros musicales asignados ---
+        // Actualizar géneros musicales asignados
         if (dto.getGenerosMusicalesIds() != null && !dto.getGenerosMusicalesIds().isEmpty()) {
             Set<GenerosMusicales> generos = dto.getGenerosMusicalesIds().stream()
-                    .map(generoId -> generosMusicalesRepositorio.findById(generoId) // Usa tu repositorio correcto
+                    .map(generoId -> generosMusicalesRepositorio.findById(generoId)
                             .orElseThrow(() -> new RuntimeException("Género musical no encontrado: " + generoId)))
                     .collect(Collectors.toSet());
-            evento.setGenerosMusicales(generos); // Asegúrate de que Eventos tiene setGenerosMusicales(Set<GenerosMusicales>)
+            evento.setGenerosMusicales(generos);
         } else {
             // Si no se envían géneros, vacía la lista de géneros del evento
             evento.setGenerosMusicales(new HashSet<>());
@@ -257,6 +263,9 @@ public class EventosServicio {
 
         eventosRepositorio.save(evento);
     }
+
+
+
 
 
     // Aceptar postulación de artista

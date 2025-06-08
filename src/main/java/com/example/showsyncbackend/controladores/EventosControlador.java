@@ -147,6 +147,7 @@ public class EventosControlador {
         }
     }
 
+
     /**
      * Obtener detalle de un evento para edición
      * @param eventoId ID del evento a editar
