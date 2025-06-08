@@ -193,6 +193,10 @@ public class ArtistasServicio {
             artista.setUsuario(usuario);
         }
 
+        if (datos.getBiografia() != null && datos.getBiografia().length() > 500) {
+            throw new RuntimeException("La descripción no puede superar los 255 caracteres");
+        }
+
         artista.setNombreArtista(datos.getNombreArtista());
         artista.setBiografia(datos.getBiografia());
         artista.setMusicUrl(datos.getMusicUrl());
