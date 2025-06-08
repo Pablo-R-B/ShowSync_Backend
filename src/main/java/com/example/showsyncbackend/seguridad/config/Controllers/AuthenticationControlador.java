@@ -7,6 +7,7 @@ import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.seguridad.config.dto.UsuarioRegistroDTO;
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.seguridad.config.dto.LoginRequestDTO;
+import com.example.showsyncbackend.seguridad.config.manejoErrores.CustomAuthenticationException;
 import com.example.showsyncbackend.seguridad.config.services.AuthenticationService;
 import com.example.showsyncbackend.servicios.ArtistasServicio;
 import com.example.showsyncbackend.servicios.PerfilUsuarioServicio;
@@ -113,16 +114,20 @@ public class AuthenticationControlador {
                     loginRequestDTO.getEmail(),
                     loginRequestDTO.getContrasena()
             );
-
-            return ResponseEntity.ok( token);
+            return ResponseEntity.ok(token);
+        } catch (CustomAuthenticationException ex) {
+            // Dejá que el manejador global lo procese y devuelva 401 o 403
+            throw ex;
         } catch (Exception e) {
             log.error("Error interno en /login", e);
-            // Para depurar, devuelvo el mensaje real; luego lo puedes enmascarar otra vez
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of("error", "Error interno del servidor"));
         }
     }
+
+
+
 
 
     /**

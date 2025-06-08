@@ -2,6 +2,7 @@ package com.example.showsyncbackend.seguridad.config.services;
 
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
+import com.example.showsyncbackend.seguridad.config.manejoErrores.CustomAuthenticationException;
 import com.example.showsyncbackend.servicios.UsuarioServicio;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,7 @@ public class AuthenticationService implements UserDetailsService {
 
     @PostConstruct
     public void init() {
-        System.out.println("\n==== CONFIGURACIÓN DE SEGURIDAD ====");
-        System.out.println("Tipo de PasswordEncoder: " + passwordEncoder.getClass().getName());
-        System.out.println("Hash de ejemplo ('test123'): " + passwordEncoder.encode("test123"));
-        System.out.println("Hash de tu contraseña ('Contrasena123!'): " + passwordEncoder.encode("Contrasena123!"));
-        System.out.println("====================================\n");
+
     }
 
     @Override
@@ -48,12 +45,10 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     public void guardarUsuario(Usuario usuario) {
-        System.out.println("\n==== REGISTRO DE USUARIO ====");
-        System.out.println("Contraseña original: " + usuario.getContrasena());
+
 
         // Encriptar la contraseña solo una vez
         String encodedPassword = passwordEncoder.encode(usuario.getContrasena());
-        System.out.println("Contraseña encriptada: " + encodedPassword);
         usuario.setContrasena(encodedPassword);
 
         // Generar y asignar token de verificación
@@ -64,34 +59,23 @@ public class AuthenticationService implements UserDetailsService {
         // Guardar usuario
         usuarioRepositorio.save(usuario);
 
-        System.out.println("Usuario registrado con email: " + usuario.getEmail());
-        System.out.println("=============================\n");
 
         // Enviar correo de verificación
         emailService.enviarCorreoVerificacion(usuario.getEmail(), token);
     }
 
     public String autenticarUsuario(String email, String contrasena) {
-        System.out.println("\n==== INTENTO DE AUTENTICACIÓN ====");
-        System.out.println("Email recibido: " + email);
-
         Usuario usuario = usuarioServicio.getUsuarioByEmail(email);
+
         // 1. Verificar si el email está verificado
         if (!usuario.isVerificado()) {
-            throw new RuntimeException("Por favor verifica tu email antes de iniciar sesión");
+            throw new CustomAuthenticationException("Por favor verifica tu email antes de iniciar sesión", 403);
         }
 
         // 2. Verificar contraseña
-        System.out.println("Comparando contraseña para: " + email);
         if (!passwordEncoder.matches(contrasena, usuario.getContrasena())) {
-            System.out.println("--- FALLA DE AUTENTICACIÓN ---");
-            System.out.println("Hash almacenado en BBDD: " + usuario.getContrasena());
-            System.out.println("Hash generado ahora: " + passwordEncoder.encode(contrasena));
-            throw new RuntimeException("Credenciales incorrectas");
+            throw new CustomAuthenticationException("Credenciales incorrectas", 401);
         }
-
-        System.out.println("Autenticación exitosa para: " + email);
-        System.out.println("===============================\n");
 
         return jwtService.generateToken(usuario);
     }
