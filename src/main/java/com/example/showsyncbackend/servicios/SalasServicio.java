@@ -81,7 +81,7 @@ public class SalasServicio {
             throw new RuntimeException("El código postal no puede estar vacío");
         }
 
-        if (request.getDescripcion() == null || request.getDescripcion().isEmpty() || request.getDescripcion().length() < 20 || request.getDescripcion().length() > 500) {
+        if (request.getDescripcion() == null || request.getDescripcion().isEmpty() || request.getDescripcion().length() < 20 || request.getDescripcion().length() > 1000) {
             throw new RuntimeException("La descripción no puede estar vacía");
         }
 
