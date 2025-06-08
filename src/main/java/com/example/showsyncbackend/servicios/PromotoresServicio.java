@@ -162,6 +162,9 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
         }
 
         promotor.setNombrePromotor(datos.getNombrePromotor());
+        if (datos.getDescripcion() != null && datos.getDescripcion().length() > 500) {
+            throw new RuntimeException("La descripción no puede superar los 255 caracteres");
+        }
         promotor.setDescripcion(datos.getDescripcion());
 
         if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
