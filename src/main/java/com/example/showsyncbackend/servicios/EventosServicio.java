@@ -115,8 +115,96 @@ public class EventosServicio {
         return eventosRepositorio.save(eventoNuevo);
     }
 
+    // Confirmar un evento por parte del promotor
+    @Transactional
+    public EventosDTO confirmarEvento(Integer promotorId, Integer eventoId) {
+        Eventos eventoExistente = eventosRepositorio.findById(eventoId)
+                .orElseThrow(() -> new RuntimeException("Evento no encontrado con ID: " + eventoId));
+
+        // Validación de pertenencia del promotor
+        if (!eventoExistente.getPromotor().getId().equals(promotorId)) {
+            throw new RuntimeException("El evento no pertenece al promotor especificado.");
+        }
+
+        // Validación de estado actual
+        if ("confirmado".equalsIgnoreCase(String.valueOf(eventoExistente.getEstado()))) {
+            throw new RuntimeException("El evento ya está confirmado.");
+        }
+        if (!"en_revision".equalsIgnoreCase(String.valueOf(eventoExistente.getEstado()))) {
+            throw new RuntimeException("Solo los eventos 'en_revision' pueden ser confirmados.");
+        }
 
 
+        // Actualizar el estado a "confirmado"
+        eventoExistente.setEstado(Estado.confirmado);
+
+        // Lógica de asignación de artistas (la misma que ya tenías)
+        List<PostulacionEvento> postulacionesAceptadas = postulacionEventosRepositorio
+                .findByEvento_IdAndTipoSolicitudAndEstadoPostulacion(
+                        eventoExistente.getId(),
+                        TipoSolicitud.oferta,
+                        EstadoPostulacion.aceptado // Aquí ya es EstadoPostulacion.aceptado, no String
+                );
+
+        // Aseguramos que el Set de artistasAsignados no sea null
+        if (eventoExistente.getArtistasAsignados() == null) {
+            eventoExistente.setArtistasAsignados(new HashSet<>());
+        }
+
+        for (PostulacionEvento postulacion : postulacionesAceptadas) {
+            boolean yaAsignado = eventoExistente.getArtistasAsignados().stream()
+                    .anyMatch(a -> a.getId().equals(postulacion.getArtista().getId()));
+
+            if (!yaAsignado) {
+                eventoExistente.getArtistasAsignados().add(postulacion.getArtista());
+            }
+
+            // Opcional: Si la postulación en sí debe reflejar algún cambio por la confirmación del evento, hazlo aquí
+            // postulacion.setEstadoPostulacion(EstadoPostulacion.confirmado_por_evento); // Ejemplo
+            postulacionEventosRepositorio.save(postulacion); // Guarda la postulación si hay cambios
+        }
+
+        // Guarda el evento con el nuevo estado y los artistas asignados
+        Eventos eventoGuardado = eventosRepositorio.save(eventoExistente);
+
+        // Convertimos el evento a DTO y lo devolvemos
+        return convertToDto(eventoGuardado);
+    }
+
+    // Método auxiliar para convertir Eventos a EventosDTO (asegúrate de que exista o créalo)
+    private EventosDTO convertToDto(Eventos evento) {
+        Set<String> generosMusicalesNombres = new HashSet<>();
+        if (evento.getGenerosMusicales() != null) {
+            evento.getGenerosMusicales().stream()
+                    .map(g -> g.getNombre())
+                    .forEach(generosMusicalesNombres::add);
+        }
+
+        Set<String> artistasAsignadosNombres = new HashSet<>();
+        if (evento.getArtistasAsignados() != null) {
+            evento.getArtistasAsignados().stream()
+                    .map(a -> a.getNombreArtista())
+                    .forEach(artistasAsignadosNombres::add);
+        }
+
+        return EventosDTO.builder()
+                .id(evento.getId())
+                .nombreEvento(evento.getNombre_evento())
+                .descripcion(evento.getDescripcion())
+                .fechaEvento(evento.getFechaEvento())
+                .estado(evento.getEstado())
+                .imagenEvento(evento.getImagen_evento())
+                .idSala(evento.getSala() != null ? evento.getSala().getId() : null)
+                .nombreSala(evento.getSala() != null ? evento.getSala().getNombre() : null)
+                .idPromotor(evento.getPromotor() != null ? evento.getPromotor().getId() : null)
+                .nombrePromotor(evento.getPromotor() != null ? evento.getPromotor().getNombrePromotor() : null)
+                .generosMusicales(generosMusicalesNombres)
+                .artistasAsignados(artistasAsignadosNombres)
+                .build();
+    }
+
+
+//Esto debo revisarlo aun no esta funcionando bien
     @Transactional
     public EventosDTO editarEvento(Integer promotorId, Eventos eventoActualizado) {
         Eventos eventoExistente = eventosRepositorio.findById(eventoActualizado.getId())
