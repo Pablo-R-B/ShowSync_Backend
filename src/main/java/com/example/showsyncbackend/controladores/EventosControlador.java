@@ -91,6 +91,35 @@ public class EventosControlador {
         return new ResponseEntity<>(evento, HttpStatus.CREATED);
     }
 
+
+
+
+
+    /**
+     * Confirmar un evento del promotor especificado.
+     *
+     * @param promotorId ID del promotor que confirma el evento.
+     * @param eventoId ID del evento a confirmar.
+     * @return El evento confirmado como DTO.
+     */
+    @PutMapping("/promotor/{promotorId}/eventos/{eventoId}/confirmar")
+    public ResponseEntity<EventosDTO> confirmarEvento(
+            @PathVariable Integer promotorId,
+            @PathVariable Integer eventoId) { // No necesitamos un @RequestBody para esta acción simple
+        try {
+            EventosDTO eventoConfirmado = eventosServicio.confirmarEvento(promotorId, eventoId);
+            return ResponseEntity.ok(eventoConfirmado);
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.badRequest().body(null); // O podrías devolver un DTO de error si lo tienes
+
+        }
+    }
+
+
+
+
+
     /**
      * Confirmar un evento  del promotor especificado.
      *
@@ -99,7 +128,7 @@ public class EventosControlador {
      * @param eventoActualizado Objeto con los nuevos datos del evento.
      * @return El evento actualizado como DTO.
      */
-    @PutMapping("/promotor/{promotorId}/evento/{eventoId}")
+    @PutMapping("/promotor/{promotorId}/evento/{eventoId}/confirmado")
     public ResponseEntity<EventosDTO> editarEvento(
             @PathVariable Integer promotorId,
             @PathVariable Integer eventoId,
@@ -146,6 +175,7 @@ public class EventosControlador {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     /**
      * Obtener detalle de un evento para edición
