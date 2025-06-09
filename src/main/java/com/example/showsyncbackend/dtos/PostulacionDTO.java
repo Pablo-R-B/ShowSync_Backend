@@ -20,6 +20,8 @@ public class PostulacionDTO {
     private LocalDate fechaPostulacion;
     private LocalDate fechaRespuesta;
     private TipoSolicitud tipoSolicitud;
+    private LocalDate eventoFecha;
+
 
 
     public PostulacionDTO(
@@ -31,7 +33,8 @@ public class PostulacionDTO {
             String salaNombre,
             EstadoPostulacion estado,
             LocalDate fechaPostulacion,
-            TipoSolicitud tipoSolicitud
+            TipoSolicitud tipoSolicitud,
+            LocalDate eventoFecha
     ) {
         this.id = id;
         this.eventoNombre = eventoNombre;
@@ -42,6 +45,7 @@ public class PostulacionDTO {
         this.estado = estado;
         this.fechaPostulacion = fechaPostulacion;
         this.tipoSolicitud = tipoSolicitud;
+        this.eventoFecha = eventoFecha;
     }
 
 }

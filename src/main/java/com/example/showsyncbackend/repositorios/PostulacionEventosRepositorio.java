@@ -11,22 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostulacionEventosRepositorio extends JpaRepository<PostulacionEvento, Integer> {
-    List<PostulacionEvento> findByArtista_IdAndTipoSolicitud(
-            Integer artistaId,
-            TipoSolicitud tipoSolicitud
-    );
-
-    List<PostulacionEvento> findByArtistaId(Integer artistaId);
-
-    List<PostulacionEvento> findByEvento_Promotor_IdAndTipoSolicitud(
-            Integer promotorId,
-            TipoSolicitud tipoSolicitud
-    );
-
-//    List<PostulacionEvento> findByEvento_Promotor_IdAndTipoSolicitudIn(
-//            Integer promotorId,
-//            List<TipoSolicitud> tiposSolicitud
-//    );
 
     @Query("""
     SELECT pe FROM PostulacionEvento pe
@@ -34,13 +18,16 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
     JOIN FETCH e.promotor p
     JOIN FETCH e.sala s
     JOIN FETCH pe.artista a
-    WHERE p.id = :promotorId
-    AND pe.tipoSolicitud IN :tiposSolicitud
+    WHERE e.promotor.id = :promotorId
+      AND pe.tipoSolicitud IN :tiposSolicitud
+      AND e.fechaEvento >= CURRENT_DATE
 """)
-    List<PostulacionEvento> findPostulacionesWithEventoAndArtista(
+    List<PostulacionEvento> findPostulacionesWithEventoAndPromotor(
             @Param("promotorId") Integer promotorId,
             @Param("tiposSolicitud") List<TipoSolicitud> tiposSolicitud
     );
+
+
 
     @Query("""
     SELECT pe FROM PostulacionEvento pe
@@ -48,12 +35,15 @@ public interface PostulacionEventosRepositorio extends JpaRepository<Postulacion
     JOIN FETCH e.promotor p
     JOIN FETCH e.sala s
     WHERE pe.artista.id = :artistaId
-    AND pe.tipoSolicitud IN :tipos
+      AND pe.tipoSolicitud IN :tiposSolicitud
+      AND e.fechaEvento >= CURRENT_DATE
 """)
-    List<PostulacionEvento> findPostulacionesConDetallesByArtistaId(
+    List<PostulacionEvento> findPostulacionesWithEventoAndArtista(
             @Param("artistaId") Integer artistaId,
-            @Param("tipos") List<TipoSolicitud> tipos
+            @Param("tiposSolicitud") List<TipoSolicitud> tiposSolicitud
     );
+
+
 
     Optional<PostulacionEvento> findByEventoIdAndArtistaId(Integer eventoId, Integer artistaId);
 
