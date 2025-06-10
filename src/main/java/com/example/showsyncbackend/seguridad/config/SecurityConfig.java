@@ -46,7 +46,10 @@ public class SecurityConfig {
                                 "/artistas/**",
                                 "/genero/**",
                                 "/error",
-                                "/api/**"
+                                "/api/**",
+                                "/ws/websocket/**",
+                                 "/ws/info",
+                                "/ws/**"
 
 
                         ).permitAll()

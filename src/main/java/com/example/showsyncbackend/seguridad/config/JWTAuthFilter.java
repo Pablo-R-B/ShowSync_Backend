@@ -39,6 +39,12 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        // nuevo: Excluir rutas WebSocket de la validación JWT
+        String path = request.getServletPath();
+        if (path.startsWith("/ws/info") || path.startsWith("/ws/websocket")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         final String authHeader = request.getHeader("Authorization");
 
