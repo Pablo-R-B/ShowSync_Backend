@@ -39,16 +39,24 @@ public class EmailService {
 
         // Plantilla HTML para el correo
         String text = "<html>" +
-                "<body style='font-family: Arial, sans-serif; text-align: center;'>" +
-                "   <img src='" + logoUrl + "' alt='ShowSync Logo' style='max-width: 200px;'>" +
-                "   <h2 style='color: #333;'>¡Hola!</h2>" +
-                "   <p>Para verificar tu cuenta, por favor haz clic en el siguiente enlace:</p>" +
-                "   <p><a href='" + baseUrl + "/verificar-email?token=" + token + "' " +
-                "      style='background-color: #BF0D22; color: white; padding: 10px 15px; " +
-                "      text-decoration: none; border-radius: 5px;' " +
-                "      onmouseover=\"this.style.backgroundColor='#A0A4AD'\" " +
-                "      onmouseout=\"this.style.backgroundColor='#BF0D22'\">Verificar Cuenta</a></p>" +
-                "   <p>Si no solicitaste esto, ignora este mensaje.</p>" +
+                "<body style='font-family: Arial, sans-serif; text-align: center; background-color: #08080C; margin: 0; padding: 20px;'>" +
+                "   <div style='max-width: 600px; margin: 20px auto; background-color: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); border: 1px solid #770316;'>" +
+                "       <img src='" + logoUrl + "' alt='ShowSync Logo' style='max-width: 200px; margin-bottom: 25px; display: block; margin-left: auto; margin-right: auto;'>" +
+                "       <h2 style='color: #BF0D22; font-size: 28px; margin-bottom: 20px; font-weight: bold;'>¡Bienvenido a ShowSync!</h2>" +
+                "       <p style='color: #FBFAFA; font-size: 16px; line-height: 1.6; margin-bottom: 25px;'>¡Hola!</p>" +
+                "       <p style='color: #CCCBCB; font-size: 16px; line-height: 1.6; margin-bottom: 30px;'>Estamos encantados de tenerte a bordo. Para activar tu cuenta y empezar a explorar todo el talento y los eventos, por favor haz clic en el botón de abajo:</p>" +
+                "       <p style='margin-bottom: 30px;'>" +
+                "           <a href='" + baseUrl + "/verificar-email?token=" + token + "' " +
+                "              style='background-color: #BF0D22; color: white; padding: 15px 30px; " +
+                "              text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 18px; " +
+                "              transition: background-color 0.3s ease, transform 0.2s ease; display: inline-block;' " +
+                "              onmouseover=\"this.style.backgroundColor='#770316'; this.style.transform='scale(1.05)';\" " +
+                "              onmouseout=\"this.style.backgroundColor='#BF0D22'; this.style.transform='scale(1)';\">Verificar mi Cuenta</a></p>" +
+                "       <p style='color: #A0A4AD; font-size: 14px; margin-top: 30px;'>" +
+                "           Si no solicitaste la creación de esta cuenta, por favor ignora este mensaje." +
+                "       </p>" +
+                "       <p style='color: #A0A4AD; font-size: 12px; margin-top: 15px;'>&copy; " + java.time.Year.now().getValue() + " ShowSync. Todos los derechos reservados.</p>" +
+                "   </div>" +
                 "</body>" +
                 "</html>";
 
