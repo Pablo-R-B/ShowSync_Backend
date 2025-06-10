@@ -122,7 +122,8 @@ public class PostulacionEventosServicio {
             Eventos evento = pe.getEvento();
 
             // Confirmar evento si está en revisión
-            if (evento.getEstado() == Estado.en_revision) {
+            if (evento.getEstado().equals(Estado.en_revision)) {
+                System.out.println("Evento en revisión. Se cambiará a confirmado.");
                 evento.setEstado(Estado.confirmado);
             }
 
@@ -133,6 +134,7 @@ public class PostulacionEventosServicio {
             }
 
             eventosRepositorio.save(evento); // Asegúrate de tener este repositorio inyectado
+            System.out.println("Evento guardado con estado: " + evento.getEstado());
         }
         postulacionEventosRepositorio.save(pe);
     }
