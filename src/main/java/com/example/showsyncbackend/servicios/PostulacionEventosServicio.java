@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.servicios;
 
 import com.example.showsyncbackend.dtos.PostulacionDTO;
+import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.enumerados.EstadoPostulacion;
 import com.example.showsyncbackend.enumerados.TipoSolicitud;
 import com.example.showsyncbackend.modelos.Artistas;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class PostulacionEventosServicio {
+    private final EventosRepositorio eventosRepositorio;
     private PostulacionEventosRepositorio postulacionEventosRepositorio;
     private EventosRepositorio eventosRepository;
     private ArtistasRepositorio artistasRepositorio;
@@ -110,13 +112,28 @@ public class PostulacionEventosServicio {
     }
 
 
-
-
+    @Transactional
     public void actualizarEstado(Integer id, EstadoPostulacion nuevoEstado) {
         PostulacionEvento pe = postulacionEventosRepositorio.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Postulación no encontrada"));
         pe.setEstadoPostulacion(nuevoEstado);
         pe.setFechaRespuesta(LocalDate.now());
+        if (nuevoEstado == EstadoPostulacion.aceptado) {
+            Eventos evento = pe.getEvento();
+
+            // Confirmar evento si está en revisión
+            if (evento.getEstado() == Estado.en_revision) {
+                evento.setEstado(Estado.confirmado);
+            }
+
+            // Asignar artista al evento si no está ya asignado
+            Artistas artista = pe.getArtista();
+            if (!evento.getArtistasAsignados().contains(artista)) {
+                evento.getArtistasAsignados().add(artista);
+            }
+
+            eventosRepositorio.save(evento); // Asegúrate de tener este repositorio inyectado
+        }
         postulacionEventosRepositorio.save(pe);
     }
 

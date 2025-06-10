@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "artistasAsignados")
+@ToString(onlyExplicitlyIncluded = true)
 @Table(name="eventos", schema = "showsync", catalog = "postgres")
 public class Eventos {
 
