@@ -119,6 +119,8 @@ public class ArtistasServicio {
                             .map(gen -> new GenerosMusicalesDTO(gen.getId(), gen.getNombre()))
                             .collect(Collectors.toList());
 
+                    long numeroEventos = artistasRepositorio.contarEventosPorArtista(art.getId());
+
                     ArtistaEditarDTO dto = new ArtistaEditarDTO();
                     dto.setId(art.getId());
                     dto.setNombreArtista(art.getNombreArtista());
@@ -126,6 +128,7 @@ public class ArtistasServicio {
                     dto.setBiografia(art.getBiografia());
                     dto.setMusicUrl(art.getMusicUrl());
                     dto.setGenerosMusicales(generosDto);
+                    dto.setNumeroEventos((int) numeroEventos);
                     return dto;
                 })
                 .orElseThrow(() ->
@@ -258,6 +261,7 @@ public class ArtistasServicio {
                 })
                 .collect(Collectors.toList());
     }
+
 
 
 
