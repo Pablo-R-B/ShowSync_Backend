@@ -74,4 +74,7 @@ public interface ArtistasRepositorio extends JpaRepository<Artistas, Integer> {
 
     Optional<Artistas> findByNombreArtista(String nombreArtista);
 
+    @Query("SELECT COUNT(e) FROM Eventos e JOIN e.artistasAsignados a WHERE a.id = :artistaId")
+    long contarEventosPorArtista(@Param("artistaId") Integer artistaId);
+
 }

@@ -7,10 +7,10 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="promotores", schema = "showsync", catalog = "postgres")
+@ToString(onlyExplicitlyIncluded = true)
 public class Promotores {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

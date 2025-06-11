@@ -16,4 +16,5 @@ public class ArtistaEditarDTO {
     String biografia;
     String musicUrl;
     List<GenerosMusicalesDTO> generosMusicales;
+    Integer numeroEventos;
 }
