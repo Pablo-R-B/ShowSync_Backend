@@ -10,6 +10,7 @@ import com.example.showsyncbackend.modelos.GenerosMusicales;
 import com.example.showsyncbackend.repositorios.EventosArtistasRepositorio;
 import com.example.showsyncbackend.repositorios.GenerosMusicalesRepositorio;
 import com.example.showsyncbackend.servicios.EventosServicio;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 @RestController
@@ -125,19 +128,26 @@ public class EventosControlador {
      *
      * @param promotorId ID del promotor que edita el evento.
      * @param eventoId ID del evento a editar.
-     * @param eventoActualizado Objeto con los nuevos datos del evento.
      * @return El evento actualizado como DTO.
      */
-    @PutMapping("/promotor/{promotorId}/evento/{eventoId}/confirmado")
+    @PutMapping(value = "/promotor/{promotorId}/evento/{eventoId}/confirmado", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EventosDTO> editarEvento(
             @PathVariable Integer promotorId,
             @PathVariable Integer eventoId,
-            @RequestBody Eventos eventoActualizado) {
+            @RequestPart("evento") String eventoStr,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagenArchivo) {
 
+        try {
+            // Convertir el JSON del evento a objeto Eventos
+            ObjectMapper objectMapper = new ObjectMapper();
+            Eventos eventoActualizado = objectMapper.readValue(eventoStr, Eventos.class);
 
-        eventoActualizado.setId(eventoId); // Aseguramos que el ID coincida con el de la ruta
-        EventosDTO eventoEditado = eventosServicio.editarEvento(promotorId, eventoActualizado);
-        return ResponseEntity.ok(eventoEditado);
+            eventoActualizado.setId(eventoId); // Aseguramos que el ID coincida con el de la ruta
+            EventosDTO eventoEditado = eventosServicio.editarEvento(promotorId, eventoActualizado, imagenArchivo);
+            return ResponseEntity.ok(eventoEditado);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al procesar la solicitud", e);
+        }
     }
 
     /**
@@ -155,24 +165,25 @@ public class EventosControlador {
     /**
      * Actualizar evento
      * @param idEvento ID del evento a actualizar
-     * @param eventoEditarDTO DTO con los datos actualizados del evento
+     * @param promotorId DTO con los datos actualizados del evento
      * @return Respuesta HTTP con el estado de la operación
      */
 
-    @PutMapping("/promotor/{promotorId}/evento/{idEvento}/editar")
-    public ResponseEntity<String> actualizarEvento(
+    @PutMapping(value = "/promotor/{promotorId}/evento/{idEvento}/editar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> actualizarEvento(
             @PathVariable Integer promotorId,
             @PathVariable Integer idEvento,
-            @RequestBody EventoEditarDTO eventoEditarDTO) {
-        try {
-            // Asignar el id del evento al DTO para evitar inconsistencias
-            eventoEditarDTO.setId(idEvento);
+            @RequestPart("evento") String eventoStr,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagenArchivo) {
 
-            // Actualizar el evento
-            eventosServicio.actualizarEvento(promotorId, idEvento, eventoEditarDTO);
-            return ResponseEntity.ok("Evento actualizado correctamente");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            EventoEditarDTO dto = objectMapper.readValue(eventoStr, EventoEditarDTO.class);
+
+            eventosServicio.actualizarEvento(promotorId, idEvento, dto, imagenArchivo);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            throw new RuntimeException("Error al procesar la solicitud", e);
         }
     }
 

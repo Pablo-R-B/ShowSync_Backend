@@ -127,15 +127,26 @@ public PromotoresDTO obtenerPromotorPorUsuarioId(Integer usuarioId) {
 
 
     //Paginación de promotores
-    public Page<PromotoresDTO> obtenerPromotoresPaginados(Pageable pageable) {
-        return promotoresRepositorio.findAll(pageable)
-                .map(promotor -> PromotoresDTO.builder()
-                        .id(promotor.getId())
-                        .usuarioId(promotor.getUsuario().getId())
-                        .nombrePromotor(promotor.getNombrePromotor())
-                        .descripcion(promotor.getDescripcion())
-                        .imagenPerfil(promotor.getImagenPerfil())
-                        .build());
+    public Page<PromotoresDTO> obtenerPromotoresPaginados(Pageable pageable, String nombrePromotor) {
+        if (nombrePromotor != null && !nombrePromotor.isEmpty()) {
+            // Si hay un nombre de promotor, busca por ese nombre
+            return promotoresRepositorio.findByNombrePromotorContainingIgnoreCase(nombrePromotor, pageable)
+                    .map(this::convertirADTO);
+        } else {
+            // Si no hay nombre, devuelve todos los promotores paginados
+            return promotoresRepositorio.findAll(pageable)
+                    .map(this::convertirADTO);
+        }
+    }
+
+    private PromotoresDTO convertirADTO(Promotores promotor) {
+        return PromotoresDTO.builder()
+                .id(promotor.getId())
+                .usuarioId(promotor.getUsuario().getId())
+                .nombrePromotor(promotor.getNombrePromotor())
+                .descripcion(promotor.getDescripcion())
+                .imagenPerfil(promotor.getImagenPerfil())
+                .build();
     }
 
     public Promotores obtenerPromotorPorIdEntity(Integer id) {

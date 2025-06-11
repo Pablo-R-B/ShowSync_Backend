@@ -52,6 +52,7 @@ public class EventosServicio {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
     @Autowired
     private ArtistasRepositorio artistasRepositorio;
 
@@ -205,100 +206,98 @@ public class EventosServicio {
 
 
 //Esto debo revisarlo aun no esta funcionando bien
-    @Transactional
-    public EventosDTO editarEvento(Integer promotorId, Eventos eventoActualizado) {
-        Eventos eventoExistente = eventosRepositorio.findById(eventoActualizado.getId())
-                .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+@Transactional
+public EventosDTO editarEvento(Integer promotorId, Eventos eventoActualizado, MultipartFile imagenArchivo) {
+    Eventos eventoExistente = eventosRepositorio.findById(eventoActualizado.getId())
+            .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
+    if (!eventoExistente.getPromotor().getId().equals(promotorId)) {
+        throw new RuntimeException("El evento no pertenece al promotor especificado");
+    }
 
-        if (!eventoExistente.getPromotor().getId().equals(promotorId)) {
-            throw new RuntimeException("El evento no pertenece al promotor especificado");
+    if (eventoActualizado.getSala() == null || eventoActualizado.getSala().getId() == null) {
+        throw new RuntimeException("La sala no puede ser nula. Asegúrate de enviar el campo sala_id con un ID válido.");
+    }
+
+    // Procesar la imagen solo si se proporciona un nuevo archivo
+    if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+        try {
+            String imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+            eventoExistente.setImagen_evento(imagenUrl); // Actualizar la URL de la imagen
+        } catch (IOException e) {
+            throw new RuntimeException("Error al subir imagen a Cloudinary", e);
         }
+    }
+    // Si no se proporciona imagen, se mantiene la imagen anterior
 
+    Salas sala = salasRepositorio.findById(eventoActualizado.getSala().getId())
+            .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
 
-        if (eventoActualizado.getSala() == null || eventoActualizado.getSala().getId() == null) {
-            throw new RuntimeException("La sala no puede ser nula. Asegúrate de enviar el campo sala_id con un ID válido.");
-        }
+    // Actualizar los campos del evento
+    eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
+    eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
+    eventoExistente.setSala(sala);
+    eventoExistente.setEstado(eventoActualizado.getEstado());
+    eventoExistente.setGenerosMusicales(new HashSet<>(eventoActualizado.getGenerosMusicales()));
 
+    Eventos eventoGuardado = eventosRepositorio.save(eventoExistente);
 
-        Salas sala = salasRepositorio.findById(eventoActualizado.getSala().getId())
-                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+    if ("confirmado".equalsIgnoreCase(String.valueOf(eventoActualizado.getEstado()))) {
+        List<PostulacionEvento> postulaciones = postulacionEventosRepositorio
+                .findByEvento_IdAndTipoSolicitudAndEstadoPostulacion(
+                        eventoGuardado.getId(),
+                        TipoSolicitud.oferta,
+                        EstadoPostulacion.valueOf("aceptado")
+                );
 
+        for (PostulacionEvento postulacion : postulaciones) {
+            postulacion.setEstadoPostulacion(EstadoPostulacion.aceptado);
+            postulacion.setFechaPostulacion(LocalDate.now());
 
-        eventoExistente.setNombre_evento(eventoActualizado.getNombre_evento());
-        eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
-        eventoExistente.setSala(sala);
-        eventoExistente.setEstado(eventoActualizado.getEstado());
-        eventoExistente.setImagen_evento(eventoActualizado.getImagen_evento());
-        eventoExistente.setGenerosMusicales(new HashSet<>(eventoActualizado.getGenerosMusicales()));
+            boolean yaAsignado = eventoGuardado.getArtistasAsignados().stream()
+                    .anyMatch(a -> a.getId().equals(postulacion.getArtista().getId()));
 
-
-        Eventos eventoGuardado = eventosRepositorio.save(eventoExistente);
-
-
-        if ("confirmado".equalsIgnoreCase(String.valueOf(eventoActualizado.getEstado()))) {
-            List<PostulacionEvento> postulaciones = postulacionEventosRepositorio
-                    .findByEvento_IdAndTipoSolicitudAndEstadoPostulacion(
-                            eventoGuardado.getId(),
-                            TipoSolicitud.oferta,
-                            EstadoPostulacion.valueOf("aceptado")
-                    );
-
-
-            for (PostulacionEvento postulacion : postulaciones) {
-                postulacion.setEstadoPostulacion(EstadoPostulacion.aceptado);
-                postulacion.setFechaPostulacion(LocalDate.now());
-
-
-                boolean yaAsignado = eventoGuardado.getArtistasAsignados().stream()
-                        .anyMatch(a -> a.getId().equals(postulacion.getArtista().getId()));
-
-
-                if (!yaAsignado) {
-                    eventoGuardado.getArtistasAsignados().add(postulacion.getArtista());
-                }
-
-
-                postulacionEventosRepositorio.save(postulacion);
+            if (!yaAsignado) {
+                eventoGuardado.getArtistasAsignados().add(postulacion.getArtista());
             }
 
-
-            eventosRepositorio.save(eventoGuardado);
+            postulacionEventosRepositorio.save(postulacion);
         }
 
-
-        // Convertimos generosMusicales y artistasAsignados a Set<String>
-        Set<String> generosMusicales = eventoGuardado.getGenerosMusicales().stream()
-                .map(GenerosMusicales::getNombre)
-                .collect(Collectors.toSet());
-
-
-        Set<String> artistasAsignados = eventoGuardado.getArtistasAsignados().stream()
-                .map(Artistas::getNombreArtista)
-                .collect(Collectors.toSet());
-
-
-        return EventosDTO.builder()
-                .id(eventoGuardado.getId())
-                .nombreEvento(eventoGuardado.getNombre_evento())
-                .descripcion(eventoGuardado.getDescripcion())
-                .fechaEvento(eventoGuardado.getFechaEvento())
-                .estado(eventoGuardado.getEstado())
-                .imagenEvento(eventoGuardado.getImagen_evento())
-                .idSala(eventoGuardado.getSala().getId())
-                .nombreSala(eventoGuardado.getSala().getNombre())
-                .idPromotor(eventoGuardado.getPromotor().getId())
-                .nombrePromotor(eventoGuardado.getPromotor().getNombrePromotor())
-                .generosMusicales(generosMusicales)
-                .artistasAsignados(artistasAsignados)
-                .build();
+        eventosRepositorio.save(eventoGuardado);
     }
+
+    // Convertimos generosMusicales y artistasAsignados a Set<String>
+    Set<String> generosMusicales = eventoGuardado.getGenerosMusicales().stream()
+            .map(GenerosMusicales::getNombre)
+            .collect(Collectors.toSet());
+
+    Set<String> artistasAsignados = eventoGuardado.getArtistasAsignados().stream()
+            .map(Artistas::getNombreArtista)
+            .collect(Collectors.toSet());
+
+    return EventosDTO.builder()
+            .id(eventoGuardado.getId())
+            .nombreEvento(eventoGuardado.getNombre_evento())
+            .descripcion(eventoGuardado.getDescripcion())
+            .fechaEvento(eventoGuardado.getFechaEvento())
+            .estado(eventoGuardado.getEstado())
+            .imagenEvento(eventoGuardado.getImagen_evento())
+            .idSala(eventoGuardado.getSala().getId())
+            .nombreSala(eventoGuardado.getSala().getNombre())
+            .idPromotor(eventoGuardado.getPromotor().getId())
+            .nombrePromotor(eventoGuardado.getPromotor().getNombrePromotor())
+            .generosMusicales(generosMusicales)
+            .artistasAsignados(artistasAsignados)
+            .build();
+}
 
 
 
 
     // Actualizar un evento existente
-    public void actualizarEvento(Integer idPromotor, Integer idEvento, EventoEditarDTO dto) {
+    @Transactional
+    public void actualizarEvento(Integer idPromotor, Integer idEvento, EventoEditarDTO dto, MultipartFile imagenArchivo) {
         Eventos evento = eventosRepositorio.findById(idEvento)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
@@ -307,11 +306,24 @@ public class EventosServicio {
             throw new RuntimeException("El evento no pertenece al promotor especificado");
         }
 
+        // Procesar imagen si se proporciona un nuevo archivo
+        if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
+            try {
+                String imagenUrl = cloudinaryService.uploadFile(imagenArchivo);
+                evento.setImagen_evento(imagenUrl); // Actualizar la URL de la imagen
+            } catch (IOException e) {
+                throw new RuntimeException("Error al subir imagen a Cloudinary", e);
+            }
+        } else if (dto.getImagenEvento() != null) {
+            // Si no se sube nueva imagen pero viene URL en el DTO, mantenerla
+            evento.setImagen_evento(dto.getImagenEvento());
+        }
+        // Si no hay ni imagen nueva ni URL en DTO, se mantiene la imagen actual
+
         // Actualizar campos básicos
         evento.setNombre_evento(dto.getNombreEvento());
         evento.setDescripcion(dto.getDescripcion());
         evento.setEstado(Estado.valueOf(dto.getEstado()));
-        evento.setImagen_evento(dto.getImagenEvento());
 
         // Actualizar sala si existe
         if (dto.getIdSala() != null) {
@@ -327,14 +339,13 @@ public class EventosServicio {
                     .collect(Collectors.toSet());
             evento.setArtistasAsignados(artistasActualizados);
 
-            // --- LÓGICA DE NEGOCIO: Si el evento se queda sin artistas, cambia el estado a EN_REVISION ---
-            if (artistasActualizados.isEmpty()) { // Si la lista de artistas asignados está vacía
-                evento.setEstado(Estado.en_revision); // Asume que 'EN_REVISION' es un valor válido de tu Enum Estado
+            // LÓGICA DE NEGOCIO: Si el evento se queda sin artistas, cambia el estado a EN_REVISION
+            if (artistasActualizados.isEmpty()) {
+                evento.setEstado(Estado.en_revision);
             }
         } else {
-
             evento.setArtistasAsignados(new HashSet<>());
-            evento.setEstado(Estado.en_revision); // Si un envío nulo significa "sin artistas"
+            evento.setEstado(Estado.en_revision);
         }
 
         // Actualizar géneros musicales asignados
@@ -345,7 +356,6 @@ public class EventosServicio {
                     .collect(Collectors.toSet());
             evento.setGenerosMusicales(generos);
         } else {
-            // Si no se envían géneros, vacía la lista de géneros del evento
             evento.setGenerosMusicales(new HashSet<>());
         }
 

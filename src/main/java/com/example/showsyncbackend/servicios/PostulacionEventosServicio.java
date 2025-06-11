@@ -65,9 +65,11 @@ public class PostulacionEventosServicio {
 
 
     public List<PostulacionDTO> listarOfertasArtista(Integer artistaId) {
+        LocalDate hoy = LocalDate.now();
         return postulacionEventosRepositorio
-                .findPostulacionesConDetallesByArtistaId(artistaId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
+                .findPostulacionesWithEventoAndArtista(artistaId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
                 .stream()
+                .filter(pe -> !pe.getEvento().getFechaEvento().isBefore(hoy))// ✅ solo eventos hoy o en el pasado
                 .map(pe -> new PostulacionDTO(
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
@@ -77,7 +79,8 @@ public class PostulacionEventosServicio {
                         pe.getEvento().getSala().getNombre(),
                         pe.getEstadoPostulacion(),
                         pe.getFechaPostulacion(),
-                        pe.getTipoSolicitud()
+                        pe.getTipoSolicitud(),
+                        pe.getEvento().getFechaEvento()
                 ))
                 .collect(Collectors.toList());
     }
@@ -87,8 +90,10 @@ public class PostulacionEventosServicio {
     /**Lista las solicitudes del promotor en perfil promotores
      * (del promotor arl artista y del artista al promotor)*/
     public List<PostulacionDTO> listarSolicitudesPromotor(Integer promotorId) {
-        return postulacionEventosRepositorio.findPostulacionesWithEventoAndArtista(promotorId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
+        LocalDate hoy = LocalDate.now();
+        return postulacionEventosRepositorio.findPostulacionesWithEventoAndPromotor(promotorId, List.of(TipoSolicitud.postulacion, TipoSolicitud.oferta))
                 .stream()
+                .filter(pe -> !pe.getEvento().getFechaEvento().isBefore(hoy))
                 .map(pe -> new PostulacionDTO(
                         pe.getId(),
                         pe.getEvento().getNombre_evento(),
@@ -98,7 +103,8 @@ public class PostulacionEventosServicio {
                         pe.getEvento().getSala().getNombre(),
                         pe.getEstadoPostulacion(),
                         pe.getFechaPostulacion(),
-                        pe.getTipoSolicitud()
+                        pe.getTipoSolicitud(),
+                        pe.getEvento().getFechaEvento()
                 ))
                 .collect(Collectors.toList());
     }

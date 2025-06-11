@@ -38,17 +38,50 @@ public class EmailService {
         String logoUrl = baseUrl + "/logo_showsync_fondonegro.png";
 
         // Plantilla HTML para el correo
-        String text = "<html>" +
-                "<body style='font-family: Arial, sans-serif; text-align: center;'>" +
-                "   <img src='" + logoUrl + "' alt='ShowSync Logo' style='max-width: 200px;'>" +
-                "   <h2 style='color: #333;'>¡Hola!</h2>" +
-                "   <p>Para verificar tu cuenta, por favor haz clic en el siguiente enlace:</p>" +
-                "   <p><a href='" + baseUrl + "/verificar-email?token=" + token + "' " +
-                "      style='background-color: #BF0D22; color: white; padding: 10px 15px; " +
-                "      text-decoration: none; border-radius: 5px;' " +
-                "      onmouseover=\"this.style.backgroundColor='#A0A4AD'\" " +
-                "      onmouseout=\"this.style.backgroundColor='#BF0D22'\">Verificar Cuenta</a></p>" +
-                "   <p>Si no solicitaste esto, ignora este mensaje.</p>" +
+        String text = "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "   <meta charset='UTF-8'>" +
+                "   <meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                "</head>" +
+                "<body style='margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #08080C;'>" +
+                "   <table width='100%' cellpadding='0' cellspacing='0' style='background-color: #08080C; padding: 20px;'>" +
+                "       <tr>" +
+                "           <td align='center'>" +
+                "               <table width='600' cellpadding='0' cellspacing='0' style='background-color: #1a1a1a; border-radius: 12px; padding: 30px; border: 1px solid #770316;'>" +
+                "                   <tr>" +
+                "                       <td align='center'>" +
+                "                           <img src='cid:logo' alt='ShowSync Logo' style='max-width: 200px; margin-bottom: 25px;'>" +
+                "                       </td>" +
+                "                   </tr>" +
+                "                   <tr>" +
+                "                       <td align='center'>" +
+                "                           <h2 style='color: #BF0D22; font-size: 28px; margin-bottom: 20px; font-weight: bold;'>¡Bienvenido a ShowSync!</h2>" +
+                "                       </td>" +
+                "                   </tr>" +
+                "                   <tr>" +
+                "                       <td style='color: #FBFAFA; font-size: 16px; line-height: 1.6; margin-bottom: 25px;'>" +
+                "                           <p>¡Hola!</p>" +
+                "                           <p style='color: #CCCBCB;'>Estamos encantados de tenerte a bordo. Para activar tu cuenta y empezar a explorar todo el talento y los eventos, por favor haz clic en el botón de abajo:</p>" +
+                "                       </td>" +
+                "                   </tr>" +
+                "                   <tr>" +
+                "                       <td align='center' style='padding: 20px 0;'>" +
+                "                           <a href='" + baseUrl + "/verificar-email?token=" + token + "' " +
+                "                              style='background-color: #BF0D22; color: white; padding: 15px 30px; " +
+                "                              text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 18px; display: inline-block;'>Verificar mi Cuenta</a>" +
+                "                       </td>" +
+                "                   </tr>" +
+                "                   <tr>" +
+                "                       <td style='color: #A0A4AD; font-size: 14px; text-align: center; padding-top: 30px;'>" +
+                "                           <p>Si no solicitaste la creación de esta cuenta, por favor ignora este mensaje.</p>" +
+                "                           <p style='font-size: 12px;'>&copy; " + java.time.Year.now().getValue() + " ShowSync. Todos los derechos reservados.</p>" +
+                "                       </td>" +
+                "                   </tr>" +
+                "               </table>" +
+                "           </td>" +
+                "       </tr>" +
+                "   </table>" +
                 "</body>" +
                 "</html>";
 
