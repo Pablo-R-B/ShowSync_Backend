@@ -1,9 +1,6 @@
 package com.example.showsyncbackend.controladores;
 
-import com.example.showsyncbackend.dtos.EventoEditarDTO;
-import com.example.showsyncbackend.dtos.EventosActualizadoDTO;
-import com.example.showsyncbackend.dtos.RespuestaEventoRevisionDTO;
-import com.example.showsyncbackend.dtos.EventosDTO;
+import com.example.showsyncbackend.dtos.*;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.GenerosMusicales;
@@ -392,6 +389,12 @@ public class EventosControlador {
         Map<String, Long> resultado = eventosServicio.contarTotalEventos();
         return ResponseEntity.ok(resultado);
     }
+
+    @GetMapping("/artista/{id}/eventos-confirmados")
+    public ResponseEntity<List<EventosArtistaDTO>> getEventosConfirmados(@PathVariable Integer id) {
+        return ResponseEntity.ok(eventosServicio.obtenerEventosConfirmadosDeArtista(id));
+    }
+
 
 
 

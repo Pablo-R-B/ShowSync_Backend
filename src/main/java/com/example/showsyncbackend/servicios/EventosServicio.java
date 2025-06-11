@@ -715,6 +715,11 @@ public EventosDTO editarEvento(Integer promotorId, Eventos eventoActualizado, Mu
         );
     }
 
+    public List<EventosArtistaDTO> obtenerEventosConfirmadosDeArtista(Integer artistaId) {
+        return eventosRepositorio.findEventosConfirmadosByArtistaId(artistaId);
+    }
+
+
     private EventosDTO convertirAEventoDTO(Eventos evento) {
         return EventosDTO.builder()
                 .id(evento.getId())
