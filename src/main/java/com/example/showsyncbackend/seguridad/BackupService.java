@@ -1,4 +1,4 @@
-package com.example.showsyncbackend;
+package com.example.showsyncbackend.seguridad;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,9 +25,9 @@ public class BackupService {
     @Scheduled(cron = "0 0 * * * ?") // Todos los días a medianoche
     public void realizarBackup() {
         try {
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            String backupFileName = String.format("respaldo_%s.sql", timestamp);
+            String backupFileName = "respaldo.sql";
             String backupFilePath = BACKUP_DIR + File.separator + backupFileName;
+
 
             logger.info("Iniciando backup a: " + backupFilePath);
 

@@ -1,6 +1,7 @@
 package com.example.showsyncbackend.repositorios;
 
 
+import com.example.showsyncbackend.dtos.EventosArtistaDTO;
 import com.example.showsyncbackend.enumerados.Estado;
 import com.example.showsyncbackend.modelos.Eventos;
 import com.example.showsyncbackend.modelos.Promotores;
@@ -85,4 +86,12 @@ public interface EventosRepositorio extends JpaRepository<Eventos,Integer> {
     long countByFechaEventoAfterAndEstadoNotOrFechaEventoEqualsAndEstadoNot(LocalDate hoy, Estado estado, LocalDate hoy1, Estado estado1);
 
     List<Eventos> findByPromotorIdAndEstado(Integer promotorId, Estado estado);
+
+    @Query("SELECT new com.example.showsyncbackend.dtos.EventosArtistaDTO(e.nombre_evento, e.fechaEvento, s.nombre) " +
+            "FROM Eventos e " +
+            "JOIN e.sala s " +
+            "JOIN e.artistasAsignados a " +
+            "WHERE a.id = :artistaId AND e.estado = 'confirmado'")
+    List<EventosArtistaDTO> findEventosConfirmadosByArtistaId(@Param("artistaId") Integer artistaId);
+
 }
