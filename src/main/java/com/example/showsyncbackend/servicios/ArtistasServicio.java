@@ -263,6 +263,28 @@ public class ArtistasServicio {
     }
 
 
+    public List<ArtistaDTO> getAllArtistas() {
+        return artistasRepositorio.findAll().stream() // Obtiene todas las entidades Artistas
+                .map(this::mapToArtistaDTO) // Mapea cada entidad Artistas a ArtistaDTO
+                .collect(Collectors.toList()); // Recolecta en una lista de ArtistaDTO
+    }
+
+
+    private ArtistaDTO mapToArtistaDTO(Artistas artista) {
+        if (artista == null) {
+            return null;
+        }
+        return ArtistaDTO.builder()
+                .id(artista.getId())
+                .usuarioId(artista.getUsuario() != null ? artista.getUsuario().getId() : null) // Asumiendo que Artistas tiene una relación con Usuario
+                .nombreArtista(artista.getNombreArtista())
+                .biografia(artista.getBiografia())
+                .imagenPerfil(artista.getImagenPerfil())
+                .musicUrl(artista.getMusicUrl())
+                .build();
+    }
+
+
 
 
 

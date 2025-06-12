@@ -1,4 +1,4 @@
-package com.example.showsyncbackend.web;
+package com.example.showsyncbackend.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class MensajeDTO {
     private String contenido;
     private String remitente;
+    private String tipo;
+    private String imagenRemitenteUrl;
 }
