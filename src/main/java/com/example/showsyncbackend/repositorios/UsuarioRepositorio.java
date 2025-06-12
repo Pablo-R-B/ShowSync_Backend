@@ -27,6 +27,12 @@ public interface UsuarioRepositorio extends JpaRepository<Usuario, Integer> {
 
     // Método para buscar usuarios por nombre de usuario o email, ignorando mayúsculas y minúsculas
     Page<Usuario> findByNombreUsuarioContainingIgnoreCaseOrEmailContainingIgnoreCase(String nombreUsuario, String email, Pageable pageable);
+    // Método para verificar si un email ya existe
+    boolean existsByEmail(String email);
+
+    // Método para verificar si un nombre de usuario ya existe
+    boolean existsByNombreUsuario(String nombreUsuario);
+
 
 
 
