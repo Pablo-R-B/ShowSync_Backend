@@ -1,10 +1,8 @@
 package com.example.showsyncbackend.seguridad.config.Controllers;
 
-
 import com.example.showsyncbackend.modelos.Usuario;
 import com.example.showsyncbackend.repositorios.UsuarioRepositorio;
 import com.example.showsyncbackend.seguridad.config.dto.PerfilDTO;
-import com.example.showsyncbackend.seguridad.config.services.JWTService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/account")
@@ -22,8 +21,8 @@ public class AccountControlador {
     private final PasswordEncoder passwordEncoder;
 
     @PutMapping("/update")
-    public ResponseEntity<String> actualizarPerfil(@RequestBody PerfilDTO perfilDTO) {
-        // 🔍 Extraer los Claims directamente del contexto
+    public ResponseEntity<Map<String, String>> actualizarPerfil(@RequestBody PerfilDTO perfilDTO) {
+        // Extraer los Claims directamente del contexto
         Claims claims = (Claims) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email = claims.getSubject(); // asumimos que el subject del token es el email
 
@@ -35,7 +34,8 @@ public class AccountControlador {
                 && !perfilDTO.getNuevoEmail().equals(usuario.getEmail())) {
 
             if (usuarioRepositorio.existsByEmail(perfilDTO.getNuevoEmail())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("El email ya está en uso.");
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("message", "El email ya está en uso."));
             }
             usuario.setEmail(perfilDTO.getNuevoEmail());
         }
@@ -45,7 +45,8 @@ public class AccountControlador {
                 && !perfilDTO.getNuevoNombreUsuario().equals(usuario.getNombreUsuario())) {
 
             if (usuarioRepositorio.existsByNombreUsuario(perfilDTO.getNuevoNombreUsuario())) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("El nombre de usuario ya está en uso.");
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("message", "El nombre de usuario ya está en uso."));
             }
             usuario.setNombreUsuario(perfilDTO.getNuevoNombreUsuario());
         }
@@ -56,7 +57,7 @@ public class AccountControlador {
         }
 
         usuarioRepositorio.save(usuario);
-        return ResponseEntity.ok("Perfil actualizado correctamente");
+        return ResponseEntity.ok(Map.of("message", "Perfil actualizado correctamente"));
     }
 
 }
