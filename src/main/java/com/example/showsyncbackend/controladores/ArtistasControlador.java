@@ -136,6 +136,16 @@ public class ArtistasControlador {
         return ResponseEntity.ok(generos);
     }
 
+    /**
+     * Endpoint para obtener una lista de todos los artistas sin paginación.
+     * URL: GET /artistas/todos
+     * @return Una lista de objetos ArtistaDTO.
+     */
+    @GetMapping("/todos")
+    public List<ArtistaDTO> getAllArtistas() {
+        return artistasServicio.getAllArtistas();
+    }
+
 
 
 }
