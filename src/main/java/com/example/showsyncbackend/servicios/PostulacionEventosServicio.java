@@ -42,12 +42,19 @@ public class PostulacionEventosServicio {
             throw new IllegalArgumentException("No se puede crear una solicitud para un evento pasado.");
         }
 
+        if (!evento.getEstado().equals(Estado.en_revision)) {
+            throw new IllegalArgumentException("Solicitud fuera de plazo. Lo sentimos.");
+        }
+
         Optional<PostulacionEvento> existente = postulacionEventosRepositorio
                 .findByEventoIdAndArtistaId(eventoId, artistaId);
 
 
         if (existente.isPresent()) {
             PostulacionEvento existenteSolicitud = existente.get();
+            if (existenteSolicitud.getEstadoPostulacion() == EstadoPostulacion.rechazado) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "No puedes volver a postularte, tu solicitud fue rechazada anteriormente.");
+            }
             if (existenteSolicitud.getTipoSolicitud() == TipoSolicitud.postulacion) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya te has postulado para este evento.");
             } else if (existenteSolicitud.getTipoSolicitud() == TipoSolicitud.oferta) {
